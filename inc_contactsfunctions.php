@@ -59,15 +59,13 @@ function deletePaymentImage($val)
    if($imagename!='noimage.gif' || $imagename!='')
 	{
 	    $file="globalnetmt/proofimages/".$imagename;
-       $conn = ftp_connect("ftp.global-nett.co.uk") or die("Could not connect");
-		ftp_login($conn,"u49081853","Alt&*Globalnet091");
+       $conn = ftp_connect("ftp.globalnett.co.uk") or die("Could not connect");
+		ftp_login($conn,"u44672876","Conn&*Globalnett");
 		ftp_delete($conn,$file);
 		ftp_close($conn);
 	}
 	    $sql   = "delete from payment_images where imageid= $val" ;
-        $Result1= safe_query($sql) ;
-
-	
+        $Result1= safe_query($sql) ;	
 }
 
 function getcustomerIdTypes($name,$selected)
@@ -134,8 +132,8 @@ function deleteImage($val)
    if($imagename!='noimage.gif' || $imagename!='')
 	{
 	    $file="globalnetmt/proofimages/".$imagename;
-       $conn = ftp_connect("ftp.global-nett.co.uk") or die("Could not connect");
-		ftp_login($conn,"u49081853","Alt&*Globalnet091");
+       $conn = ftp_connect("ftp.globalnett.co.uk") or die("Could not connect");
+		ftp_login($conn,"u44672876","Conn&*Globalnett");
 		ftp_delete($conn,$file);
 		ftp_close($conn);
 	}

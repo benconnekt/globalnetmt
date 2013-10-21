@@ -1408,10 +1408,12 @@ function getpayingagents($name,$selected,$country,$javascript="",$show_onlineonl
 {
    
     $temp   = "<select name=".$name." style=\"background-color:#ffffff; border-style: solid\"  ".$javascript.">";
-	 if($pagename=="View_Corresponding_Agent_Payments"){
-       $temp        = $temp."<option value='' >ALL</option>"; 
-    }
-    $temp        = $temp."<option value='' >SELECT ONE</option>";
+	 if($pagename=="View_Corresponding_Agent_Payments")
+        $temp        = $temp."<option value='' >ALL</option>";
+         
+         else
+        $temp        = $temp."<option value='' >SELECT ONE</option>";
+         
 	global $userrole;
 	global $superuserrights;
 	if($userrole == "Administrator")

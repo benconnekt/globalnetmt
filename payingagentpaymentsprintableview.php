@@ -123,9 +123,9 @@ include('inc_header1.php');
 	      <td class="Row"  ><?php echo getcurrencyname($currency)?></td>
 		      <td class="Row"  ><?php echo number_format($exchangerate,2)?></td>
 			  <td class="Row"  ><?php echo number_format($brokerrate,2)?></td>
-			  <td class="Row"  >£<?php echo number_format($poundamount,2)?></td>
-			  <td class="Row"  >£<?php echo number_format($brokerpoundamount,2)?></td>
-			   <td class="Row"  >£<?php echo number_format(($brokerpoundamount-$poundamount),2)?></td>
+			  <td class="Row"  ><?php echo number_format($poundamount,2)?></td>
+			  <td class="Row"  ><?php echo number_format($brokerpoundamount,2)?></td>
+			   <td class="Row"  ><?php echo number_format(($brokerpoundamount-$poundamount),2)?></td>
 			  <td class="Row"  ><?php echo ($bankname)?></td>
 	 <td class="Row"  ><?php echo ($reference)?></td>
 	  <td class="Row"  ><?php echo ($paymentuser)?></td>
@@ -149,8 +149,8 @@ include('inc_header1.php');
  <td class=Row > </td>
   <td class=Row > </td>
 <td class=Row > </td>
- <td class=Row >  <b><font color=red> £ <? echo number_format(round($totalpoundamount,2), 2, '.', '') ?></font></b>    </td>
-  <td class=Row >  <b><font color=red> £ <? echo number_format(round($totalbrokerpoundamount,2), 2, '.', '') ?></font></b>    </td>
+ <td class=Row >  <b><font color=red><? echo number_format(round($totalpoundamount,2), 2, '.', '') ?></font></b>    </td>
+  <td class=Row >  <b><font color=red><? echo number_format(round($totalbrokerpoundamount,2), 2, '.', '') ?></font></b>    </td>
 <td class=Row > </td>
 <td class=Row width=2% >   </td>
 <td class=Row width=2% >   </td>

@@ -30,7 +30,7 @@ if(isset($_POST['saleid'])!="")
 <html>
 <head>
 <meta http-equiv="Content-Language" content="en-gb">
-<title>Global Net MT</title>
+<title>Global Nett MT</title>
 <LINK href="printstyle.css" rel=stylesheet type=text/css>
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
 </head>
@@ -119,7 +119,7 @@ function printnow()
       <tr>
     <td width="33%" valign="top"><img src="images/resizedprintlogo.jpg" border="0"></td>
 	<td width="33%" valign=middle align="center"><b><? echo ($repeat==0)?"CUSTOMER COPY":"OFFICE COPY"?></b></td>
-    <td width="33%" align="right" valign="top">GlobalNett <br>Lee High Road,Lewisham, London SE13
+    <td width="33%" align="right" valign="top">GlobalNett Remit <br>72A LEE HIGH ROAD, LONDON. SE13 5PT 
 <br>Phone: +442083185860&nbsp;
 </td>
   </tr>
@@ -201,19 +201,19 @@ function printnow()
   </tr>
      <tr>
     <td width="50%" valign="top">Sent Amount</td>
-    <td width="50%" valign="top"><b><font size=2>�<?php echo number_format(round($orderamount,2),2)?></font></b></td>
+    <td width="50%" valign="top"><b><font size=2><?php echo number_format(round($orderamount,2),2)?></font></b></td>
   </tr>
    <tr>
     <td width="50%" valign="top">Commission Paid</td>
-    <td width="50%" valign="top">�<?php echo number_format(round($agentcommissionamount,2),2)?></td>
+    <td width="50%" valign="top"><?php echo number_format(round($agentcommissionamount,2),2)?></td>
   </tr>
   <tr>
     <td width="50%" valign="top">Bank Charges</td>
-    <td width="50%" valign="top">�<?php echo number_format(round($agentbankcharges,2),2)?></td>
+    <td width="50%" valign="top"><?php echo number_format(round($agentbankcharges,2),2)?></td>
   </tr>
       <tr>
     <td width="50%" valign="top">Total</td>
-    <td width="50%" valign="top"><b><font size=2>�<?php echo number_format(round(($orderamount+$agentcommissionamount+$agentbankcharges),2),2)?></font></b></td>
+    <td width="50%" valign="top"><b><font size=2><?php echo number_format(round(($orderamount+$agentcommissionamount+$agentbankcharges),2),2)?></font></b></td>
   </tr>
     
   <tr>
@@ -222,7 +222,7 @@ function printnow()
   </tr>
     <tr>
     <td width="50%" valign="top">Beneficiary Amount*</td>
-    <td width="50%" valign="top"><b><font size=2><?php echo number_format(round($benamount,2),2)?></font></b></td>
+    <td width="50%" valign="top"><b><font size=2>&#8358;<?php echo number_format(round($benamount,2),2)?></font></b></td>
   </tr>
    <tr>
     <td width="50%" valign="top">Source of Funds for Transfer</td>
@@ -259,7 +259,7 @@ function printnow()
 	</tr>
 	<tr>
 	<td width="100%"  valign=top colspan=2 >
-	<font size=1>Thank you, we will be happy to serve you in the next visit. Identification required for transaction above �600.00.<br/><U>Money Service Number: 12214386&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>www.global-nett.co.uk</b></U></div></font></td>
+	<font size=1>Thank you, we will be happy to serve you in the next visit. Identification required for transaction above �600.00.<br/><U>Money Service Number: 12214386&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>www.globalnett.co.uk</b></U></div></font></td>
 	</tr>		
 	</table>
 	</td>

@@ -75,7 +75,6 @@ if($Getcontactid!='' && is_numeric($Getcontactid))
  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
 <?php
  $sql            = "select * from proof_images where contactid='$Getcontactid' ";
- echo $sql;
  $Result         = safe_query($sql) ;
  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
   $i=0;
