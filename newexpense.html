@@ -1,0 +1,162 @@
+<? include('header.html');
+
+ ?>
+
+ <?
+ include('accountssidemenu.html');
+
+  ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+
+ <?php
+
+  if (isset($_SESSION["MM_Username1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+  ?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentform method=post action=index.php>
+<script language=javascript>
+
+function saveinfo()
+{
+
+if(document.paymentform.expensehead.value=='')
+{
+alert('Please select the expense head');
+document.paymentform.expensehead.focus();
+return;
+}
+if(document.paymentform.expenseamount.value=='')
+{
+alert('Please enter the amount');
+document.paymentform.expenseamount.focus();
+return;
+}
+if(isNaN(document.paymentform.expenseamount.value)==true)
+{
+alert('You entered a non-numeric value where numeric is expected.please try again');
+document.paymentform.expenseamount.focus();
+return;
+}
+
+document.paymentform.action="index.php?status=<?php echo base64_encode('newexpense')?>&action=addnew";
+document.paymentform.submit();
+}
+
+        </script>
+		<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('newexpense')?>">
+<input type=hidden name=transtype value="CASHPAYMENT">
+
+
+
+ <?  $datetoday = date("d/m/Y");
+  if(isset($_GET['action'])=="addnew")
+   {
+    newexpense();	
+	exit;
+    }
+ ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Enter Expense</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+   <td width="15%" bordercolor="#FFFFFF" >
+    Payment Date</td>
+    <td width="15%" bordercolor="#FFFFFF" >
+	<INPUT TYPE="text" readonly NAME="expensedate" id="expensedate" class=text VALUE="<?php echo $datetoday?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentform.expensedate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+
+  </td>
+  </tr>
+   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Expense Head</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+   
+	<?php  echo getexpenseheads("expensehead",$expensehead);?>
+	
+	</td>
+     </tr>	
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Expense Amount</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    £<input type=text class=text name=expenseamount size="10"></td>
+    </tr>
+	
+	 <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Reference</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=reference size="40"></td>
+    </tr>
+	 <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Description</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=description size="40"></td>
+    </tr>
+	
+      <tr>
+      <td colSpan="2">
+	  <input type=hidden name=userofficeid value="<? echo $agentid?>">
+
+
+  <? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" disabled>
+      <?}?>
+
+      </td>
+
+    </tr>
+  </table>
+   </td>
+   </tr>
+   </table>
+      <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ </form>
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

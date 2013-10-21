@@ -1,0 +1,396 @@
+<? include('header.html');
+ include('onlinesidemenu.html');
+ $dataOrder      = isset($dataOrder)?$dataOrder:"a.firstname";
+require_once ("sms_api.php");
+$mysms = new sms();
+ ?>
+<script language=javascript>
+ function confirmOrder()
+{
+var agree=confirm("Do you wish to make a new order with the selected customer ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to activate the customer record?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+
+function confirmSubmit1()
+{
+var agree=confirm("Do you wish to delete the customer record?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+ function goFolder(){
+      document.contactform.submit();
+    }
+function sendSMSConfirmation()
+{
+var agree=confirm("Do you wish to send sms to the selected customers ?");
+if (agree)
+	{
+		 document.contactform.action="index.php?status=<?php echo base64_encode('contacts_onlinenew')?>&sendsms=true";
+       document.contactform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function nextPage(val)
+    {
+        document.contactform.displayPageNo.value=val;
+        document.contactform.action="index.php?status=<?php echo base64_encode('contacts_onlinenew')?>";
+        document.contactform.submit();
+        }
+        function pageOrder(val){
+        document.contactform.dataOrder.value=val;
+        document.contactform.submit();
+    }
+    function  formAction(val){
+    var agree=confirm("Do you wish to delete the selected items ?");
+if (agree)
+{
+        document.contactform.pageAction.value=val;
+        document.contactform.submit();
+}
+
+else
+{
+        return;
+        }
+
+    }
+</script>
+
+<form name="contactform" action="index.php" method="post">
+  <?php
+
+  ?>
+
+
+<? if($superuserrights != "Y" && $userrole != "Administrator")
+	  {?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for online rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+if(isset($_GET['sendsms'])=="true")
+   {
+		 if(is_array($send_customer_sms))
+		 {
+			 ?>
+	 <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">SMS Confirmation</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<?
+				$message=$sms_message;
+			 	for($k=0;$k<count($send_customer_sms);$k++)
+				{
+				 $contactid="";
+				 $smsmessage="";
+				 $contactmobile=$send_customer_sms[$k];
+				 		 if(is_numeric($contactmobile) && strlen($message))
+								{
+							$results = $mysms->send($contactmobile,"Global Net",$message);
+							 display_message(nl2br("Customer Mobile:\n ".$contactmobile."\nMessage:\n".$message."\nSMS Status:<font color=red>".$results."</font>"));
+								}
+				 }
+				 ?>
+</td></tr></table><br>
+				 <?
+		 }
+   }
+
+
+if(isset($_GET['activeaction'])=="makeactive")
+   {
+  if($_GET['contactid']!="")
+ {
+ $contactid=$_GET['contactid'];
+ //if(check_records($contactid,"contact"))
+	// {
+		if($deleterights == 'Y')
+		 {
+ $sql   = "update contact_master set contactstatus='Active' where contactid= '$contactid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Customer account has been successfully Activated</font></p></b>");
+		 }
+	// }
+ }
+ }
+
+ if(isset($_GET['deleteaction'])=="contactdelete")
+   {
+  if($_GET['contactid']!="")
+ {
+ $contactid=$_GET['contactid'];
+ if(check_records($contactid,"contact"))
+	 {
+ $sql   = "delete from contact_master where contactid= '$contactid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Customer account has been successfully deleted</font></p></b>");
+	 }
+ }
+ }
+ ?>
+   <?
+if($_POST['searchvalue']!='')
+{
+   ?>
+
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Customer Search Results </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+   <b>Search Results: <font color=red size=3><?php echo $searchvalue?></font> </td>
+   </tr>
+  </table>
+   <? } ?>
+
+ <?php
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+  if($_POST['startrow']!='')
+  {
+ $startrow= $_POST['startrow'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $startrow  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $display = 50; 
+
+ if(!strlen($startrow))
+ $startrow =0;
+  
+
+  $limitstring = " LIMIT $startrow, $display ";
+  $sql = "select b.agentname,a.surname,a.firstname,a.address,a.mobile,a.phone,a.postcode,a.idno,a.fax,a.contactid,is_onlinecustomer from contact_master a left join agent_master b on a.userofficeid = b.agentid where contactid is not null and contactstatus = 'New' and is_onlinecustomer='Y'";
+     
+	if(strlen($_POST['searchvalue']))
+  {
+   $searchvalue=$_POST['searchvalue'];
+   $idno=substr($searchvalue,2,strlen($searchvalue));
+   $datevalue = dateConvert($searchvalue);
+    $searchvalue=strtolower($searchvalue);
+  $temp           = $temp." and (lower(a.firstname) like '%$searchvalue%' or  lower(a.surname) like '%$searchvalue%'  or  lower(a.phone) like '%$searchvalue%' or  lower(a.mobile) like '%$searchvalue%' or  lower(a.dob) = '$datevalue' or  lower(a.dob) = '$datevalue' or  lower(a.postcode) like '%$searchvalue%'  or  lower(a.idno) like '%$searchvalue%' or a.contactid='$idno' or  lower(a.dob) = '$datevalue') ";	
+  }
+  else
+  { 
+	  $temp = $temp. " ";
+  }
+
+
+  $countsql = $sql.$temp;
+  $countResult         = safe_query($countsql) ;
+  $countrecords    = @mysql_num_rows($countResult); // Total no of records returned
+
+
+  $temp           = $temp."  order by a.firstname "." ".$limitstring;
+  $sql            = $sql.$temp;
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $TR             = 0;
+  $i              = 0;
+  
+  
+?>
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<input Type="hidden" name="searchvalue" value="<?php echo $searchvalue?>">
+<input Type="hidden" name="option" value="<?php echo $option?>">
+<input type=hidden name=status value="<?php echo base64_encode('contacts_onlinenew')?>">
+ 
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?></span></td>
+                    </tr>
+                   
+  </table>
+   <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+
+<?
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no online customers that are newly registered in the system .</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+  <td width="2%" class="TableHeader"><b><font color=white>Office</b></td>
+                   <td width="2%" class="TableHeader"><b><font color=white>IDNo</b></td>
+               <td width="14%" class="TableHeader"><b><font color=white>First name</a></b></td>
+			    <td width="14%" class="TableHeader"><b><font color=white>Surname</a></b></td>
+				 <td width="14%" class="TableHeader"><b><font color=white>Address</a></b></td>
+                    <td width="7%" class="TableHeader"><b><font color=white>TelePhone</a></b></td>
+				     <td width="7%" class="TableHeader"><b><font color=white>Mobile</a></b></td>
+                        <td width="15%" class="TableHeader"><b><font color=white>Documents</a></b></td>	
+							<td width="2%" class="TableHeader">SMS</td>
+				 
+						<td width="10%" class="TableHeader"><b>Active</b></td>
+					 <td width="10%" class="TableHeader"><b>Delete</b></td>
+             
+             
+			  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+   $totalsales=0;
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+   $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+  $fax        = (isset($row['fax'])) ? $row['fax'] : "";
+  $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+	 $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+	 $idno  = (isset($row['idno'])) ? $row['idno'] :"";
+   $mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+    $contactstatus  = (isset($row['contactstatus'])) ? $row['contactstatus'] :"";
+	 $is_onlinecustomer  = (isset($row['is_onlinecustomer'])) ? $row['is_onlinecustomer'] :"";
+	 $agentname  = (isset($row['agentname'])) ? $row['agentname'] :"";
+
+	
+
+  ?>
+
+ <tr>
+ <td width="2%" class="<?php echo $bgcolor?>"  ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><?php echo $agentname?></font></a></td>
+ <td width="2%" class="<?php echo $bgcolor?>"  ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><?php echo getcustomeridno($contactid)?></font></a></td>
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><? echo stripslashes($firstname)?></td>
+
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><? echo stripslashes($surname)?></td>
+<td width="14%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($address)?> <? echo stripslashes($postcode)?></td>
+
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($phone)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($mobile)?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo getcontactdocumenttypes($contactid)?></td>
+<td width="2%" align=center  class=Row><input type=checkbox name=send_customer_sms[] value="<? echo $mobile?>"></td>
+<?php if($deleterights=='Y')
+{ ?>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('contacts_onlinenew')?>&activeaction=makeactive&contactid=<?php echo $contactid?>&type=online">Make Active</a></td>
+<? }
+else
+{?>
+ <td width="10%"  class="Row"  valign=top class="<?php echo $bgcolor?>"  > &nbsp;
+</td>
+<? }?>
+
+<?php if($deleterights=='Y')
+{ ?>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit1()" href="index.php?status=<?php echo base64_encode('contacts_onlinenew')?>&deleteaction=contactdelete&contactid=<?php echo $contactid?>&type=online">Delete</a></td><? }
+else
+{?>
+ <td width="10%"  class="Row"  valign=top class="<?php echo $bgcolor?>"  > &nbsp;
+</td>
+<? }?>
+  
+              </tr>
+   <?
+       } }
+ ?>
+          
+   </tr>
+         </table>
+
+		 <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+<?
+if ($startrow != 0) { 
+    $prevrow = $startrow - $display; 
+    print("<td width=50% align=left><a href=\"JavaScript:nextPage('".$prevrow."')\"><img src=images/prev.jpg alt=prev border=0></a></td> ");  
+}
+
+// Calculate the total number of pages 
+$pages = intval($countrecords / $display); 
+
+if ($countrecords % $display) { 
+    // has left over from division, so add one page 
+    $pages++; 
+} 
+/*// Print the next pages, first check if 
+//     there are more pages then 1 
+if ($pages > 1) { 
+    for ($i=1; $i <= $pages; $i++) { // Begin loop 
+    $nextrow = $display * ($i - 1); 
+    print("<a href=\"JavaScript:nextPage('".$nextrow."')\">$i</a>  ");
+    } 
+}*/ 
+//End loop 
+// Check if we are at the last page, if 
+//     so, dont print 'Next' 
+if (!(($startrow / $display) == $pages) && $pages != 1) { 
+    // not the last page so print 'Next' 
+    $nextrow = $startrow + $display; 
+    print("<td width=50% align=right><a href=\"JavaScript:nextPage('".$nextrow."')\"><img src=images/next.jpg alt=next border=0></a></td>"); 
+} 
+// If there are no results at all 
+if ($countrecords < 1) { 
+    print("<table border=0 width=795><tr><td>$XX</td></tr></table>"); 
+} 
+
+?>
+</tr></table>
+<b>Enter the SMS Message</b><br><br><textarea name=sms_message rows=5 cols=40></textarea>
+	 <input type=button name=c2 class=btn3 onclick="sendSMSConfirmation()" value="Send SMS for Selected Customers">      
+
+ 
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>
+

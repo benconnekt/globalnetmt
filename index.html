@@ -1,0 +1,239 @@
+<html>
+<head>
+<meta http-equiv="Content-Language" content="en-gb">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<title>Welcome to GlobalRemit - Global Net Payment System</title>
+<LINK REL="SHORTCUT ICON" HREF="images/favicon.ico">
+<SCRIPT LANGUAGE="JavaScript" SRC="common.js"></SCRIPT>
+<LINK href="style.css" type=text/css rel=stylesheet>
+<body onload="javascript:closeParent()" style="padding-top:40">
+<script>
+function btnDisable(val)
+{
+	if(val)
+	{
+		document.getElementById("loginBtn").disabled=false;
+	}
+	else
+	{
+		document.getElementById("loginBtn").disabled=true;
+	}
+
+}
+function closeParent(){
+try{
+var q = queryString("yup");
+if( q=="1" ){
+var op = window.opener;
+op.opener = self;
+op.close();
+}
+}
+catch(er)
+{}
+document.frmlogin.username.focus();
+}
+
+function PageQuery(q) {
+if(q.length > 1) this.q = q.substring(1, q.length);
+else this.q = null;
+this.keyValuePairs = new Array();
+if(q) {
+for(var i=0; i < this.q.split("&").length; i++) {
+this.keyValuePairs[i] = this.q.split("&")[i];
+}
+}
+this.getKeyValuePairs = function() { return this.keyValuePairs; }
+this.getValue = function(s) {
+for(var j=0; j < this.keyValuePairs.length; j++) {
+if(this.keyValuePairs[j].split("=")[0] == s)
+return this.keyValuePairs[j].split("=")[1];
+}
+return false;
+}
+this.getParameters = function() {
+var a = new Array(this.getLength());
+for(var j=0; j < this.keyValuePairs.length; j++) {
+a[j] = this.keyValuePairs[j].split("=")[0];
+}
+return a;
+}
+this.getLength = function() { return this.keyValuePairs.length; }
+}
+function queryString(key){
+var page = new PageQuery(window.location.search);
+return unescape(page.getValue(key));
+}
+</script>
+
+
+<FORM name="frmlogin" action="checkuser.php" method="POST">
+    <table width="80%" class="tableBorder" align=center border="0" cellpadding="1" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
+           <tr height=25>
+                      <td colspan=2 background="images/table_header_bkg.gif" nowrap><span class="tableHeaderText style5" >&nbsp;&nbsp;Welcome to GlobalRemit - Global Net Payment System</span></td>
+                    </tr>  
+
+			  <tr>
+                      <td colspan=2 align=center valign=top class=Row>    
+						<table width="30%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">GlobalRemit Login</span></td>
+                    </tr>
+                    <tr>
+                      <td valign=top align=center>
+	 <table border="0" cellpadding="2" cellspacing="2" width="100%" style="border-collapse:collapse">   
+        
+   
+			 <tr>
+             <td colspan=2 width=100% align=center class="Row1" >
+             <img border="0" src="images/logo.gif" >
+             </td>
+             </tr>
+              <tr>
+                <td width="51%"  align=center  class="Row1" ><b>
+                Username:</b></td>
+                <td width="52%"  align=center  valign=top class="Row1" >
+                   <input name="username" class=text size="19">
+                 
+                </td>
+              </tr>
+              <tr>
+                <td width="51%" align=center class="Row1" ><b>
+                Password:</b></td>
+                <td width="52%" valign=top  align=center class="Row1" >
+                    <input type="password" name="password2" class=text size="19" >
+                   </td>
+              </tr>
+
+			   <tr>
+                <td width="51%" align=center class="Row1" ><b>
+                Are you a paying agent:</b></td>
+                <td width="52%" valign=top  align=center class="Row1" >
+                    <select name=payingagent><option value=N>N</option><option value=Y>Y</option></select>
+                   </td>
+              </tr>
+			  </table>
+			  </td>
+			  </tr>
+			  </table>
+			  </td>
+			  </tr>
+			  
+				<tr><td class=Row valign=top colspan=2>
+				<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Money Laundering Notice</span></td>
+                    </tr>
+                    <tr>
+                      <td valign=top>
+	 <table border="0" cellpadding="2" cellspacing="2" width="100%" style="border-collapse:collapse">   
+	<tr><td valign=top>
+				<i><b>Warning:</b></i> Money laundering is a very serious International offence and GlobalNet© 
+customers should note that any suspicious transactions will be reported to the appropriate 
+authorities in relevant countries without further reference. <b><a href="javascript:toggle('moreinfo')"><font color=red>read more..</font></a></b>
+</td></tr>
+<tr><td valign=top>
+<div id=moreinfo style="visibility:hidden;display:none"><P align=center><b>GlobalNet Payment System - Agent Information</b></p>
+
+ 
+<br><b>Money Laundering Legislation, Requirements & Reporting</b><br><br>
+
+
+UK law has established reporting and record keeping procedures for UK money transfer businesses, such as GlobalNet. These regulations also apply to GlobalNet third party Agents who are therefore required to assist in the prevention and detection of possible money laundering activities.<br><br>
+ 
+The GlobalNet Compliant manual is intended to assist you in understanding these laws and to help you in complying with them. It also requires GlobalNet to monitor and report on any unusual or suspicious foreign currency transactions of any size.<br><br>
+ 
+As a GlobalNet Payment System Agent, you must report any suspicious or unusual transactions to the GlobalNet Money Laundering Officer. The MLRO will make his own judgements and pass on any appropriate information to the relevant Law Enforcement Agencies.<br><br>
+ 
+Please remember that the law affects YOU too. If you or your staffs knowingly fail to report an incident or deliberately help (e.g. by breaking down the transaction amounts) this is known as 'wilful blindness' and is a legal principle that has previously been used in successful convictions. Bear this in mind with particular reference to potentially 'suspicious' transactions.<br><br>
+ 
+The Law also makes it an offence for anyone to provide assistance to a criminal so as to obtain, conceals invest or transfer funds, if this is done knowingly or in suspicious circumstances.<br><br>
+ 
+Such assistance is punishable on conviction by a maximum of 14 years imprisonment or a fine, or both.<br><br>
+ 
+It is also an offence for anyone to take action likely to prejudice an investigation by tipping off or warning a person who is the subject of a suspicious transaction, or where a disclosure has been made and Customs & Revenue or Police are investigating money laundering activities.<br>
+ 
+Such 'tipping off' is punishable on conviction by a maximum of 5 years imprisonment or a fine or both.<br><br>
+ 
+The Law requires us to maintain full and detailed records of all 'Large Transactions' or of 'Suspicious Transactions' with copies of any identification supplied by the customer. These are retained for a minimum of 5 years following the transaction. Acceptable IDs are: valid passport, driving licence with photo or country ID document.<br><br>
+
+ 
+          <br><b> Signs of Suspicious Transactions:-</b><br><br>
+
+
+Tattered Notes<br><br>
+
+High numbers of notes<br><br>
+
+Large number of mixed bundles of notes<br><br>
+
+Lack of interest in exchange rates<br><br>
+
+Customer appearing inconsistent with type or size of transaction<br><br>
+
+Transactions at normally quiet periods (eg just before closing)<br><br>
+
+Hurried transaction<br><br>
+
+Regular customer<br><br>
+
+Splitting transactions (e.g. to avoid crossing a 'Large Transaction limit)<br><br>
+
+Failure to divulge information for a Large Transaction<br><br>
+
+Enquiries as to reporting procedures<br><br>
+
+Any other circumstances giving reasonable cause for suspicion<br><br>
+
+ 
+The above list is not exhaustive, merely a guide. It is the legal responsibility of each individual member of your staff to make their own judgement. <br><br> 
+
+           <br><b> Reporting Procedure:- </b><br><br>
+
+DO NOT alert the customer<br> 
+DO NOT inconvenience genuine customers<br> 
+Have the customer complete a 'Large Transaction' Form<br> 
+Obtain valid ID, noting the customer's name and details (take a copy)<br> 
+Fax this to the GlobalNet Authorisation Centre clearly marked "hold/ID". Fax: 020 81816629. If no response after 5 minutes, call by phone to check. <br>
+Act according to instructions from GlobalNet. <br>
+Failure to provide adequate ID or to complete the Large Transaction Form - DO NOT PROCEED WITH THE TRANSACTION<br> 
+Ensure that all details of the transaction are carefully recorded <br>
+Make any notes immediately following the customer's departure<br> 
+REPORT the incident directly afterwards to the GlobalNet Money laundering Officer Tel: 02083187496 for UK<br>
+ 
+<br>In case of any query, please contact the GlobalNet Money Laundering Officer for advice.  
+<br><br>Possible excuses which customers try to avoid providing ID. (These are not acceptable. If ID is required for a Large Transaction, it MUST be provided or the transaction suspended:- <br><br>
+Introduction by an established customer <br>
+Introduced by someone you know (eg shop next door)
+
+</div>
+
+				</td>
+				</tr>
+				</table>
+				</td>
+				</tr>
+				</table>
+				</td>
+				</tr>
+				 <tr>
+                <td width="2%" valign=middle class="Row" >
+				 <input type=checkbox name=termscheck id=termscheck onclick="btnDisable(this.checked)"></td>
+				  <td width="98%" valign=middle class="Row" >I am fully conversant with Anti-Money Laundering guidelines and I am aware of my responsibilities in the monitoring and reporting of any actions that raise suspicion or give cause for concern.
+				</td></tr>
+				 <tr>
+                <td  align=center width="100%" colspan=2 valign=middle class="Row" ><input type=submit class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'" name=loginBtn id=loginBtn value=" Login Now" disabled=true>
+				<br><br></td>
+				</tr>
+				
+				<tr height=25>
+                      <td align=right colspan=2 background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Powered by <a href="http://www.altnsolutions.com" target="_blank"><font color=white>Alt N Solutions</font></a></span>&nbsp;&nbsp;</td>
+                    </tr>
+            </table>
+
+		</form>
+  </BODY>
+  </HTML>
+

@@ -1,0 +1,130 @@
+<? include('header.html');   ?>
+
+ <?
+ include('accountssidemenu.html');
+
+ ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+ $Getaccountid=0;
+if(isset($_POST['accountid'])!="")
+   {
+   $Getaccountid=$_POST['accountid'];
+   }
+   else
+   {
+    $Getaccountid=$_GET['accountid'];
+   }
+?>
+<?
+ if($accountsrights!='Y')
+  {  ?>
+  <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%">
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%"><font color="#00008B"><b>You do not have permissions for this module</b></font></td>
+    </tr>
+  </table>
+ <?
+
+ exit; }   ?>
+
+<form name=newclientform method=post action=index.php>
+<script language=javascript>
+function getaddressvalue()
+{
+document.newclientform.shippingaddress.value=document.newclientform.billingaddress.value;
+}
+function saveinfo()
+{
+document.newclientform.action="index.php?status=<?php echo base64_encode('editaccount')?>&action=addnew";
+document.newclientform.submit();
+}
+        </script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('editaccount')?>">
+<input class=text  type=hidden name=accountid value="<?php echo $accountid?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+    editaccountinfo();
+    }
+    if(isset($_GET['accountid'])!="")
+   {
+    $sql    = "select accountname,accountdesc,accounttype from accounts_account where accountid='$accountid'"; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+        $accountname  = (isset($row['accountname'])) ? $row['accountname'] : "";
+        $accountdesc = (isset($row['accountdesc'])) ? $row['accountdesc'] : "";
+        $accounttype  = (isset($row['accounttype'])) ? $row['accounttype'] : "";
+
+
+      }
+    }
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Account Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1" width="268" >
+        Account Name<td height="1" width="536" >
+        <input class=text  tabIndex="2" maxLength="1000"  name="accountname" value="<?php echo $accountname?>" size="50">&nbsp;</td>
+      </tr>
+      <tr>
+        <td height="6" width="268" >Account Type</td>
+        <td height="6" width="536" >
+       <select name=accounttype>
+       <option value="<?php echo $accounttype?>" selected><?php echo $accounttype?></option>
+       <option value="BANK">BANK</option>
+       <option value="CREDIT CARD">CREDIT CARD</option>
+       <option value="A/C PAYABLE">A/C PAYABLE</option>
+       <option value="EXPENSES">EXPENSES</option>
+       <option value="MISC">MISC</option>
+       <option value="A/C RECEIVABLE">A/C RECEIVABLE</option>
+       </select></td>
+      </tr>
+      <tr>
+        <td class="list_address_block_header" align="left" colSpan="2" height="1" width="804" >
+        Account Description</td>
+      </tr>
+      <tr>
+        <td colspan="2" height="1" width="804" >
+        <textarea tabIndex="6" name="accountdesc" cols="69" rows="3"><?php echo $accountdesc?></textarea></td>
+      </tr>
+
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input   type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

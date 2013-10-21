@@ -1,0 +1,44 @@
+/* CSS Document */
+.tableBorder {
+	BORDER-RIGHT: #013da4 1px solid; BORDER-TOP: #013da4 1px solid; BORDER-LEFT: #013da4 1px solid; BORDER-BOTTOM: #013da4 1px solid; BACKGROUND-COLOR: #ffffff
+}
+TD.Row {
+	BACKGROUND-COLOR: #ddeeff
+}
+
+TD.RowHighlight {
+	BACKGROUND-COLOR: #d4d9ec
+}
+
+.tableHeaderText {
+	FONT-WEIGHT: bold; FONT-SIZE: 0.7em; COLOR: white
+}
+A.linkSmallBold {
+	FONT-WEIGHT: bold
+}
+A.LinkSmallBold {
+	FONT-SIZE: 0.7em; COLOR: navy
+}
+A.linkSmallBold:visited {
+	COLOR: #013da4
+}
+A.linkSmallBold:hover {
+	COLOR: #dd6900
+}
+A.linkSmall {
+	FONT-SIZE: 0.7em; COLOR: navy
+}
+A.linkSmall:visited {
+	COLOR: #013da4
+}
+A.linkSmall:hover {
+	COLOR: #dd6900
+}
+.normalTextSmaller {
+	FONT-SIZE: 0.6em
+}
+.normalTextSmaller {
+	COLOR: #000000; FONT-FAMILY: Verdana, Arial, Helvetica, sans-serif
+}
+
+

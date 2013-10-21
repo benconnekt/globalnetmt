@@ -1,0 +1,345 @@
+<?php
+ if (isset($_SESSION["MM_UserAuthorization1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Security Q Released Orders";
+include('header.html');
+include('reportsidemenu.html');
+ ?>
+
+<?
+
+   if(isset($_GET['archive'])=="true")
+   {
+ if(is_array($archive_orders))
+ {
+for($k=0;$k<count($archive_orders);$k++)
+{
+ $saleid=$archive_orders[$k];
+ $sql   = "update sales_master set is_hidden='Y' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been archived</font></p>");
+ }
+ }
+
+ if(isset($_GET['unarchive'])=="true")
+   {
+ if(is_array($unarchive_orders))
+ {
+for($k=0;$k<count($unarchive_orders);$k++)
+{
+ $saleid=$unarchive_orders[$k];
+ $sql   = "update sales_master set is_hidden='N' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been unarchived</font></p>");
+ }
+ }
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+   ?>
+  <form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('viewarchiveorders')?>>
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction>
+<input type=hidden name=status value="<?php echo base64_encode('releasedorders')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+<input type=hidden name=reportorderstatus value="<?php echo $reportorderstatus ?>">
+
+
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+function archiveSubmit()
+{
+var agree=confirm("Do you wish to archive the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('viewarchiveorders')?>&archive=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function unArchiveSubmit()
+{
+var agree=confirm("Do you wish to unarchive the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('viewarchiveorders')?>&unarchive=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+
+ function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+	 function checkAllArchive(val)
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'archiveallbox') && (e.type=='checkbox') && e.name=='archive_orders[]')
+		{
+			e.checked=document.mtsalesform.archiveallbox.checked;
+		}
+	}
+}
+
+function checkAllUnArchive(val)
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'unarchiveallbox') && (e.type=='checkbox') && e.name=='unarchive_orders[]')
+		{
+			e.checked=document.mtsalesform.unarchiveallbox.checked;
+		}
+	}
+}
+        </script>
+
+
+
+<?
+if($userrole != 'Administrator')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="orderstatus";
+ }
+ }
+
+
+ if($_GET['startdate']!='')
+ {
+ $startdate=$_GET['startdate'];
+ }
+ else
+ {
+ if($_POST['startdate']!='')
+ {
+ $startdate=$_POST['startdate'];
+ }
+ else
+ {
+ $startdate=$lastmonth;
+ }
+ }
+
+  if($_GET['enddate']!='')
+ {
+ $enddate=$_GET['enddate'];
+ }
+ else
+ {
+ if($_POST['enddate']!='')
+ {
+ $enddate=$_POST['enddate'];
+ }
+ else
+ {
+ $enddate=$datetoday;
+ }
+ }
+  $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+  
+<tr>
+    <td width="25%"  valign="top"><b>Search the orders greater than</td>
+ <td width="25%"   valign="top">
+   <td width="25%"    valign="top"><input type=text name=selorderamount value="<? echo $selorderamount?>">
+   </td>
+ <td width="25%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport('<? echo $reporttype?>')" ></td>
+  </tr>
+  </table>
+  </td>
+  </tr>
+  </table>
+
+<?  
+if(!is_numeric($selorderamount) || !$selorderamount>0)
+ {
+	 display_message("Search the orders by order amount");
+	 include("footer.html");
+	 exit();
+ }
+echo "<table border='0' cellpadding='1' cellspacing='1' style='border-collapse: collapse' bordercolor='#111111' width='100%' id='AutoNumber1'>";
+echo "<tr><td  class=TableHeader>Date</td><td  class=TableHeader>Orderid</td><td  class=TableHeader>Amount</td><td  class=TableHeader width=2%>Archive</td><td  class=TableHeader width=2%>UnArchive</td></tr>";
+  $startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+ 
+ $sql        = " select saleid,orderamount,orderid,orderdate,ordertime,is_hidden from sales_master where  ABS(orderamount)>'$selorderamount'";
+ $Result         = safe_query($sql) ;
+  while ($row = mysql_fetch_array( $Result))
+  {
+	$officename=$row['officename'];
+	$orderby=$row['orderby'];
+	$orderdate=$row['orderdate'];
+	$ordertime=$row['ordertime'];
+	$orderid=$row['orderid'];
+	$saleid=$row['saleid'];
+	$is_hidden=$row['is_hidden'];
+	$customername=$row['customerfirstname']." ".$row['customersurname'];
+	$orderamount=$row['orderamount'];
+	$releasemessage=$row['releasemessage'];
+	if(!strlen($orderby))
+	  {
+		$orderby="Website Order";
+	  }
+	  ?>
+	   <tr><td class="Row" ><?php echo changeddate($orderdate)?> <?php echo $ordertime?></td>
+	   <td class="Row" ><?php echo $orderid?></td>
+	   <td class="Row" ><?php echo number_format($orderamount,2)?></td>
+<td class="Row" >
+<? if($is_hidden=='N')
+	  {?>
+<input type=checkbox name=archive_orders[] value="<?php echo $saleid?>">
+<? } ?>
+</td><td class="Row" >
+<? if($is_hidden=='Y')
+	  {?>
+<input type=checkbox name=unarchive_orders[] value="<?php echo $saleid?>">
+
+<? } ?>
+</td>
+</tr>
+ <? }
+echo "</table>";
+?>
+
+<table width=100%>
+  <tr>
+  <td align=left>
+  <input type="checkbox" value="on" name="archiveallbox" onclick="checkAllArchive();"/> Check all Archive
+
+</td><td align=right>
+  <input type="checkbox" value="on" name="unarchiveallbox" onclick="checkAllUnArchive();"/> Check all Un Archive
+
+</td></tr>
+
+<tr>
+  <td align=left>
+  <input type=button name=c1 class=btn3 onclick="archiveSubmit()" value="Archive Selected Orders"> 
+	 </td><td align=right>
+  <input type=button name=c2 class=btn3 onclick="unArchiveSubmit()" value="UnArchive Selected Orders"> 
+	
+</td></tr>
+     </table>
+	<BR>
+<BR>
+	 
+	 </form>
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

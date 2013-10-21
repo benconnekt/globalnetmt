@@ -1,0 +1,204 @@
+ <? include('header.html');
+ include('onlinesidemenu.html');
+
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the user record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.usersform.displayPageNo.value=val;
+        document.usersform.action="index.php?status=<?php echo base64_encode('customerloginreport')?>&PAGE="+val;
+        document.usersform.submit();
+        }
+</script>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+<form name="usersform" action="index.php?status=<?php echo base64_encode('customerloginreport')?>" method="post">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=contactid value="<?php echo $contactid?>">
+<input type=hidden name=status value="<?php echo base64_encode('customerloginreport')?>">
+<? if($superuserrights != "Y" && $userrole != "Administrator")
+	  {?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for users rights and administrator rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $today;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+?>
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?></span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+  <tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdae' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.usersform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.usersform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="25%"    valign="top">
+    <input type="submit"  name="cmd_Submit1" value="Get Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"></td>
+
+  </tr>
+  </table>
+  </td>
+  </tr>
+  </table>
+  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+  $DISP_REC_COUNT = 100;  // No of rows appearing per page
+  if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"logintime";
+$startsalesdate = dateConvert($startsalesdate);
+ $endsalesdate = dateConvert($endsalesdate);
+ $sql            = "select * from user_logins where logintime >= '$startsalesdate 00:00:00' and logintime <= '$endsalesdate 23:59:59' and userid='$contactid'";
+    if($_POST['searchvalue']!='')
+  {
+	  $searchvalue=$_POST['searchvalue'];
+	  $idno=substr($searchvalue,2,strlen($searchvalue));
+   $temp           = $temp." where (lower(username) like '$searchvalue%')";
+  }
+
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no logins&nbsp; in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="10%" class="TableHeader"><b>Username</b></td>
+                <td width="10%" class="TableHeader"><b>Login Time</b></td>
+                 <td width="10%" class="TableHeader"><b>Logout Time</b></td>
+				 <td width="10%" class="TableHeader"><b>IP Address</b></td>
+				
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+
+  $userid1      = (isset($row['userid'])) ? $row['userid'] : 0;
+    $username1      = (isset($row['username'])) ? $row['username'] : "";
+  $logintime      = (isset($row['logintime'])) ? $row['logintime'] : "";
+  $logouttime        = (isset($row['logouttime'])) ? $row['logouttime'] : "";
+  $ipaddress  = (isset($row['ipaddress'])) ? $row['ipaddress'] : "";
+   ?>
+
+ <tr><td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><?php echo stripslashes($username1)?>
+</a></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo changeddatewithtime($logintime)?></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo changeddatewithtime($logouttime)?></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $ipaddress?></td>
+
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td width=100% colspan=6 class="Row" align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td width=100% colspan=6 class="Row" align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+
+         </table>
+         
+
+         </form>
+		 <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+   
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

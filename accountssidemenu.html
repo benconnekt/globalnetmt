@@ -1,0 +1,287 @@
+<?$today = getdate();
+$month = $today['mon'];
+$mday = $today['mday'];
+$year = $today['year'];
+
+if($txt_date=='')
+{
+$txt_date=$year."-".$month."-".$mday;
+}
+//echo "the txtdate is ".$txt_date;
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+$userrole=getusertype($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+?>
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Search Page</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+      <form name=searchform action="index.php?status=<? echo $_GET['status']; ?>" method=post>
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+
+    <TR>
+        <TD ><input type=text name=searchvalue value="<?php echo $_POST['searchvalue']?>" maxlength=40  size=15></TD>
+      </TR>
+      <TR>
+        <TD > <input type=submit name="Search Customer" class="btn3"></TD>
+      </TR>
+      
+                 </TABLE>
+				 <input type=hidden name=thismonth value="<?php echo $_POST['thismonth']?>">
+				 <input type=hidden name=thisyear value="<?php echo $_POST['thisyear']?>">
+				 <input type=hidden name=thisday value="<?php echo $_POST['thisday']?>">
+				 <input type=hidden name=agentid value="<?php echo $_POST['agentid']?>">
+				 </form>
+       </div>
+                </div>
+        </span>
+        <br>
+
+<? if($userrole=='Administrator' || $superuserrights =='Y')
+		 {?>
+ <span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Agent Payments</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	<?if($userrole=='Administrator')
+			 {?>
+    <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('addagentpayment')?>"> Add Agent Payment</a></TD>
+      </TR>
+	  <? } ?>
+      <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewagentpayments')?>">View Agent Payments</a></TD>
+      </TR>
+               </TABLE>
+       </div>
+                </div>
+        </span>
+<br>
+		<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Expenses</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	<?if($userrole=='Administrator')
+			 {?>
+    <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('newexpense')?>"> Add Expense</a></TD>
+      </TR>
+	  <? } ?>
+      <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewexpenses')?>">View Expenses</a></TD>
+      </TR>
+               </TABLE>
+       </div>
+                </div>
+        </span>
+        <br>
+
+
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Corresponding Agent Payments</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	<?if($userrole=='Administrator')
+			 {?>
+    <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('addpayingagentpayment')?>"> Add Corresponding Agent Payment</a></TD>
+      </TR>
+	  <?} ?>
+      <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewpayingagentpayments')?>">View Corresponding Agent Payments</a></TD>
+      </TR>
+
+	  <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewforexorders')?>">View Forex Profits by Order</a></TD>
+      </TR>
+               </TABLE>
+       </div>
+                </div>
+        </span>
+<br>
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14">General Reports</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	  <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('generalaccountreport')?>">General Account Report</a></TD>
+      </TR>
+	   <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('generalcommissionreport')?>">General Commission Report</a></TD>
+      </TR>
+	   </TABLE>
+       </div>
+                </div>
+        </span>
+		<br>
+       
+	<? }?>
+       
+	<?	
+	if(ispayingagent($userid)!='Y' || $userrole=='Administrator')
+	  { ?>
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Agent Reports</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	  <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewagentpayments')?>">View Agent Payments</a></TD>
+      </TR>
+        <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('dailyaccountreport')?>">Daily Report</a></TD>
+      </TR>
+	  
+        <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('dailyreport')?>">Agent Summary</a></TD>
+      </TR>
+	  <? if($superuserrights=='Y')
+	  {?>
+	   <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('allagentaccountsummary')?>">All Agent Account Summary</a></TD>
+      </TR>
+	    <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('allagentcommissionsummary')?>">All Agent Commission Summary</a></TD>
+      </TR>
+	 
+	  <? } ?>
+<TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('agentaccountreport')?>">Agent Account Report</a></TD>
+      </TR>
+	   <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('agentcommissionreport')?>">Agent Commission Report</a></TD>
+      </TR>
+	  
+ </TABLE>
+       </div>
+                </div>
+        </span><br>
+    <? } ?>
+
+	<? if(ispayingagent($userid)=='Y' || $userrole=='Administrator' || $superuserrights=='Y')
+	  {?>
+
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"  class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Corresponding Agent Reports</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+	 <? if($superuserrights=='Y')
+	  {?>
+	    <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('allpayingagentcommissionsummary')?>">All Corresponding Agent Commission Summary</a></TD>
+      </TR>
+	  <? } 
+	if(ispayingagent($userid)=='Y'  || $userrole=='Administrator' || $superuserrights=='Y')
+	  { ?>
+ <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('viewpayingagentpayments')?>">View Corresponding Agent Payments</a></TD>
+      </TR>
+	   <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('payingagentreport')?>">Corresponding Agent Summary</a></TD>
+      </TR>
+ 
+	  <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('payingagentaccountreport')?>">Corresponding Agent Account Report</a></TD>
+      </TR>
+	   <TR>
+        <TD >
+         <a href="index.php?status=<?php echo base64_encode('payingagentcommissionreport')?>">Corresponding Agent Commission Report</a></TD>
+      </TR>
+	  <? } ?>
+	   </TABLE>
+       </div>
+                </div>
+        </span>
+	  <? }  ?>
+
+
+   </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:2" valign=top >

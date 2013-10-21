@@ -1,0 +1,225 @@
+<? if($usersrights=='Y' || $superuserrights=='Y' || $usercreationrights=='Y') {?>
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Search System</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+      <form name=searchform action="index.php?status=<? echo $_GET['status']; ?>" method=post>
+	 <TABLE style="border-collapse: collapse" cellpadding="2" border="0" valign=top>
+
+    <TR>
+        <TD ><input type=text name=searchvalue value="<?php echo $_POST['searchvalue']; ?>" size=15></TD>
+      </TR>
+	  <TR>
+        <TD > <input type=submit name="Search Customer" class="btn3"></TD>
+      </TR>
+       
+                 </TABLE>
+				  </form>
+       </div>
+                </div>
+        </span>
+        <br>
+       <span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> System Setup</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" cellpadding="2" border="0">
+   <?  if($usersrights=='Y' || $usercreationrights =='Y')
+{?>
+   <TR>
+        <TD width=100%>
+       <a href="index.php?status=<?php echo base64_encode('newuser')?>"> Add user</a></TD>
+      </TR>
+      <TR>
+        <TD  width=100%>
+       <a href="index.php?status=<?php echo base64_encode('users')?>">View Users</a></TD>
+      </TR>
+
+	 <? } ?>
+      
+<?  if($usersrights=='Y')
+{?>
+ <TR>
+        <TD width=100%>
+       <a href="index.php?status=<?php echo base64_encode('newcurrency')?>"> Add Currency</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+       <a href="index.php?status=<?php echo base64_encode('viewcurrencies')?>">View Currencies</a></TD>
+      </TR>
+
+	   <TR>
+        <TD width=100%>
+       <a href="index.php?status=<?php echo base64_encode('newcountry')?>"> Add Country</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+       <a href="index.php?status=<?php echo base64_encode('viewcountries')?>">View Countries</a></TD>
+      </TR>
+  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newstate')?>"> Add State</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewstates')?>">View States</a></TD>
+      </TR>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newcity')?>"> Add City</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewcities')?>">View Cities</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newagent')?>"> Add Office</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('agentlists')?>">View Offices</a></TD>
+      </TR>
+	    <TR>
+		  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newcollectionpoint')?>"> Add Collection Point</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('collectionpoints')?>">View Collection Points</a></TD>
+      </TR>
+	   <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newpayingagent')?>"> Add Corresponding Agent</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('payingagents')?>">View Corresponding Agents</a></TD>
+      </TR>
+	  <? } ?>
+	   <!-- <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newbank')?>"> Add Bank</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewbanks')?>">View Banks</a></TD>
+      </TR>
+	  -->
+	  <? if($usersrights=='Y' || $superuserrights=='Y')
+	  {?>
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newrate')?>"> Add Rate</a></TD>
+      </TR>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('rates')?>">View Rates</a></TD>
+      </TR>
+
+	  <? } ?>
+
+		<?  if($usersrights=='Y')
+		{?>
+      
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newcommission')?>"> Add Commission</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('commissions')?>">View Commissions</a></TD>
+      </TR>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newagentcommission')?>"> Add Agent Commission</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('agentcommissions')?>">View Agent Commissions</a></TD>
+      </TR>
+	   <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newagentbankcharges')?>"> Add Bank Charges</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('agentbankcharges')?>">View Bank Charges</a></TD>
+      </TR>
+	<!--  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newcollectionpointcommission')?>"> Add Paying Agent Commission</a></TD>
+      </TR>
+      <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('collectionpointcommissions')?>">View Paying Agent Commissions</a></TD>
+      </TR>
+	  -->
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newexpensehead')?>"> Add Expense Head</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewexpenseheads')?>">View Expense Heads</a></TD>
+      </TR>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('newevent')?>">Add Event</a></TD>
+      </TR>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewevents')?>">View Events</a></TD>
+      </TR>
+	  <? if(getusertype($username)=='Administrator' && $deleterights =='Y')
+	  { ?>
+<TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewpasswords')?>">View Passwords</a></TD>
+      </TR>
+  <? } ?>
+	   <? if(getusertype($username)=='Administrator')
+	  { ?>
+	  <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewuserlogins')?>">View Login Report</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewuploadeddocuments')?>">View Uploaded Docs</a></TD>
+      </TR>
+	    <TR>
+        <TD width=100%>
+		<a href="index.php?status=<?php echo base64_encode('viewwebsiteuploadeddocuments')?>">View Website Uploaded Docs</a></TD>
+      </TR>
+	  <? } ?>
+
+	  <? } ?>
+
+	  <? } ?>
+
+           </TABLE>
+       </div>
+                </div>
+        </span>
+     
+ </div>
+       </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:2" valign=top >

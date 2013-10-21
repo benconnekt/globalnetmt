@@ -1,0 +1,446 @@
+<?
+include("header.html");
+include("usersidemenu.html");
+
+
+?>
+
+<form name=edituserform method=post action=index.php>
+
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.username1,"Username"))
+                return false;
+     if (!validRequired(theForm.password1,"Password"))
+      return false;
+	  if (!validRequired(theForm.firstname,"First Name"))
+      return false;
+	   if (!validRequired(theForm.lastname,"Last Name"))
+      return false;
+	    if (!validRequired(theForm.useroffice,"User Office"))
+      return false;
+
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.edituserform))
+{
+
+document.edituserform .action="index.php?status=<?php echo base64_encode('edituser')?>&action=addnew";
+document.edituserform .submit();
+}
+}
+</script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('edituser')?>">
+  <?php  if($usersrights!='Y'  && $usercreationrights !='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+ <?
+
+ if(isset($_GET['action'])=="edituser")
+   {
+  edituser();
+  }
+
+$Getuserid=0;
+if(isset($_GET['userid'])!="")
+   {
+   $Getuserid=$_GET['userid'];
+   }
+   if(isset($_POST['userid'])!="")
+   {
+   $Getuserid=$_POST['userid'];
+   }
+    $sql  = "select * from user_master ";
+
+
+  $temp           = "  where userid='".$Getuserid."'";
+
+  if($usersrights != "Y")
+  {
+$temp           = $temp. " and useroffice ='$agentid'";
+  }
+
+
+  $sql            = $sql.$temp;
+
+ $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result);
+      if($noOfRecords==0)
+  { ?>
+
+ <br>
+  <b> No record was found for the user</b>
+
+ <?php
+ }
+  else
+ {
+
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+
+
+   $username1      = (isset($row['username'])) ? $row['username'] : "";
+  $password1      = (isset($row['password'])) ? $row['password'] : "";
+  $add_rights      = (isset($row['add_rights'])) ? $row['add_rights'] : "";
+  $update_rights        = (isset($row['update_rights'])) ? $row['update_rights'] : "";
+  $delete_rights  = (isset($row['delete_rights'])) ? $row['delete_rights'] : "";
+   $create_reports  = (isset($row['create_reports'])) ? $row['create_reports'] :"";
+    $firstname  = (isset($row['firstname'])) ? $row['firstname'] :"";
+     $lastname  = (isset($row['lastname'])) ? $row['lastname'] :"";
+     $address  = (isset($row['address'])) ? $row['address'] :"";
+      $telephone  = (isset($row['telephone'])) ? $row['telephone'] :"";
+       $mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+       $email  = (isset($row['email'])) ? $row['email'] :"";
+         $usertype = (isset($row['usertype'])) ? $row['usertype'] :"";
+              $status = (isset($row['status'])) ? $row['status'] :"";
+              $accounts_rights  = (isset($row['accounts_rights'])) ? $row['accounts_rights'] : "";
+               $groups_rights  = (isset($row['groups_rights'])) ? $row['groups_rights'] : "";
+               $users_rights  = (isset($row['users_rights'])) ? $row['users_rights'] : "";
+                $contacts_rights  = (isset($row['contacts_rights'])) ? $row['contacts_rights'] : "";
+                $office_rights  = (isset($row['office_rights'])) ? $row['office_rights'] : "";
+				   $usercreation_rights  = (isset($row['usercreation_rights'])) ? $row['usercreation_rights'] :"";
+                  $useroffice  = (isset($row['useroffice'])) ? $row['useroffice'] : "";
+				       $discountleverage  = (isset($row['discountleverage'])) ? $row['discountleverage'] : "";
+					   $is_payingagent  = (isset($row['is_payingagent'])) ? $row['is_payingagent'] : "";
+					    $sms_rights  = (isset($row['sms_rights'])) ? $row['sms_rights'] : "";
+						$superuser_rights  = (isset($row['superuser_rights'])) ? $row['superuser_rights'] : "";
+						$alert_rights  = (isset($row['alert_rights'])) ? $row['alert_rights'] : "";
+						$confirm_rights  = (isset($row['confirm_rights'])) ? $row['confirm_rights'] : "";
+						$sms_sender_rights  = (isset($row['sms_sender_rights'])) ? $row['sms_sender_rights'] : "";
+						$sms_beneficiary_rights  = (isset($row['sms_beneficiary_rights'])) ? $row['sms_beneficiary_rights'] : "";
+                }
+  ?>
+
+     <br>
+     <input class=text  type=hidden name=usernameid value="<?php echo $Getuserid?>">
+<input class=text  type=hidden name=userid value="<?php echo $Getuserid?>">
+
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update User Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+      <tr>
+      <? 
+	 if($usersrights =='Y')
+ { ?>
+		
+		<td width="13%" valign="top">User type</td>
+        <td width="30%" valign="top">
+    <b>
+	
+    <select name="usertype">
+    <option value="<?php echo $usertype?>" selected><?php echo $usertype?></option>
+    <option value="Administrator">Administrator</option>
+    <option value="User">User</option>
+    </select>
+	
+	</b></td>
+	<? } else
+	 {?>
+<input type=hidden name=usertype value="<?php echo $usertype?>">
+	 <? } ?>
+        <td width="17%" valign="top">Status</td>
+        <td width="40%" valign="top">
+    <b>
+    <select name="status">
+     <option value="<?php echo $status?>" selected><?php echo $status?></option>
+    <option value="Active" >Active</option>
+    <option value="Inactive">Inactive</option>
+    </select></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Username</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  id="username1"   name="username1" size="30" value="<?php echo stripslashes($username1) ?>"></b></td>
+        <td width="17%" valign="top">First name</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="firstname" name="firstname" size="30" value="<?php echo stripslashes($firstname) ?>"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Password</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  id="password1"  name="password1" size="30" type="password" value="<?php echo $password1 ?>"></b></td>
+        <td width="17%" valign="top">Last name</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="division1"  name="lastname" value="<?php echo stripslashes($lastname) ?>" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Add Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="add_rights">
+    <option value="<?php echo $add_rights?>" selected><?php echo $add_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+        <td width="17%" valign="top">Address</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="address"  name="address" value="<?php echo stripslashes($address) ?>" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Update Rights</td>
+        <td width="30%" valign="top">
+    <b>
+   <select name="update_rights">
+    <option value="<?php echo $update_rights?>" selected><?php echo $update_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+        <td width="17%" valign="top">Email</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="email"  name="email" value="<?php echo stripslashes($email) ?>" size="30"></b></td>
+      </tr>
+      <tr>
+	   <td width="13%" valign="top">Money Transfer Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="office_rights">
+   <option value="<?php echo $office_rights?>" selected><?php echo $office_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+      
+        <td width="17%" valign="top">mobile</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="mobile"  name="mobile" value="<?php echo stripslashes($mobile) ?>" size="30"></b></td>
+      </tr>
+      <tr>
+	   <td width="13%" valign="top">Customer Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="contacts_rights">
+
+       <option value="<?php echo $contacts_rights?>" selected><?php echo $contacts_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+      
+        <td width="17%" valign="top">telephone</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="telephone"  name="telephone" value="<?php echo stripslashes($telephone) ?>" size="30"></b></td>
+      </tr>
+       <tr>
+	   <? 
+	 if($usersrights =='Y')
+ { ?>
+		 <td width="13%" valign="top">Delete Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="delete_rights">
+    <option value="<?php echo $delete_rights?>" selected><?php echo $delete_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+      
+    
+	<? if($is_payingagent=='Y')
+		   {?>
+       <td width="17%" valign="top">Corresponding Agent</td>
+        
+<td width="40%" valign="top"><?  echo getpayingagents("useroffice",$useroffice,false);?></td>
+<? } else { ?>
+<td width="17%" valign="top">User Office</td>
+<td width="40%" valign="top"><?  echo getagentnames("useroffice",$useroffice,"");?></td>
+
+<? } ?>
+ <? }
+ else
+ {?>
+<input type=hidden name=useroffice value="<? echo $useroffice?>">
+ <?
+ }?>
+    </TR>
+ <tr>
+        <td width="13%" valign="top">Accounts Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="accounts_rights">
+    <option value="<?php echo $accounts_rights?>" selected><?php echo $accounts_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+ <? 
+	 if($usersrights =='Y')
+ { ?>
+	<td width="13%" valign="top">Is Corresponding Agent</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="is_payingagent">
+    <option value="<?php echo $is_payingagent?>" selected><?php echo $is_payingagent?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	<? } else { ?>
+<input type=hidden name=is_payingagent value="<? echo $is_payingagent?>">
+
+	<? } ?>
+    </TR>
+   
+	 <? 
+	 if($usersrights =='Y')
+ { ?>
+   <tr>
+          <td width="13%" valign="top">Reports Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="create_reports">
+    <option value="<?php echo $create_reports?>" selected><?php echo $create_reports?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	 <td width="17%" valign="top"></td>
+        <td width="40%" valign="top">
+    <b>
+   </td>
+    </TR>
+    
+	 <tr>
+        <td width="13%" valign="top">User Creation Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="usercreation_rights">
+     <option value="<?php echo $usercreation_rights?>" selected><?php echo $usercreation_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	 <tr>
+        <td width="13%" valign="top">SMS rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_rights">
+	 <option value="<?php echo $sms_rights?>" selected><?php echo $sms_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">SMS to Sender rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_sender_rights">
+	<option value="<?php echo $sms_sender_rights?>" selected><?php echo $sms_sender_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">SMS to Beneficiary rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_beneficiary_rights">
+	<option value="<?php echo $sms_beneficiary_rights?>" selected><?php echo $sms_beneficiary_rights?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+     <tr>
+        <td width="13%" valign="top">System Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="users_rights">
+     <option value="<?php echo $users_rights?>" selected><?php echo $users_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	 <tr>
+        <td width="13%" valign="top">Super User Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="superuser_rights">
+     <option value="<?php echo $superuser_rights?>" selected><?php echo $superuser_rights?></option>
+       <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">Alert Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="alert_rights">
+	     <option value="<?php echo $alert_rights?>" selected><?php echo $alert_rights?></option>
+
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">Confirm Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="confirm_rights">
+	     <option value="<?php echo $confirm_rights?>" selected><?php echo $confirm_rights?></option>
+
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+    </TR>
+
+	<? } else
+	 {?>
+<input type=hidden name=create_reports value="<? echo $create_reports?>">
+<input type=hidden name=sms_rights value="<? echo $sms_rights?>">
+<input type=hidden name=usercreation_rights value="<? echo $usercreation_rights?>">
+<input type=hidden name= users_rights value="<? echo $users_rights?>">
+<input type=hidden name= delete_rights value="<? echo $delete_rights?>">
+<input type=hidden name= superuser_rights value="<? echo $superuser_rights?>">
+<input type=hidden name= alert_rights value="<? echo $alert_rights?>">
+
+
+
+	 <? } ?>
+    </table>
+    <? if ($updaterights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update User" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update User" disabled>
+      <?}?>
+
+    </td>
+    </tr>
+    </table>
+      <? }?>
+      </td>
+  </tr>
+  <? include('footer.html');   ?>

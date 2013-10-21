@@ -1,0 +1,292 @@
+<?
+include("header.html");
+include("sidemenu.html");
+?>
+
+<form name=editmeetingform method=post action=index.php>
+<script language=javascript>
+function saveinfo()
+{
+document.editmeetingform.action="index.php?status=<?php echo base64_encode('editmeeting')?>&action=editmeeting";
+document.editmeetingform.submit();
+}
+</script>
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+
+
+ <?
+
+ if(isset($_GET['action'])=="editmeeting")
+   {
+  editmeeting();
+
+   }
+   $Gethistoryid=0;
+if(isset($_GET['historyid'])!="")
+   {
+   $Gethistoryid=$_GET['historyid'];
+   }
+   else
+   {
+   $Gethistoryid=$_POST['historyid'];
+   }
+
+
+   $sql        = "select * from history_master ";
+
+
+  $temp           = "  where historyid='".$Gethistoryid."'";
+
+
+  $sql            = $sql.$temp;
+
+ $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result);
+ ?>
+   <?   if($noOfRecords==0)
+  { ?>
+
+ <br>
+  <b> No record was found for the schedule </b>
+
+ <?php
+ }
+  else
+ {
+
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+
+ $historyid      = (isset($row['historyid'])) ? $row['historyid'] : 0;
+   $hours      = (isset($row['hours'])) ? $row['hours'] : "";
+    $minutes      = (isset($row['minutes'])) ? $row['minutes'] : "";
+      $meredian      = (isset($row['meredian'])) ? $row['meredian'] : "";
+  $regarding      = (isset($row['regarding'])) ? $row['regarding'] : "";
+  $withcontact      = (isset($row['withcontact'])) ? $row['withcontact'] : "";
+   $activity_type      = (isset($row['activity_type'])) ? $row['activity_type'] : "";
+  $date      = (isset($row['date'])) ? $row['date'] : "";
+   $fromid      = (isset($row['fromid'])) ? $row['fromid'] : "";
+   $toid      = (isset($row['toid'])) ? $row['toid'] : "";
+   $status1      = (isset($row['status'])) ? $row['status'] : "";
+   $details      = (isset($row['details'])) ? $row['details'] : "";
+    $priority      = (isset($row['priority'])) ? $row['priority'] : "";
+     $duration      = (isset($row['duration'])) ? $row['duration'] : "";
+      $groupid      = (isset($row['groupid'])) ? $row['groupid'] : "";
+  }
+  ?>
+
+  <?php  if($officerights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+   <input class=text  type=hidden name=status value="<?php echo base64_encode('editmeeting')?>">
+<input class=text  type=hidden name=historyid value="<?php echo $Gethistoryid ?>">
+
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Appointment Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+  <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2" height="228">
+      <tr>
+        <td width="13%" valign="top" height="40">Activity Type</td>
+        <td width="30%" valign="top" height="40">
+    <b>
+    <?php echo $activity_type?></b></td>
+        <td width="17%" valign="top" height="40">Regarding</td>
+        <td width="40%" valign="top" height="40">
+    <b>
+    <textarea id="regarding" tabIndex="14" name="regarding"  size="30" rows="3" cols="26" ><?php echo stripslashes($regarding) ?></textarea></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top" height="40">Date</td>
+        <td width="30%" valign="top" height="40">
+    <input class=text  TYPE="text" readonly NAME="date" VALUE="<?php echo changeddate($date)?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.editmeetingform.date,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+   
+    </td>
+        <td width="17%" valign="top" height="40">Details</td>
+        <td width="40%" valign="top" height="40">
+    <b>
+    <textarea id="details" tabIndex="14" name="details" size="30" rows="10" cols="40" ><?php echo stripslashes($details) ?></textarea></b></td>
+      </tr>
+     <tr>
+        <td width="13%" valign="top" height="13">Time</td>
+        <td width="30%" valign="top" height="13">
+    <select language="javascript" class="cbotime" id="hours"  name="hours" >
+    <option value="<?php echo $hours?>" selected><?php echo $hours?></option>
+   <option value="01">01</option>
+    <option value="02">02</option>
+    <option value="03">03</option>
+    <option value="04">04</option>
+    <option value="05">05</option>
+    <option value="06">06</option>
+    <option value="07">07</option>
+    <option value="08">08</option>
+    <option value="09">09</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    </select>
+    <select language="javascript" class="cbotime" id="minutes" name="minutes" >
+     <option value="<?php echo $minutes?>" selected><?php echo $minutes?></option>
+      <option value="00">00</option>
+    <option value="30">30</option>
+    </select>
+    <select language="javascript" class="cbotime" id="meredian"  name="meredian" >
+     <option value="<?php echo $meredian?>" selected><?php echo $meredian?></option>
+    <option value="AM">AM</option>
+    <option value="PM" >PM</option>
+    </select></td>
+        <td width="17%" valign="top" height="13">
+        <font style="FONT-SIZE: 8pt; FONT-FAMILY: 'MS Sans Serif',Verdana,sans-serif">
+        Priority: </font></td>
+        <td width="40%" valign="top" height="13">
+    <select language="javascript" id="priority"  style="font-size: 8pt; width: 150; font-family: 'MS Sans Serif',Verdana,sans-serif; height: 150; background-color: white" name="priority">
+     <option value="<?php echo $priority?>" selected><?php echo $priority?></option>
+    <option value="High">High</option>
+    <option value="Medium" >Medium</option>
+    <option value="Low">Low</option>
+    </select></td>
+      </tr>
+       <tr>
+        <td width="13%" valign="top" height="1">Duration</td>
+        <td width="30%" valign="top" height="1">
+    <select language="javascript" id="duration"  style="font-size: 8pt; width: 129; font-family: 'MS Sans Serif',Verdana,sans-serif; height: 129; background-color: white" name="duration">
+    <option value="<?php echo $duration?>"><?php echo $duration?> minutes</option>
+    <option value="0">0 minutes</option>
+    <option value="5">5 minutes</option>
+    <option value="10">10 minutes</option>
+    <option value="15">15 minutes</option>
+    <option value="30">30 minutes</option>
+    <option value="45">45 minutes</option>
+    <option value="60">1 hour</option>
+    <option value="120">2 hours</option>
+    <option value="180">3 hours</option>
+    <option value="480">8 hours</option>
+    <option value="1440">1 day</option>
+    <option value="7200">5 days</option>
+    <option value="43200">30 days</option>
+    </select><p>&nbsp;</td>
+
+    <b>
+   </b></td>
+      </tr>
+       <tr>
+        <td width="13%" valign="top" height="18">With</td>
+        <td width="30%" valign="top" height="18"><b><? echo stripslashes(getcontactname($withcontact))?> </b>
+    </td>
+        <td width="17%" valign="top" height="18">Associate with Group</td>
+        <td width="40%" valign="top" height="18">
+    <b>
+   <?php echo getgroupname($groupid)?></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top" height="18">Scheduled To</td>
+        <td width="30%" valign="top" height="18">
+    <b>
+     <?php echo getusername($toid)?></b></td>
+        <td width="17%" valign="top" height="18">Scheduled From</td>
+        <td width="40%" valign="top" height="18">
+
+    <input class=text  type=hidden name="fromid" value="<?php echo $fromid?>">
+    <b><?php echo getusername($fromid) ?></b></td>
+      </tr>
+      <tr>
+        <td width="100%" valign="top" height="15" colspan="4">
+Status: <br>
+&nbsp;<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber3">
+          <tr>
+           <td width="1%">
+            <input class=text  type=radio name=meetingstatus checked value="<?php echo $status1?>">
+            </td>
+             <td width="34%"><?php echo $status1?></td>
+             </tr>
+          <tr>
+           <td width="1%">
+          <? if($status1=='Held')
+           {   ?>
+           <input class=text  type=radio name=meetingstatus checked value="Held">
+          <? }
+           else
+           {  ?>
+           <input class=text  type=radio name=meetingstatus value="Held">
+          <? } ?>
+           </td>
+            <td width="34%">Held</td>
+          </tr>
+          <tr>
+            <td width="1%">
+            <? if($status1=='Not Held')
+           {   ?>
+           <input class=text  type=radio name=meetingstatus checked value="Not Held">
+          <? }
+           else
+           {  ?>
+           <input class=text  type=radio name=meetingstatus value="Not Held">
+          <? } ?>
+            </td>
+            <td width="34%">Not held</td>
+          </tr>
+          <tr>
+            <td width="1%">
+            <? if($status1=='Re-Scheduled')
+           {   ?>
+           <input class=text  type=radio name=meetingstatus checked value="Re-Scheduled">
+          <? }
+           else
+           {  ?>
+           <input class=text  type=radio name=meetingstatus value="Re-Scheduled">
+          <? } ?>
+            </td>
+            <td width="34%">Re-Scheduled</td>
+          </tr>
+          </table>
+          </td>
+          </tr>
+      </table>
+        <? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Appointment" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Appointment" disabled>
+      <?}?>
+      </td>
+      </tr>
+      </table>
+     <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ 
+</form>
+     <? }?>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

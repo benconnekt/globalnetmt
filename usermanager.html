@@ -1,0 +1,407 @@
+ <? include('header.html');
+ include('usersidemenu.html');
+
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the user record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.usersform.displayPageNo.value=val;
+        document.usersform.action="index.php?status=<?php echo base64_encode('users')?>&PAGE="+val;
+        document.usersform.submit();
+        }
+		function generatesalesreport(val){
+        document.usersform.pageAction.value=val;
+        document.usersform.submit();
+    }
+function activeSubmit()
+{
+var agree=confirm("Do you wish to activate the selected users ?");
+if (agree)
+	{
+		 document.usersform.action="index.php?status=<?php echo base64_encode('users')?>&active=true";
+       document.usersform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function inactiveSubmit()
+{
+var agree=confirm("Do you wish to inactivate the selected users ?");
+if (agree)
+	{
+		 document.usersform.action="index.php?status=<?php echo base64_encode('users')?>&inactive=true";
+       document.usersform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+</script>
+
+<form name="usersform" action="index.php?status=<?php echo base64_encode('users')?>" method="post">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction>
+
+<input type=hidden name=status value="<?php echo base64_encode('users')?>">
+<?php  if($usersrights!='Y' && $usercreationrights !='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for users rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+ <?
+ if(isset($_GET['deleteaction'])=="userdelete")
+   {
+ $deleteuserid=$_GET['deleteuserid'];
+  if($deleteuserid!="")
+ {
+	   if(check_records($deleteuserid,"users"))
+	 {
+ $sql   = "delete from user_master where userid= '$deleteuserid'";
+//echo $sql;
+ $Result1= safe_query($sql) ;
+   display_message(   "<font color=darkblue><b><p align=center>User Information has been successfully deleted</font></p></b>");
+	 }
+ }
+   }
+
+   if(isset($_GET['active'])=="true")
+   {
+ if(is_array($users))
+ {
+for($k=0;$k<count($users);$k++)
+{
+ $seluserid=$users[$k];
+ $sql   = "update user_master set status='Active' where userid= '$seluserid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected users have been Activated</font></p>");
+ }
+ }
+
+ if(isset($_GET['inactive'])=="true")
+   {
+ if(is_array($users))
+ {
+for($k=0;$k<count($users);$k++)
+{
+ $seluserid=$users[$k];
+ $sql   = "update user_master set status='Inactive' where userid= '$seluserid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected users have been Inactivated</font></p>");
+ }
+ }
+
+$selagentid      = isset($_POST['selagentid'])?$_POST['selagentid']:$agentid;
+?>
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+    <? if($userrole == 'Administrator' )
+  {?>
+   <tr>
+  <td width="25%" valign="top"><b>Select the Office/Agent</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getagentonlynames("selagentid",$selagentid,true)?>
+
+</td>
+<td width="25%"   valign="top">&nbsp;</td>
+   <td width="25%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Users by Office/Agent" class=btn3 onclick="javascript:generatesalesreport('agentsales')" ></td>
+  </tr>
+   <tr>
+  <td width="25%" valign="top"><b>Select the Corresponding Agent</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getpayingagents("selpayingagentid",$selpayingagentid)?>
+
+</td>
+<td width="25%"   valign="top">&nbsp;</td>
+   <td width="25%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Users by Corresponding Agent" class=btn3 onclick="javascript:generatesalesreport('agentsales')" ></td>
+  </tr>
+  <? } ?>
+   
+  </tr>
+
+  
+  </table>
+  </td>
+  </tr>
+  </table>
+  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+  $DISP_REC_COUNT = 100;  // No of rows appearing per page
+  if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"userid";
+
+ if($usersrights =='Y')
+ {
+
+ $sql            = "select * from user_master where userid is not null ";
+ if(strlen($selagentid) && $selagentid !='ALL')
+	 
+	 {
+	 $sql            = $sql. " and useroffice='$selagentid' and is_payingagent!='Y'";
+	 }
+if(strlen($selpayingagentid) && $selpayingagentid !='ALL')
+	 
+	 {
+	 $sql            = $sql. " and useroffice='$selpayingagentid' and is_payingagent='Y'";
+	 }
+ }
+ else
+ {
+	  $sql            = "select * from user_master where useroffice='$userofficeid' and is_payingagent!='Y' ";
+
+ }
+    if($_POST['searchvalue']!='')
+  {
+	  $searchvalue=$_POST['searchvalue'];
+	  $idno=substr($searchvalue,2,strlen($searchvalue));
+   $temp           = $temp." and (lower(firstname) like '$searchvalue%' or  lower(surname) like '$searchvalue%'  or  lower(username) like '$searchvalue%')";
+  }
+
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no users&nbsp; in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="10%" class="TableHeader"><b>Username</b></td>
+                <td width="10%" class="TableHeader"><b>User Type</b></td>
+                 <td width="5%" class="TableHeader"><b>Status</b></td>
+				  <td width="10%" class="TableHeader"><b>Office</b></td>
+                 
+                   <td width="7%" class="TableHeader"><b>Add</b></td>
+                 <td width="7%" class="TableHeader"><b>Update</b></td>
+				 <td width="7%" class="TableHeader"><b>Customers</b></td>
+                   <td width="7%" class="TableHeader"><b>MT</b></td>
+				    <td width="7%" class="TableHeader"><b>Accounts</b></td>
+                   
+				<?  if($usersrights =='Y')
+ { ?>
+                   <td width="7%" class="TableHeader"><b>Delete</b></td>
+                   <td width="7%" class="TableHeader"><b>Reports</b></td>                  
+				   <td width="7%" class="TableHeader"><b>User Creation</b></td>
+				    <td width="7%" class="TableHeader"><b>Is Corresponding Agent</b></td>
+					 <td width="7%" class="TableHeader"><b>SMS</b></td>
+                   <td width="7%" class="TableHeader"><b>System</b></td>
+				   <td width="7%" class="TableHeader"><b>Super User</b></td>
+
+				   <? } ?>
+				   <td width="2%" class="TableHeader">
+      <?
+if($deleterights=='Y')
+{?> <b>Activate</b>
+
+				   <? } ?>
+				   </td>
+				   <td width="2%" class="TableHeader">
+      <?
+if($deleterights=='Y')
+{?> <b>Delete</b>
+
+				   <? } ?>
+				   </td>
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+
+  $userid1      = (isset($row['userid'])) ? $row['userid'] : 0;
+   $usertype      = (isset($row['usertype'])) ? $row['usertype'] : "";
+  $username1      = (isset($row['username'])) ? $row['username'] : "";
+  $add_rights      = (isset($row['add_rights'])) ? $row['add_rights'] : "";
+  $update_rights        = (isset($row['update_rights'])) ? $row['update_rights'] : "";
+  $delete_rights  = (isset($row['delete_rights'])) ? $row['delete_rights'] : "";
+   $contacts_rights  = (isset($row['contacts_rights'])) ? $row['contacts_rights'] : "";
+     $groups_rights  = (isset($row['groups_rights'])) ? $row['groups_rights'] : "";
+       $accounts_rights  = (isset($row['accounts_rights'])) ? $row['accounts_rights'] : "";
+         $users_rights  = (isset($row['users_rights'])) ? $row['users_rights'] : "";
+           $office_rights  = (isset($row['office_rights'])) ? $row['office_rights'] : "";
+   $create_reports  = (isset($row['create_reports'])) ? $row['create_reports'] :"";
+   $usercreation_rights  = (isset($row['usercreation_rights'])) ? $row['usercreation_rights'] :"";
+    $usertype1 = (isset($row['usertype'])) ? $row['usertype'] :"";
+              $status = (isset($row['status'])) ? $row['status'] :"";
+			  $useroffice1= (isset($row['useroffice'])) ? $row['useroffice'] :"";
+			  $is_payingagent  = (isset($row['is_payingagent'])) ? $row['is_payingagent'] : "";
+			   $sms_rights  = (isset($row['sms_rights'])) ? $row['sms_rights'] : "";
+			    $superuser_rights  = (isset($row['superuser_rights'])) ? $row['superuser_rights'] : "";
+
+  ?>
+
+ <tr><td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('edituser')?>&userid=<?php echo $userid1?>"><font color=darkblue><?php echo stripslashes($username1)?>
+</a></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $usertype1?></td>
+<td width="5%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $status?></td>
+
+<? if($is_payingagent=='Y')
+		   {?>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes(getpayingagentname($useroffice1))?></td>
+<? } else { ?>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes(getofficename($useroffice1))?></td>
+
+<? } ?>
+
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $add_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $update_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $contacts_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $office_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $accounts_rights?></td>
+
+	<?  if($usersrights =='Y')
+ { ?>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $delete_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $create_reports?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $usercreation_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $is_payingagent?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $sms_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $users_rights?></td>
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $superuser_rights?></td>
+
+<? } ?>
+
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>">
+<?php  if($deleterights=='Y' && $userid1!=$sessuserid)
+    {    ?>
+	<input type=checkbox name=users[] value="<? echo $userid1?>">
+
+<? }
+else
+{?>
+
+				
+<?
+}
+?>
+</td>
+
+<td width="7%" class="Row"  bgcolor="<?php echo $bgcolor?>">
+<?php  if($deleterights=='Y' && $userid1!=$sessuserid)
+    {    ?>
+	<a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('users')?>&deleteaction=userdelete&deleteuserid=<?php echo $userid1?>"><img border="0" src="images/del_contact.gif" alt="delete record">
+</a>
+
+<? }
+else
+{?>
+
+				
+<?
+}
+?>
+</td>
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td width=100% colspan=6 class="Row" align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td width=100% colspan=6 class="Row" align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+
+         </table>
+         <br><br>
+		 <input type=button name=c1 class=btn3 onclick="activeSubmit()" value="Activate Selected Users"> 
+	  <input type=button name=c1 class=btn3 onclick="inactiveSubmit()" value="Inactivate Selected Users"> 
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

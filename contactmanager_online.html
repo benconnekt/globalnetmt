@@ -1,0 +1,349 @@
+<? include('header.html');
+ include('onlinesidemenu.html');
+ $dataOrder      = isset($dataOrder)?$dataOrder:"a.firstname";
+
+ ?>
+<script language=javascript>
+ function confirmOrder()
+{
+var agree=confirm("Do you wish to make a new order with the selected customer ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to inactivate the customer record?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+ function goFolder(){
+      document.contactform.submit();
+    }
+function nextPage(val)
+    {
+        document.contactform.displayPageNo.value=val;
+        document.contactform.action="index.php?status=<?php echo base64_encode('contacts_online')?>";
+        document.contactform.submit();
+        }
+        function pageOrder(val){
+        document.contactform.dataOrder.value=val;
+        document.contactform.submit();
+    }
+    function  formAction(val){
+    var agree=confirm("Do you wish to delete the selected items ?");
+if (agree)
+{
+        document.contactform.pageAction.value=val;
+        document.contactform.submit();
+}
+
+else
+{
+        return;
+        }
+
+    }
+</script>
+
+<form name="contactform" action="index.php" method="post">
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<input Type="hidden" name="searchvalue" value="<?php echo $searchvalue?>">
+<input Type="hidden" name="option" value="<?php echo $option?>">
+<input type=hidden name=status value="<?php echo base64_encode('contacts_online')?>">
+   <?php
+
+  ?>
+
+
+ <? if($superuserrights != "Y" && $userrole != "Administrator")
+	  {?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for online rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+if(isset($_GET['deleteaction'])=="contactdelete")
+   {
+  if($_GET['contactid']!="")
+ {
+ $contactid=$_GET['contactid'];
+ //if(check_records($contactid,"contact"))
+	// {
+		if($deleterights == 'Y')
+		 {
+ $sql   = "update contact_master set contactstatus='Inactive' where contactid= '$contactid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Customer account has been successfully Inactivated</font></p></b>");
+		 }
+	// }
+ }
+ }
+ ?>
+   <?
+if($_POST['searchvalue']!='')
+{
+   ?>
+
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Customer Search Results </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+   <b>Search Results: <font color=red size=3><?php echo $searchvalue?></font> </td>
+   </tr>
+  </table>
+   <? } ?>
+
+ <?php
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+  if($_POST['startrow']!='')
+  {
+ $startrow= $_POST['startrow'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $startrow  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $display = 50; 
+  
+
+  $limitstring = " LIMIT $startrow, $display ";
+  $sql = "select b.agentname,a.surname,a.firstname,a.address,a.mobile,a.phone,a.postcode,a.idno,a.fax,a.contactid,a.username,a.password from contact_master a left join agent_master b on a.userofficeid = b.agentid where contactid is not null and contactstatus = 'Active' and is_onlinecustomer = 'Y'";
+    if(strlen($_POST['searchvalue']))
+  {
+   $searchvalue=$_POST['searchvalue'];
+   $idno=substr($searchvalue,2,strlen($searchvalue));
+   $datevalue = dateConvert($searchvalue);
+    $searchvalue=strtolower($searchvalue);
+   $searchvalue=$_POST['searchvalue'];
+   $idno=substr($searchvalue,2,strlen($searchvalue));
+   $isdob=substr($searchvalue,2,1);
+   $datevalue = dateConvert($searchvalue);
+   $temp           = $temp." and (lower(a.firstname) like '%$searchvalue%' or  lower(a.surname) like '%$searchvalue%'  or  lower(a.phone) like '%$searchvalue%' or  lower(a.mobile) like '%$searchvalue%' or  lower(a.dob) = '$datevalue' or  lower(a.dob) = '$datevalue' or  lower(a.postcode) like '%$searchvalue%'  or  lower(a.idno) like '%$searchvalue%' or a.contactid='$idno' or  lower(a.dob) = '$datevalue') ";	 
+  }
+  elseif(strlen($_GET['contactid']))
+  {
+		 if(!strlen($_GET['deleteaction']))
+		{
+		$temp           = $temp." and contactid = '".$_GET['contactid']. "'";
+	    }
+  }
+  else
+  { 
+	  $temp = $temp. " ";
+  }
+
+
+  $countsql = $sql.$temp;
+  $countResult         = safe_query($countsql) ;
+  $countrecords    = @mysql_num_rows($countResult); // Total no of records returned
+
+
+  $temp           = $temp."  order by a.firstname "." ".$limitstring;
+  $sql            = $sql.$temp;
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $TR             = 0;
+  $i              = 0;
+  
+  
+?>
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?></span></td>
+                    </tr>
+                   
+  </table>
+   <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no online customers in the system .</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                   <td width="2%" class="TableHeader"><b><font color=white>Office</b></td>
+				   <td width="2%" class="TableHeader"><b><font color=white>IDNo</b></td>
+               <td width="14%" class="TableHeader"><b><font color=white>Username</a></b></td>
+			   <? if($userrole == "Administrator" && $deleterights=='Y')
+		 {?>
+		 <td width="14%" class="TableHeader"><b><font color=white>Password</b></td>
+		 <? } ?>
+		    <td width="14%" class="TableHeader"><b><font color=white>First name</a></b></td>
+			
+			    <td width="14%" class="TableHeader"><b><font color=white>Surname</a></b></td>
+				 <td width="14%" class="TableHeader"><b><font color=white>Address</a></b></td>
+                    <td width="7%" class="TableHeader"><b><font color=white>TelePhone</a></b></td>
+				     <td width="7%" class="TableHeader"><b><font color=white>Mobile</a></b></td>
+                        <td width="15%" class="TableHeader"><b><font color=white>Documents</a></b></td>						
+                  <td width="2%" class="TableHeader"><b>Ben</b></td>
+				  <td width="2%" class="TableHeader"><b>Add Payment</b></td>
+				  <td width="2%" class="TableHeader"><b>View Payments</b></td>
+				  <td width="2%" class="TableHeader"><b>View Statement</b></td>
+				     <td width="2%" class="TableHeader"><b>Add Event</b></td>
+					 <td width="2%" class="TableHeader"><b>View Events</b></td>
+				 
+				   <td width="2%" class="TableHeader"><b>InActive</b></td>
+             
+             
+			  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+   $totalsales=0;
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+   $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+  $fax        = (isset($row['fax'])) ? $row['fax'] : "";
+  $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+	 $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+	 $idno  = (isset($row['idno'])) ? $row['idno'] :"";
+   $mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+    $contactstatus  = (isset($row['contactstatus'])) ? $row['contactstatus'] :"";
+	 $username  = (isset($row['username'])) ? $row['username'] :"";
+	  $password2  = (isset($row['password'])) ? $row['password'] :"";
+	  $agentname  = (isset($row['agentname'])) ? $row['agentname'] :"";
+
+	
+
+  ?>
+
+ <tr>
+ <td width="2%" class="<?php echo $bgcolor?>"  ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><?php echo $agentname?></font></a></td>
+<td width="2%" class="<?php echo $bgcolor?>"  ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><?php echo getcustomeridno($contactid)?></font></a></td>
+
+ <td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><? echo stripslashes($username)?></td>
+  <? if($userrole == "Administrator" && $deleterights=='Y')
+		 {?>
+ <td width="14%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($password2)?></td>
+ <? } ?>
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><? echo stripslashes($firstname)?></td>
+
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><? echo stripslashes($surname)?></td>
+<td width="14%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($address)?> <? echo stripslashes($postcode)?></td>
+
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($phone)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($mobile)?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo getcontactdocumenttypes($contactid)?></td>
+<?
+	//$totalsales = getcustomersalestotal($contactid);
+/*	 if($totalsales>=2000) {  echo "<font color=red>Warning: Yearly limit exceeded<br></font>";	}
+	*/
+ //echo "£ ".number_format($totalsales,2);
+ ?>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<?php echo $contactid?>&type=online"><font color=darkblue><img src="images/listicon.gif" alt="View Beneficiaries" border=0></font></a></td>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('addcustomeraccounttransaction')?>&type=customer&contactid=<?php echo $contactid?>"><font color=darkblue><img src="images/report.gif" alt="Add Customer Transaction" border=0></font></a></td>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('viewcustomeraccounttransactions')?>&type=customer&contactid=<?php echo $contactid?>"><font color=darkblue><img src="images/view.gif" alt="View Customer Transactions" border=0></font></a></td>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('customeraccountreport')?>&type=customer&selcontact=<?php echo $contactid?>&type=customer&contactid=<?php echo $contactid?>"><font color=darkblue><img src="images/view.gif" alt="View Customer Statement" border=0></font></a></td>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('newevent')?>&type=customer&contactid=<?php echo $contactid?>"><font color=darkblue><img src="images/followup.gif" alt="Add Event" border=0></font></a></td>
+
+<td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('viewevents')?>&type=customer&contactid=<?php echo $contactid?>"><font color=darkblue><img src="images/complaint.gif" alt="View Events" border=0></font></a></td>
+
+<?php if($deleterights=='Y')
+{ ?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('contacts_online')?>&deleteaction=contactdelete&contactid=<?php echo $contactid?>"><img border="0" src="images/del_contact.gif" alt="make customer inactive">
+</a></td><? }
+else
+{?>
+ <td width="2%"  class="Row"  valign=top class="<?php echo $bgcolor?>"  > &nbsp;
+</td>
+<? }?>
+  
+              </tr>
+   <?
+       } }
+ ?>
+          
+         </table>
+
+		 <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+<?
+if ($startrow != 0) { 
+    $prevrow = $startrow - $display; 
+    print("<td width=50% align=left><a href=\"JavaScript:nextPage('".$prevrow."')\"><img src=images/prev.jpg alt=prev border=0></a></td> ");  
+}
+
+// Calculate the total number of pages 
+$pages = intval($countrecords / $display); 
+
+if ($countrecords % $display) { 
+    // has left over from division, so add one page 
+    $pages++; 
+} 
+/*// Print the next pages, first check if 
+//     there are more pages then 1 
+if ($pages > 1) { 
+    for ($i=1; $i <= $pages; $i++) { // Begin loop 
+    $nextrow = $display * ($i - 1); 
+    print("<a href=\"JavaScript:nextPage('".$nextrow."')\">$i</a>  ");
+    } 
+}*/ 
+//End loop 
+// Check if we are at the last page, if 
+//     so, dont print 'Next' 
+if (!(($startrow / $display) == $pages) && $pages != 1) { 
+    // not the last page so print 'Next' 
+    $nextrow = $startrow + $display; 
+    print("<td width=50% align=right><a href=\"JavaScript:nextPage('".$nextrow."')\"><img src=images/next.jpg alt=next border=0></a></td>"); 
+} 
+
+?>
+</tr></table>
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>
+

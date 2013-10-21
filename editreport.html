@@ -1,0 +1,268 @@
+<? include('header.html');   ?>
+
+ <?
+ include('reportsidemenu.html');
+
+ $Getreportid=0;
+if(isset($_POST['reportid'])!="")
+   {
+   $Getreportid=$_POST['reportid'];
+   }
+   else
+   {
+    $Getreportid=$_GET['reportid'];
+   }
+?>
+<?
+if($userrole!='Administrator')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=editreportform method=post action=index.php>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the field record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.reportname,"Report Name"))
+                return false;
+	
+        return true;
+}
+function validateForm1(theForm)
+{
+     if (!validRequired(theForm.position,"Field Position"))
+                return false;
+	
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editreportform))
+{
+document.editreportform.action="index.php?status=<?php echo base64_encode('editreport')?>&action=addnew";
+document.editreportform.submit();
+}
+}
+
+function addfield()
+{
+	if(validateForm1(document.editreportform))
+{
+document.editreportform.action="index.php?status=<?php echo base64_encode('editreport')?>&addfield=addnew";
+document.editreportform.submit();
+}
+}
+
+
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('editreport')?>">
+<input type=hidden name=reportid value="<?php echo $Getreportid?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+    editreport();
+    }
+	 if(isset($_GET['addfield'])=="addnew")
+   {
+    addfield();
+    }
+	 if(isset($_GET['deleteaction'])=="reportdelete")
+   {
+	   $deletefieldid=$_GET['deletefieldid'];
+  if($deletefieldid!="")
+ {
+	  
+ $sql   = "delete from report_field_group where autoid= '$deletefieldid'";
+//echo $sql;
+ $Result1= safe_query($sql) ;
+  display_message(  "<font color=darkblue><b><p align=center>Field Information has been successfully deleted</font></p></b>");
+ }
+   }
+    if($Getreportid!="")
+   {
+    $sql    = "select * from report_master where reportid='$Getreportid'"; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+        $reportname  = (isset($row['reportname'])) ? $row['reportname'] : "";
+		$report_fields  = (isset($row['report_fields'])) ? $row['report_fields'] : "";
+		$is_empty_allowed  = (isset($row['is_empty_allowed'])) ? $row['is_empty_allowed'] : "";
+		$export_headers  = (isset($row['export_headers'])) ? $row['export_headers'] : "";
+		$apply_id_document_rule  = (isset($row['apply_id_document_rule'])) ? $row['apply_id_document_rule'] : "";
+		$payingagent  = (isset($row['payingagent'])) ? $row['payingagent'] : "";
+       
+
+      }
+    }
+
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Report Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+      <table width="60%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1"  valign=top >
+        Report Name<td height="1" colspan=2>
+        <input maxLength="1000"  name="reportname" value="<? echo $reportname?>"  size="30"></td>
+      </tr>
+	 
+   <tr>
+        <td height="1" valign=top >
+        Replace Empty with None</TD><td height="1" COLSPAN=2 >
+       <select name=is_empty_allowed><option value='<? echo $is_empty_allowed?>' selected><? echo $is_empty_allowed?></option><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+	   <tr>
+        <td height="1"   valign=top >
+        Apply ID document rule<td height="1" colspan=2>
+       <select name=apply_id_document_rule><option value='<? echo $apply_id_document_rule?>' selected><? echo $apply_id_document_rule?></option><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+   
+    <tr>
+        <td height="1" valign=top >
+        Export Headers</TD><td height="1" colspan=2>
+       <select name=export_headers><option value='<? echo $export_headers?>' selected><? echo $export_headers?></option><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+	   <tr>
+   <td width="50%" valign="top">Paying Agent</td>
+    <td width="50%" valign="top"><? echo getpayingagents("payingagent",$payingagent,$bencountry,$payingagent_disabled)?></td>
+  </tr>
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+<br>
+  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+  $sql            = "select autoid,displayname,position from report_master,report_field_group,report_fields where report_field_group.fieldid=report_fields.fieldid and report_master.reportid=report_field_group.reportid and report_field_group.reportid='$Getreportid' order by position ASC";
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+   if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no fields for the report&nbsp; in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="10%" class="TableHeader"><b>Field name</b></td>
+                <td width="2%" class="TableHeader"><b>Position</b></td>
+				<td width="2%" class="TableHeader"><b>Action</b></td>
+
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+		$autoid      = (isset($row['autoid'])) ? $row['autoid'] : 0;
+		$displayname  = (isset($row['displayname'])) ? $row['displayname'] : "";
+        $position = (isset($row['position'])) ? $row['position'] : "";
+	  ?>
+
+ <tr><td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><?php echo stripslashes($displayname)?></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $position?></td>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('editreport')?>&deleteaction=fielddelete&deletefieldid=<?php echo $autoid?>&reportid=<? echo $Getreportid?>"><img border="0" src="images/del_contact.gif" alt="delete record">
+</a></td>
+ </tr>
+
+			  <? } } ?>
+
+			  </table>
+
+			  <br>
+
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Report Field Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+      <table width="60%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1"  valign=top >
+        Add Field<td height="1" colspan=2>
+        <? echo getreportfields("fieldid",$fieldid,"");?>	</td>
+      </tr>
+	  <tr>
+        <td height="1"  valign=top >
+        Position<td height="1" colspan=2>
+        <input maxLength="1000"  name="position" value=""  size="2"></td>
+      </tr>
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:addfield()" name=s3 value="  Add Field" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:addfield()" name=s3 value="  Add Field" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+</form>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

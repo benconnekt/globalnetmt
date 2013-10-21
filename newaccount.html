@@ -1,0 +1,116 @@
+<? include('header.html');   ?>
+
+ <?
+ include('accountssidemenu.html');
+
+ ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+<?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=newclientform method=post action=index.php>
+<script language=javascript>
+function getaddressvalue()
+{
+document.newclientform.shippingaddress.value=document.newclientform.billingaddress.value;
+}
+function saveinfo()
+{
+document.newclientform.action="index.php?status=<?php echo base64_encode('newaccount')?>&action=addnew";
+document.newclientform.submit();
+}
+        </script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('newaccount')?>">
+
+ <?
+ if(isset($_GET['action'])=="addnew")
+   {
+    addaccountinfo();
+    }
+   ?>
+   
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Account Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1" width="268" >
+        Account Name<td height="1" width="536" >
+        <input class=text  tabIndex="2" maxLength="1000"  name="accountname" size="50">&nbsp;</td>
+      </tr>
+      <tr>
+        <td height="6" width="268" bgcolor=>Account Type</td>
+        <td height="6" width="536" bgcolor=>
+       <select name=accounttype>
+       <option value="BANK">BANK</option>
+       <option value="CREDIT CARD">CREDIT CARD</option>
+       <option value="A/C PAYABLE">A/C PAYABLE</option>
+       <option value="EXPENSES">EXPENSES</option>
+       <option value="MISC">MISC</option>
+       <option value="A/C RECEIVABLE">A/C RECEIVABLE</option>
+       </select></td>
+      </tr>
+      <tr>
+        <td class="list_address_block_header" align="left" colSpan="2" height="1" width="804" >
+        Account Description</td>
+      </tr>
+      <tr>
+        <td colspan="2" height="1" width="804" bgcolor="">
+        <textarea tabIndex="6" name="accountdesc" cols="69" rows="3"></textarea></td>
+      </tr>
+
+      </table>
+
+  <? if ($addrights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" >
+      <?}
+      else {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" disabled>
+      <?}?> </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

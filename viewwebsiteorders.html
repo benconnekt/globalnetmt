@@ -1,0 +1,353 @@
+<?php
+
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  $reporttype="";
+   $reportorderstatus="";
+$title="Website Money Transfer Sales";
+include('header.html');
+include('onlinesidemenu.html');
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('viewwebsiteorders')?>>
+<?
+ if(isset($_GET['deleteaction'])=="delete")
+   {
+  if($_GET['saleid']!="")
+ {
+	  $saleid=$_GET['saleid'];
+ $sql   = "delete from sales_master where saleid= '$saleid'";
+ $Result1= safe_query($sql) ;
+display_message(  "<b><p align=center>Money Transfer information has been successfully deleted</font></p>");
+ }
+ }
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("Y-m-d", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+
+
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the money transfer record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+ 
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('viewwebsiteorders')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction>
+<input type=hidden name=status value="<?php echo base64_encode('viewwebsiteorders')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+<input type=hidden name=reportorderstatus value="<?php echo $reportorderstatus ?>">
+
+
+<? if($superuserrights != "Y" && $userrole != "Administrator")
+	  {?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="orderdate,ordertime";
+ }
+ }
+$currentmonth = $today['mon'];
+ $currentyear = $today['year'];
+if($_GET['year']!='')
+ {
+ $thisyear=$_GET['year'];
+ }
+ elseif($_POST['year']!='')
+ {
+ $thisyear=$_POST['year'];
+ }
+ else
+ {
+ $thisyear=$currentyear;
+ }
+ if($_GET['month']!='')
+ {
+ $thismonth=$_GET['month'];
+ }
+ else
+ {
+ if($_POST['month']!='')
+ {
+ $thismonth=$_POST['month'];
+ }
+ else
+ {
+ $thismonth=$currentmonth;
+ }
+ }
+ if($thismonth==1)
+$displaymonth="January";
+if($thismonth==2)
+$displaymonth="February";
+if($thismonth==3)
+$displaymonth="March";
+if($thismonth==4)
+$displaymonth="April";
+if($thismonth==5)
+$displaymonth="May";
+if($thismonth==6)
+$displaymonth="June";
+if($thismonth==7)
+$displaymonth="July";
+if($thismonth==8)
+$displaymonth="August";
+if($thismonth==9)
+$displaymonth="September";
+if($thismonth==10)
+$displaymonth="October";
+if($thismonth==11)
+$displaymonth="November";
+if($thismonth==12)
+$displaymonth="December";
+
+ if($_GET['thisday']!='')
+ {
+ $thisday=$_GET['thisday'];
+ }
+ else
+ {
+ if($_POST['thisday']!='')
+ {
+ $thisday=$_POST['thisday'];
+ }
+ else
+ {
+ $thisday=$datetoday;
+ }
+ }
+  if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+  $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+ 
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+  <tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdae' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Sales Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport('<? echo $reporttype?>')" ></td>
+
+  </tr>
+
+  
+   <tr>
+  <td width="25%" valign="top"><b>Select the Customer</b></td>
+ <td width="25%"  valign="top">
+
+<?php 
+	
+if($userrole == 'Administrator')
+	  {
+	echo getonlinecontactnames("selcontactid",$selcontactid,"");
+	  }
+	  else
+	  {
+	echo getonlinecontactnames("selcontactid",$selcontactid,$agentid);
+	  }?>
+
+</td>
+<td width="25%"   valign="top">&nbsp;</td>
+  <td width="25%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Customer Sales Report" class=btn3 onclick="javascript:generatesalesreport('viewwebsiteorders')" ></td>
+
+  </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+ $startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"orderdate,ordertime "; 
+ 
+ if($selcontactid != "")
+ {
+	   $temp        = $temp." and a.contactid='$selcontactid'";
+  
+ }
+  if($_POST['searchvalue']!='')
+  {
+  $searchvalue=strtolower($_POST['searchvalue']);
+  $temp           = $temp." and ( lower(orderid)='$searchvalue' or lower(b.surname) like '%$searchvalue%' or lower(b.firstname) like '%$searchvalue%' or lower(c.surname) like '%$searchvalue%' or lower(c.firstname) like '%$searchvalue%') ";
+  }
+  else
+  {
+	   $temp        = $temp." and orderdate>='$startsalesdate' and orderdate<='$endsalesdate' ";
+
+  }
+ // echo $temp;
+ 
+  $reportquery = getMoneyTransferOrdersQuery($temp,"websiteorders");
+//  echo $reportquery;
+  echo getMoneyTransferOrders($temp,"websiteorders",false,"",$deleterights);
+?>
+</center>
+     </div>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    <BR>
+<BR>
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ 
+</form>
+<form name="queryform" action="mtreportsprintableview.php" method="post" target=_blank>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="searchagent" value="<?php echo $agentid?>">
+<input type=hidden name="searchexchangerate" value="<?php echo $exchangerate?>">
+<input type=hidden name="searchcustomer" value="<?php echo $selcontactid?>">
+<input type=hidden name="selcountry" value="<?php echo $selcountry?>">
+<input type=hidden name="pageAction" value="<?php echo $pageAction?>">
+<input type=hidden name="module" value="websiteorders">
+<input type=hidden name="title" value="<?php echo $title?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Printable View" class=btn3 >
+
+</form>
+
+<form name="queryform" action="mtreportsprintableview.php?type=excel" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="searchagent" value="<?php echo $agentid?>">
+<input type=hidden name="searchexchangerate" value="<?php echo $exchangerate?>">
+<input type=hidden name="searchcustomer" value="<?php echo $selcontactid?>">
+<input type=hidden name="selcountry" value="<?php echo $selcountry?>">
+<input type=hidden name="module" value="websiteorders">
+<input type=hidden name="pageAction" value="<?php echo $pageAction?>">
+<input type=hidden name="title" value="<?php echo $title?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Export to Excel" class=btn3 >
+
+</form>
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

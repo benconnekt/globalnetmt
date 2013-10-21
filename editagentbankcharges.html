@@ -1,0 +1,150 @@
+<? include('header.html');   ?>
+
+ <?
+ include('usersidemenu.html');
+
+ ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+ $Getbankchargesid=0;
+if(isset($_POST['bankchargesid'])!="")
+   {
+   $Getbankchargesid=$_POST['bankchargesid'];
+   }
+   else
+   {
+    $Getbankchargesid=$_GET['bankchargesid'];
+   }
+?>
+<?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=editrateform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validInt(theForm.rangefrom,"Range from",true))
+      return false;
+
+ if (!validInt(theForm.rangeto,"Range to",true))
+      return false;
+  if (!validInt(theForm.bankcharges,"Bank Charges",true))
+      return false;
+         return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editrateform))
+{
+document.editrateform.action="index.php?status=<?php echo base64_encode('editagentbankcharges')?>&action=addnew";
+document.editrateform.submit();
+}
+}
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('editagentbankcharges')?>">
+<input type=hidden name=bankchargesid value="<?php echo $Getbankchargesid?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+    editagentbankcharges();
+    }
+    if($Getbankchargesid!="")
+   {
+    $sql    = "select * from agentbankcharges_master where bankchargesid='$Getbankchargesid'"; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+      $bankchargesid      = (isset($row['bankchargesid'])) ? $row['bankchargesid'] : 0;
+    $rangefrom  = (isset($row['rangefrom'])) ? $row['rangefrom'] : "";
+        $rangeto = (isset($row['rangeto'])) ? $row['rangeto'] : "";
+		     $bankcharges= (isset($row['bankcharges'])) ? $row['bankcharges'] : 0;
+			 $agentname= (isset($row['agentname'])) ? $row['agentname'] : 0;
+
+      }
+    }
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Bank Charges Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+   
+	   <tr>
+        <td align="left"  height="1" width="50%">
+       Range From:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="rangefrom" size="5" value="<?php echo $rangefrom?>" > 
+        </td>
+      </tr>
+	   <tr>
+        <td align="left"  height="1" width="50%">
+       Range To:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="rangeto" size="5" value="<?php echo $rangeto?>" > 
+        </td>
+      </tr>
+	  <tr>
+        <td align="left"  height="1" width="100%">
+       Bank Charge:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="bankcharges" size="5" value="<?php echo $bankcharges?>" >
+        </td>
+      </tr>
+	  
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

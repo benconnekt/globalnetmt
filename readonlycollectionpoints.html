@@ -1,0 +1,198 @@
+<? include('header.html');   ?>
+ <?
+ include('officesidemenu.html');
+
+ ?>
+  <?php  if($officerights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=productlist method=post action=index.php>
+<script language=javascript>
+
+function nextPage(val)
+    {
+        document.productlist.displayPageNo.value=val;
+        document.productlist.action="index.php?status=<?php echo base64_encode('readonlycollectionpoints')?>&PAGE="+val;
+        document.productlist.submit();
+        }
+		function submitform()
+{
+document.productlist.action="index.php?status=<?php echo base64_encode('readonlycollectionpoints')?>";
+document.productlist.submit();
+}
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('readonlycollectionpoints')?>">
+<input type=hidden name=displayPageNo value="1">
+
+ <?
+
+   $DISP_REC_COUNT = 50;  // No of rows appearing per page
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"d.statename ASC";
+ $sql            = "select a.agentname as agentname,a.agentaddress as agentaddress,b.agentname as payingagentname,c.cityname as city,d.statename as state,e.countryname as country,a.agentstatus as agentstatus from agent_master a, payingagent_master b,city_master c, state_master d,country_master e where a.payingagent=b.agentid and a.city = c.cityid and a.state = d.stateid and a.country = e.countryid and a.agenttype='collectionpoint' and b.agentstatus = 'Active' and a.agentstatus='Active' ";
+
+ 
+ if($_REQUEST['searchvalue']!='' )
+  {
+	  $searchvalue=$_REQUEST['searchvalue'];
+	 
+   $temp           = $temp." and (lower(a.agentname) like '$searchvalue%' or  lower(a.agentref) like '$searchvalue%'  or  lower(c.cityname) like '$searchvalue%'  or  lower(d.statename) like '$searchvalue%'  or  lower(e.countryname) like '$searchvalue%' )";
+  }
+  else
+  {
+	  $sql = $sql."and a.country='$selcountry' ";
+	  if($selstate != "")
+ {
+	 $sql            =$sql." and a.state='$selstate' ";
+ }
+ if($selcity != "")
+ {
+	 $sql            =$sql." and a.city='$selcity' ";
+ }
+  }
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+//  echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+   
+ ?>
+        <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td  class="TableHeader">Collection Points</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+	   <table border="0" cellpadding="3" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+	  <tr>
+     
+	  <td width="15%" valign="top">Choose Country:</td>
+        <td width="15%" valign="top">
+    <b>
+    <? echo getcollectioncountries("selcountry",$selcountry,"onchange=javascript:submitform()")?></b></td>
+     
+       <td width="15%" valign="top">Choose State:</td>
+        <td width="15%" valign="top">
+    <b>
+    <? echo getstates("selstate",$selstate,$selcountry,"onchange=javascript:submitform()")?></td>
+	  
+	  <td width="15%" valign="top">Choose City:</td>
+        <td width="15%" valign="top">
+    <b>
+    <? echo getcities("selcity",$selcity,$selstate,"onchange=javascript:submitform()")?></b></td>
+     
+      </tr>
+	  </table>
+	  </td>
+	  </tr>
+	  </table>
+	  <br>
+     <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no collection points in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+ <tr>
+                 <td width="12%" class="TableHeader"><b>Name</b></td>
+				 <td width="12%" class="TableHeader"><b>Corresponding Agent</td>
+				 <td width="2%" class="TableHeader"><b>Status</b></td>
+                 <td width="20%" class="TableHeader"><b>Address</b></td>
+                <td width="12%" class="TableHeader"><b>City</td>
+				<td width="12%" class="TableHeader"><b>State</td>
+				<td width="7%" class="TableHeader"><b>Country</td>
+				
+              </tr>
+
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+  $bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+ $agentaddress = (isset($row['agentaddress'])) ? $row['agentaddress'] : "";
+        $agentname = (isset($row['agentname'])) ? $row['agentname'] : "";
+        $payingagentname = (isset($row['payingagentname'])) ? $row['payingagentname'] : "";
+        $agentstatus = (isset($row['agentstatus'])) ? $row['agentstatus'] : "";
+         $city = (isset($row['city'])) ? $row['city'] : "0";
+         $state = (isset($row['state'])) ? $row['state'] : "";
+		 $country = (isset($row['country'])) ? $row['country'] : "";
+		
+
+
+  ?>
+     <tr><td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentname?></td>
+<td class="Row" width="20%" bgcolor="<?php echo $bgcolor?>"><? echo ($payingagentname)?></td>
+
+<td class="Row" width="2%" bgcolor="<?php echo $bgcolor?>"><? echo $agentstatus?></td>
+
+<td class="Row" width="20%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentaddress?></td>
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>"><? echo ($city)?></td>
+
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>"><? echo ($state)?></td>
+
+<td class="Row" width="7%" bgcolor="<?php echo $bgcolor?>"><? echo ($country)?></td>
+
+              </tr>
+
+   <?
+              }
+ }
+         
+        ?>
+         </table>
+         </form>
+ <? include('footer.html');   ?>

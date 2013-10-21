@@ -1,0 +1,153 @@
+ <span>
+                <div style="width:150" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Search Page</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:150">
+                        <div>
+		<? 
+		$status=base64_encode('contacts_online');
+		if(isset($_GET['status']))
+		{
+			$status= $_GET['status'];
+		}?>
+      <form name=searchform action="index.php?status=<? echo $status ?>" method=post>
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0" valign=top>
+
+    <TR>
+        <TD ><input type=text name=searchvalue value="<?php echo $_POST['searchvalue']?>" maxlength=30  size=15></TD>
+      </TR>
+      <TR>
+        <TD > <input type=submit name="Search Customer" class="btn3"></TD>
+      </TR>
+       
+                 </TABLE>
+				  </form>
+       </div>
+                </div>
+        </span>
+		<? if(strlen($_GET['contactid']))
+	{
+		$contactid = $_GET['contactid'];
+		?>
+        <br>
+ <span>
+  <div style="width:150" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Customer Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+          <div  style="width:150">
+                        <div>
+
+   <TABLE style="border-collapse: collapse" cellpadding="2"  cellspacing="0" border="1" width="100%">
+    
+       <tr>
+        <TD width="100%" class=Row>
+		<b><a href="index.php?status=<?php echo base64_encode('contacts_online')?>&contactid=<? echo $_GET['contactid']?>"><u>Go back to <? echo getcontactname($contactid)?> record</u></a></b>
+		</td></tr>
+
+		  <tr>
+        <TD width="100%"  class=Row>
+         <a href="index.php?status=<?php echo base64_encode('newbeneficiary')?>&contactid=<? echo $contactid?>&type=online"><u>New beneficiary</u></a></TD>
+          </tr>
+
+          <tr>
+        <TD width="100%"  class=Row>
+
+          <a href="index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<? echo $contactid?>&type=online"><u>View beneficiaries</u></a>
+        </TD>
+          </tr>
+          
+
+ <TR>
+        <TD  width=100%  class=Row>
+       <a href="index.php?status=<?php echo base64_encode('newdocument')?>&contactid=<? echo $contactid?>&type=online"><u>Add Document</u></a></TD>
+      </TR>
+      <TR>
+        <TD  width=100%  class=Row>
+       <a href="index.php?status=<?php echo base64_encode('viewdocuments')?>&contactid=<? echo $contactid?>&type=online"><u>View Documents</u></a></TD>
+      </TR>
+
+	
+
+	   <tr>
+        <TD width="100%"  class=Row>
+         <a href="index.php?status=<?php echo base64_encode('addcustomeraccounttransaction')?>&contactid=<? echo $contactid?>&type=customer"><u>Add Customer Payment</u></a></TD>
+          </tr>
+		   <tr>
+        <TD width="100%"  class=Row>
+         <a href="index.php?status=<?php echo base64_encode('viewcustomeraccounttransactions')?>&contactid=<? echo $contactid?>&type=customer"><u>View Customer Payments</u></a></TD>
+          </tr>
+		   <tr>
+        <TD width="100%"  class=Row>
+         <a href="index.php?status=<?php echo base64_encode('customeraccountreport')?>&contactid=<? echo $contactid?>&selcontact=<? echo $contactid?>&type=customer"><u>View Customer Account Statement</u></a></TD>
+          </tr>
+		   <TR>
+        <TD width="100%"  class=Row>
+        <a href="index.php?status=<?php echo base64_encode('viewwebsiteorders')?>&contactid=<? echo $_GET['contactid']?>&selcontactid=<? echo $_GET['contactid']?>"><u>View MT Orders</u></a></TD>
+      </TR>
+		    <TR>
+        <TD  width=100%  class=Row>
+       <a href="index.php?status=<?php echo base64_encode('customerloginreport')?>&contactid=<? echo $contactid?>&type=online"><u>View Login Report</u></a></TD>
+      </TR>
+	  </table>
+
+
+
+</div>
+                </div>
+        </span>
+		<? } ?>
+        <br>
+
+ <span>
+  <div style="width:150" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Online Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+          <div  style="width:150">
+                        <div>
+						   <TABLE style="border-collapse: collapse" cellpadding="2"  cellspacing="0" border="1" width="100%">
+
+	    <TR>
+        <TD width="100%"  class=Row>
+
+        <a href="index.php?status=<?php echo base64_encode('contacts_online')?>"><u>Online Customers</u></a></TD>
+      </TR>
+	  <TR>
+        <TD width="100%"  class=Row>
+
+        <a href="index.php?status=<?php echo base64_encode('contacts_onlinenew')?>"><u>New Online Customers Waiting for Approval</u></a></TD>
+      </TR>
+	  <TR>
+        <TD width="100%"  class=Row>
+
+        <a href="index.php?status=<?php echo base64_encode('contacts_onlineinactive')?>"><u>Online Inactive Customers</u></a></TD>
+      </TR>
+
+	   <TR>
+        <TD width="100%"  class=Row>
+        <a href="index.php?status=<?php echo base64_encode('viewwebsiteorders')?>"><u>View Online Orders</u></a></TD>
+      </TR>
+      
+
+       </TABLE>
+       </div>
+	   </div>
+               </span>
+		
+      </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:10;padding-right:2" valign=top bgcolor=#f2f4f8>

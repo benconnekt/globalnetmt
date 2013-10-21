@@ -1,0 +1,645 @@
+<?php
+
+$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+$datetoday = date("d/m/Y");
+ ?>
+ <?php
+
+  if (isset($_SESSION["MM_UserAuthorization1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+$agenref=getagentname($username);
+// $userrole=getuserrole($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+
+include('header.html');
+include('reportsidemenu.html');
+
+ ?>
+<form name=mtsalesform method=get action=index.php>
+ 
+<?
+
+ if(isset($_GET['deleteaction'])=="delete")
+   {
+	       $mtsaleid=$_GET['mtsaleid'];
+ 
+  if($mtsaleid!="")
+ {
+ $sql   = "delete from moneytransfer_sales where mtsaleid= '$mtsaleid'";
+ $Result1= safe_query($sql) ;
+  $sql   = "delete from mt_beneficiary where mtsaleid= '$mtsaleid'";
+//echo $sql;
+ $Result1= safe_query($sql) ;
+ print "<b><font size=3 color=darkblue><p align=center>Money Transfer information has been successfully deleted</font></p>";
+ }
+ }
+ if(isset($_GET['bendeleteaction'])=="delete")
+   {
+  if($beneficiaryid!="")
+ {
+ $sql   = "delete from mt_beneficiary where beneficiaryid= '$beneficiaryid'";
+ $Result1= safe_query($sql) ;
+ print "<b><font size=3 color=darkblue><p align=center>Beneficiary information has been successfully deleted</font></p>";
+ }
+ }
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("Y-m-d", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+
+
+
+   ?>
+<script language="javascript">
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the money transfer record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function confirmSubmit1()
+{
+var agree=confirm("Do you wish to delete the beneficiary record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+  function cal(field1)
+{
+
+var r=showModalDialog("Calender.html",field1,"dialogWidth:180px;dialogHeight:195px;status:no");
+if (typeof r != "undefined")
+{
+var thelength = r.length;
+//alert(thelength);
+var year = r.substring(0,4);
+var month=r.substring(6,7);
+if(month==1)
+displaymonth="January";
+if(month==2)
+displaymonth="February";
+if(month==3)
+displaymonth="March";
+if(month==4)
+displaymonth="April";
+if(month==5)
+displaymonth="May";
+if(month==6)
+displaymonth="June";
+if(month==7)
+displaymonth="July";
+if(month==8)
+displaymonth="August";
+if(month==9)
+displaymonth="September";
+if(month==10)
+displaymonth="October";
+if(month==11)
+displaymonth="November";
+if(month==12)
+displaymonth="December";
+
+var date=r.substring(8,thelength);
+if(date==1)
+{
+displaydate=date+'st';
+}
+else
+{
+if(date==2)
+{
+displaydate=date+'nd';
+}
+else
+{
+if(date==3)
+{
+displaydate=date+'rd';
+}
+else
+{
+if(date==21)
+{
+displaydate=date+'st';
+}
+else
+{
+if(date==22)
+{
+displaydate=date+'nd';
+}
+else
+{
+if(date==23)
+{
+displaydate=date+'rd';
+}
+else
+{
+displaydate=date+'th';
+}
+}
+}
+}
+}
+}
+
+
+field1.value = r;
+
+}
+
+}
+
+
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('mtcustomersales')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(){
+        document.mtsalesform.pageAction.value="generatesalesreport";
+        document.mtsalesform.submit();
+    }
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction>
+<input type=hidden name=status value="<?php echo base64_encode('mtcustomersales')?>">
+
+<?
+if($reportrights!='Y')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for reports rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+        <?
+$today = getdate();
+if($_GET['selectagentref']!='')
+ {
+ $selectagentref=$_GET['selectagentref'];
+ }
+ else
+ {
+ if($_POST['selectagentref']!='')
+ {
+ $selectagentref=$_POST['selectagentref'];
+ }
+ }
+ if($_GET['selectcustomername']!='')
+ {
+ $selectcustomername=$_GET['selectcustomername'];
+ }
+ else
+ {
+ if($_POST['selectcustomername']!='')
+ {
+ $selectcustomername=$_POST['selectcustomername'];
+ }
+ }
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+$currentmonth = $today['mon'];
+$currentyear = $today['year'];
+if($_GET['year']!='')
+ {
+ $thisyear=$_GET['year'];
+ }
+ else
+ {
+ $thisyear=$currentyear;
+ }
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="depositdate";
+ }
+ }
+ if($_GET['month']!='')
+ {
+ $thismonth=$_GET['month'];
+ }
+ else
+ {
+ if($_POST['month']!='')
+ {
+ $thismonth=$_POST['month'];
+ }
+ else
+ {
+ $thismonth=$currentmonth;
+ }
+ }
+ if($thismonth==1)
+$displaymonth="January";
+if($thismonth==2)
+$displaymonth="February";
+if($thismonth==3)
+$displaymonth="March";
+if($thismonth==4)
+$displaymonth="April";
+if($thismonth==5)
+$displaymonth="May";
+if($thismonth==6)
+$displaymonth="June";
+if($thismonth==7)
+$displaymonth="July";
+if($thismonth==8)
+$displaymonth="August";
+if($thismonth==9)
+$displaymonth="September";
+if($thismonth==10)
+$displaymonth="October";
+if($thismonth==11)
+$displaymonth="November";
+if($thismonth==12)
+$displaymonth="December";
+
+?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Money Transfer Customer Sales </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+
+  <tr>
+  <td width="25%" valign="top"><b>Select the month</b> </td>
+ <td width="25%" valign="top">
+<select name="month">
+<option value="<?php echo $thismonth?>" selected><?php echo $displaymonth?></option>
+<option value='01'>January</option>
+<option value='02'>February</option>
+<option value='03'>March</option>
+<option value='04'>April</option>
+<option value='05'>May</option>
+<option value='06'>June</option>
+<option value='07'>July</option>
+<option value='08'>August</option>
+<option value='09'>September</option>
+<option value='10'>October</option>
+<option value='11'>November</option>
+<option value='12'>December</option>
+</select>
+<select name="year">
+<option value="<?php echo $thisyear?>" selected><?php echo $thisyear?></option>
+<option value='2001'>2001</option>
+<option value='2002'>2002</option>
+<option value='2003'>2003</option>
+<option value='2004'>2004</option>
+<option value='2005'>2005</option>
+<option value='2006'>2006</option>
+<option value='2007'>2007</option>
+<option value='2008'>2008</option>
+<option value='2009'>2009</option>
+<option value='2010'>2010</option>
+<option value='2011'>2011</option>
+<option value='2012'>2012</option>
+</select>
+
+</td>
+<td width="25%" valign="top">&nbsp;</td>
+  <td width="25%"  valign="top">
+    <input type="button"  name="cmd_Submit1" value="Sales Report" class=btn3 onclick="javascript:generatesalesreport()" ></td>
+
+  </tr>
+   <tr>
+  <td width="25%" valign="top"><b>Select the Customer</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getcontactnames("selectcustomername",$selectcustomername,$agentid)?>
+
+</td>
+<td width="25%"   valign="top">&nbsp;</td>
+  <td width="25%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Customer Sales Report" class=btn3 onclick="javascript:generatesalesreport()" ></td>
+
+  </tr>
+
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+       $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"depositdate";
+ $thisday = dateConvert($thisday);
+ $sql            = "select mtsaleid,UCASE(customername),customeramount,depositdate,amountdepositdate,customerbankedsortcode,zimamount,agentcommission,exchangerate,moneytransferstatus,lastupdated,message,agentref,UCASE(customertelephone2),UCASE(beneficiaryname),UCASE(beneficiarybankname),UCASE(beneficiarybranchname),UCASE(beneficiaryaccountno),beneficiaryamount,currency from moneytransfer_sales ";
+
+  $temp        = " where month(depositdate)=$thismonth and year(depositdate)=$thisyear and contactid='$selectcustomername'";
+
+
+
+
+ $temp=$temp."  order by ".$dataOrder." desc ";
+
+  $sql            = $sql.$temp;
+  $reportquery=$sql;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+//  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="95%" colspan=4>
+  <b> Currently there is no Money transfer sales information in the system for the customer.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+
+
+ <tr>
+    <td width="5%" class="TableHeader">
+                 <b><B> Agent</b></td>
+<td class="TableHeader">
+                 <b>Sale Date</a></b></td>
+                 <td class="TableHeader">
+                 <b> PIN No</b></td>
+
+
+    <td class="TableHeader">
+                 <b>Sender Name</b></td>
+                <td class="TableHeader">
+                 <b>Amount</a></b></td>
+				 <td class="TableHeader">
+                 <b>Currency</a></b></td>
+   <td class="TableHeader">
+                 <b>Rate</b></td>
+   <td class="TableHeader">
+                 <b>Receiver Name</a></b></td>
+
+                <td class="TableHeader">
+                 <b>Beneficiary Amount</b></td>
+				    <td class="TableHeader">
+                 <b>Status</b></td>
+
+                   <?
+if($deleterights=='Y')
+{?>
+ <td class="TableHeader">
+                 <b>Action</b></td>
+<?}?>
+               </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalprofit=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+  $bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+   $mtsaleid      = (isset($row['mtsaleid'])) ? $row['mtsaleid'] : 0;
+  $depositdate      = (isset($row['depositdate'])) ? $row['depositdate'] : 0;
+   $agentref      = (isset($row['agentref'])) ? $row['agentref'] : 0;
+  $customername      = (isset($row['UCASE(customername)'])) ? $row['UCASE(customername)'] : 0;
+  $customertelephone2      = (isset($row['UCASE(customertelephone2)'])) ? $row['UCASE(customertelephone2)'] : 0;
+  $customerbankedsortcode      = (isset($row['customerbankedsortcode'])) ? $row['customerbankedsortcode'] : "";
+   $zimamount      = (isset($row['zimamount'])) ? $row['zimamount'] : "";
+$agentcommission      = (isset($row['agentcommission'])) ? $row['agentcommission'] : "";
+$customeramount   = (isset($row['customeramount'])) ? $row['customeramount'] : 0;
+$exchangerate   = (isset($row['exchangerate'])) ? $row['exchangerate'] : 0;
+$amount  = (isset($row['customeramount'])) ? $row['customeramount'] : 0;
+ $moneytransferstatus  = (isset($row['moneytransferstatus'])) ? $row['moneytransferstatus'] : "";
+ $lastupdatedtime  = (isset($row['lastupdated'])) ? $row['lastupdated'] : "";
+ $message  = (isset($row['message'])) ? $row['message'] : "";
+ $amountdepositdate  = (isset($row['amountdepositdate'])) ? $row['amountdepositdate'] : "";
+$currency  = (isset($row['currency'])) ? $row['currency'] : "";
+
+ $beneficiaryaccountno  = (isset($row['UCASE(beneficiaryaccountno)'])) ? $row['UCASE(beneficiaryaccountno)'] : "";
+ $beneficiarybranchname  = (isset($row['UCASE(beneficiarybranchname)'])) ? $row['UCASE(beneficiarybranchname)'] : "";
+ $beneficiarybankname  = (isset($row['UCASE(beneficiarybankname)'])) ? $row['UCASE(beneficiarybankname)'] : "";
+ $beneficiaryname     = (isset($row['UCASE(beneficiaryname)'])) ? $row['UCASE(beneficiaryname)'] : "";
+ $beneficiaryamount      = (isset($row['beneficiaryamount'])) ? $row['beneficiaryamount'] : "";
+
+ $firstnamestring=substr($customername,0,1);
+ $surnamestring=substr($customertelephone2,0,1);
+ $transactioncode=getagentprefix($agentref).$mtsaleid;
+
+ $totalturnover=$totalturnover+$beneficiaryamount;
+                   $totalzimturnover=$totalzimturnover+($beneficiaryamount*$exchangerate);
+ 
+  if($moneytransferstatus=='Processed')
+	  {
+	  $link="index.php?status=".base64_encode('processedorder')."&mtsaleid=".$mtsaleid;
+	  }
+	  else
+	  {
+	$link="index.php?status=".base64_encode('mtedit')."&mtsaleid=".$mtsaleid;
+	  }
+  ?>
+
+
+
+
+
+
+              </tr>
+            
+  <tr>
+  
+                <td width="5%" class=Row>
+             <a href="<?php echo $link?>"><font color=darkblue> <?php echo getofficename($agentref)?></b></a></font></td>
+               <td width="7%" class=Row >
+              <a href="<?php echo $link?>"><font color=darkblue><?php echo changeddate($depositdate)?></b></a></font></td>
+               <td width="5%" class=Row >
+              <?php echo $transactioncode?></b></font></td>
+               <td width="10%" class=Row >
+              <?php echo $customername?> <?php echo $customertelephone2?></b></font></td>
+               <td width="5%" class=Row>
+              <?php echo number_format($beneficiaryamount)?></b></font></td>
+               <td width="5%" class=Row >
+              <?php echo $currency?></b></font></td>
+              
+			   <td width="5%" class=Row >
+              <?php echo $exchangerate?></b></font></td>
+               <td width="10%" class=Row >
+              <?php echo $beneficiaryname?></b></font></td>
+
+                <td width="5%" class=Row >
+              <?php echo number_format(($beneficiaryamount*$exchangerate))?></font></td>
+			  <td width="5%" class=Row >
+              <?php echo $moneytransferstatus?></b></font></td>
+
+             <?
+if($deleterights=='Y')
+{?>
+ <td width="2%" align=center class=Row><a onclick="return confirmSubmit()"  href="index.php?status=<?php echo base64_encode('mtsales')?>&mtsaleid=<?php echo $mtsaleid?>&deleteaction=delete"><img border="0" src="images/del_contact.gif" alt="delete sale"></a></td>
+<?}
+
+?>
+
+                 </tr>
+ <? } ?>
+
+    <?   if(getusertype($username)=='Administrator')
+  {  ?>
+          <tr>
+
+                 <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+
+
+  </tr>
+        <tr>
+
+                 <td width="5%">
+                 <b>Totals:</b></td>
+                  <td width="5%" >
+                 <b></b></td>
+                  <td width="5%" >
+                 <b></b></td>
+                  <td width="5%" >
+                 <b></b></td>
+
+                 <td width="5%" >
+                 <b>£ <?php echo number_format($totalturnover)?></b></td>
+                  <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%" >
+                 </td>
+                 <td width="5%" >
+                 <b></b></td>
+
+
+
+  </tr>
+                   <? }
+                   }?>
+
+
+     </table></center>
+     </div>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    <BR>
+<BR>
+</form>
+<form name="queryform" action="mtreportsprintableview.php" method="post" target=_blank>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="displaymonth" value="<?php echo $displaymonth?>">
+<input type=hidden name="searchagent" value="<?php echo $selectagentref?>">
+<input type=hidden name="searchaccount" value="<?php echo $selectbankedsortcode?>">
+<input type=hidden name="searchcustomer" value="<?php echo getcontactname($selectcustomername)?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Printable View" class=btn3 >
+
+</form>
+
+<form name="queryform" action="mtreportsexcelview.php" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="displaymonth" value="<?php echo $displaymonth?>">
+<input type=hidden name="searchagent" value="<?php echo $selectagentref?>">
+<input type=hidden name="searchexchangerate" value="<?php echo $exchangerate?>">
+<input type=hidden name="searchcustomer" value="<?php echo getcontactname($selectcustomername)?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Export to Excel" class=btn3 >
+
+</form>
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+
+  
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

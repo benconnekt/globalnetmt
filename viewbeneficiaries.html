@@ -1,0 +1,241 @@
+<? include('header.html');
+if($_GET['type'] == "online")
+{
+	include("onlinesidemenu.html");
+}
+else
+{
+include("customersidemenu.html");
+} if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"firstname";
+ $Getcontactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $Getcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $Getcontactid=$_POST['contactid'];
+   }
+ ?>
+<script language=javascript>
+ function confirmOrder()
+{
+var agree=confirm("Do you wish to make a new order with the selected customer and beneficiary ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the beneficiary record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+ function goFolder(){
+      document.contactform.submit();
+    }
+function nextPage(val)
+    {
+        document.contactform.displayPageNo.value=val;
+        document.contactform.action="index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<? echo $Getcontactid?>";
+        document.contactform.submit();
+        }
+       
+</script>
+
+<form name="contactform" action="index.php" method="post">
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<input Type="hidden" name="contactid" value="<? echo $Getcontactid?>">
+
+<input Type="hidden" name="txtsearch" value="<?php echo $txtsearch?>">
+<input Type="hidden" name="option" value="<?php echo $option?>">
+<input type=hidden name=status value="<?php echo base64_encode('viewbeneficiaries')?>">
+  
+ <?
+ if($customerrights!='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+if(isset($_GET['deleteaction'])=="bendelete")
+   {
+  if($_GET['benid']!="")
+ {
+	  $benid=$_GET['benid'];
+	   if(check_records($benid,"beneficiary"))
+	 {
+ $sql   = "delete from ben_master where benid= '$benid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Beneficiary information has been successfully deleted</font></p></b>");
+	 }
+ }
+ }
+
+if($Getcontactid!='' && is_numeric($Getcontactid))
+{
+
+
+ $sql            = "select *  from ben_master where contactid ='".$Getcontactid."'";
+
+   $temp           = $temp."  order by ".$dataOrder;
+
+  $sql            = $sql.$temp;
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+?>
+	<? 
+	display_heading("<a href='index.php?status=".base64_encode('editcontact')."&contactid=".$contactid."'>".getcontactname($contactid)."</a>","Click on <img src='images/copyicon.gif' alt='Make Order' border=0> to select the beneficiary","" );
+	?>
+ <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+
+<?
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no beneficiaries in the system .</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                  <td width="2%" class="TableHeader"><b><font color=white>ID</a></b></td>
+				  <td width="7%" class="TableHeader"><b><font color=white>Full name</a></b></td>
+			     <td width="7%" class="TableHeader"><b><font color=white>Country</a></b></td>
+				 <td width="7%" class="TableHeader"><b><font color=white>State</a></b></td>
+				 <td width="7%" class="TableHeader"><b><font color=white>City</a></b></td>
+                    <td width="7%" class="TableHeader"><b><font color=white>Bank Name</a></b></td>
+				   <td width="7%" class="TableHeader"><b><font color=white>Branch Name</a></b></td>
+				     <td width="7%" class="TableHeader"><b><font color=white>Account No</a></b></td>
+            <td width="7%" class="TableHeader"><b><font color=white>Sort Code</a></b></td>
+			 <td width="7%" class="TableHeader"><b><font color=white>Swift Code</a></b></td>
+			  <td width="7%" class="TableHeader"><b><font color=white>IBAN No</a></b></td>
+			   <td width="7%" class="TableHeader"><b><font color=white>Branch Address</a></b></td>
+            <td width="2%" class="TableHeader"><b>Order</b></td>
+			 <td width="2%" class="TableHeader"><b>Del</b></td>
+            
+             
+			  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+  $benid      = (isset($row['benid'])) ? $row['benid'] : 0;
+  $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+ $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+      $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+     $city  = (isset($row['city'])) ? $row['city'] :"";
+	 $state  = (isset($row['state'])) ? $row['state'] :"";
+      $country  = (isset($row['country'])) ? $row['country'] :"";
+$mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+$country  = (isset($row['country'])) ? $row['country'] :"";
+$bankname  = (isset($row['bankname'])) ? $row['bankname'] :"";
+$branchname  = (isset($row['branchname'])) ? $row['branchname'] :"";
+$accountno  = (isset($row['accountno'])) ? $row['accountno'] :"";
+$sortcode  = (isset($row['sortcode'])) ? $row['sortcode'] :"";
+$idno  = (isset($row['idno'])) ? $row['idno'] :"";
+$branchname  = (isset($row['branchname'])) ? $row['branchname'] :"";
+		$ibanno  = (isset($row['ibanno'])) ? $row['ibanno'] :"";
+		$swiftcode  = (isset($row['swiftcode'])) ? $row['swiftcode'] :"";
+		$branchaddress  = (isset($row['branchaddress'])) ? $row['branchaddress'] :"";
+
+
+  ?>
+
+ <tr>
+ <td width="2%" class="<?php echo $bgcolor?>"  >BM<? echo $benid?></td>
+<td width="7%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editbeneficiary')?>&contactid=<?php echo $contactid?>&benid=<? echo $benid?>"><font color=darkblue><? echo stripslashes($firstname)?></td>
+
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo getcountryname($country)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo getstatename($state)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo getcityname($city)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($bankname)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($branchname)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($accountno)?></td>
+
+
+<td width="7%" class="<?php echo $bgcolor?>" ><? echo stripslashes($sortcode)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($swiftcode)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($ibanno)?></td>
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($branchaddress)?></td>
+  <td width="2%"  class=Row><a href="index.php?status=<?php echo base64_encode('office')?>&contactid=<?php echo $contactid?>&benid=<?php echo $benid?>"><font color=darkblue><img src="images/copyicon.gif" alt="Make Order" border=0></font></a></td>
+    <?php if($deleterights=='Y')
+{ ?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&deleteaction=bendelete&contactid=<?php echo $contactid?>&benid=<? echo $benid?>"><img border="0" src="images/del_contact.gif" alt="delete record">
+</a></td><? }
+else
+{?>
+ <td width="2%"  class="Row"  valign=top class="<?php echo $bgcolor?>"  > &nbsp;
+</td>
+<? }?>
+
+			  </tr>
+   <?
+              }
+          ?>
+           <tr>
+
+    <? } ?>  
+
+         </table>
+		 <? } else
+{
+	display_message("Please choose the customer from the list");
+} ?>		
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>
+

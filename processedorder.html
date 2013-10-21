@@ -1,0 +1,284 @@
+<?
+include("header.html");
+include('officesidemenu.html');
+$datetoday = date("Y/m/d");
+$Getsaleid=0;
+if(isset($_GET['saleid'])!="")
+   {
+   $Getsaleid=$_GET['saleid'];
+   }
+   else
+   {
+    $Getsaleid=$_GET['saleid'];
+   }
+   ?>
+
+
+
+ <?
+       if(isset($_GET['saleid'])!="")
+   {
+      if($Getsaleid!="")
+   {
+   $sql            = "select * from sales_master  where saleid='$Getsaleid'";
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+	$orderid=$row['orderid'];
+	$contactid=$row['contactid'];
+	$benid=$row['benid'];
+	$currency=$row['currency'];
+	$collectiontype=$row['collectiontype'];
+	$collectionofficeid=$row['collectionofficeid'];
+	$bankname=$row['bankname'];
+	$branchname=$row['branchname'];
+	$accountno=$row['accountno'];
+	$sortcode=$row['sortcode'];
+	$benamount=$row['benamount'];
+	$exchangerate=$row['exchangerate'];
+	$orderamount=$row['orderamount'];
+	$orderstatus=$row['orderstatus'];
+	$officeid=$row['officeid'];
+	$agentcommission=$row['agentcommission'];
+	$orderby=$row['orderby'];
+	$instructions=$row['instructions'];
+	$orderdate=$row['orderdate'];
+	$processby=$row['processby'];
+	$processdate=$row['processdate'];
+	$bencountry=getbencountry($benid);
+	$beneficiaryidno=$row['beneficiaryidno'];
+	$idno= $row['idno'];
+	$sms= $row['sms'];
+	$pickupidtype= $row['pickupidtype'];
+	$pickupidothers= $row['pickupidothers'];
+	$collectiontype=$row['collectiontype'];
+	$payingagent=$row['payingagent'];
+	$depositbankname=$row['depositbankname'];
+    $ordertime = $row['ordertime'];
+	$processtime = $row['processtime'];
+	$statuscodedesc = $row['statuscodedesc'];
+	 }
+   }
+  if(ispayingagent($userid)=='Y')
+			{
+			if($payingagentid  != $payingagent)
+				{
+			display_message("You are not authorized to view this information");
+			include("footer.html");
+			exit;
+			   }
+			}
+			elseif($agentid  != $officeid && $userrole!='Administrator')
+				{
+			display_message("You are not authorized to view this information");
+			include("footer.html");
+			exit;
+			   }
+  ?>
+
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                 <tr>
+                      <td class="TableHeader">View Money Transfer Application  </span></td>
+                    </tr>
+					<tr>
+                      <td class="Row">
+					 <strong>TRANSACTION CODE: <FONT COLOR=RED><? echo $orderid;?></strong>
+					 </td>
+					  </tr>
+                    <tr>
+                      <td class="Row">
+<table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber1">
+  <tr>
+    <td width="50%" valign=top>
+	
+	
+	<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  
+  <tr>
+    <td width="100%" valign="top" colspan="2"><b>CUSTOMER DETAILS</b></td>
+  </tr>
+    <tr>
+    <td width="100%" valign="top" colspan="2"><? echo getcustomerdetailsfororder($contactid)?></td>
+  </tr>
+<tr>
+    <td width="100%" valign="top" colspan="2"><b>BENEFICIARY DETAILS</b></td>
+  </tr>
+   <tr>
+    <td width="100%" valign="top" colspan="2"><? echo getbeneficiarydetailsfororder($benid)?></td>
+  </tr>
+</table>
+<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+   <tr>
+    <td width="100%" valign="top" colspan="4"><b>OFFICE INFORMATION</b></td>
+  </tr>
+<tr>
+	 <td width="50%" valign="top">Office/Agent</td>
+    <td width="50%" valign="top"><b><?php echo getofficename($officeid)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Ordered Status</td>
+    <td width="50%" valign="top"><b><?php echo ($orderstatus)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Ordered By</td>
+    <td width="50%" valign="top"><b><?php echo getusername($orderby)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Order Date</td>
+    <td width="50%" valign="top"><b><?php echo changeddate($orderdate)?> <? echo $ordertime?></b></td>
+  </tr>
+   <tr>
+	 <td width="50%" valign="top">Processed By</td>
+    <td width="50%" valign="top"><b><?php echo getusername($processby)?></b></td>
+  </tr>
+   <tr>
+	 <td width="50%" valign="top">Processed Date</td>
+    <td width="50%" valign="top"><b><?php echo changeddate($processdate)?> <?php echo ($processtime)?></b></td>
+  </tr>
+    <tr>
+	 <td width="50%" valign="top">Auth Code</td>
+    <td width="50%" valign="top"><b><?php echo ($beneficiaryidno)?></b></td>
+  </tr>
+    <tr>
+	 <td width="50%" valign="top">Status Code Description</td>
+    <td width="50%" valign="top"><b><?php echo ($statuscodedesc)?></b></td>
+  </tr>
+  </table>
+</td>
+
+    <td width="50%" valign=top> 
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+   <tr>
+    <td width="100%" valign="top" colspan="4"><b>ORDER INFORMATION</b></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">Amount</td>
+    <td width="50%" valign="top"><? echo $orderamount?>
+    </td>
+	</tr>
+  <tr>
+	 <td width="50%"  VALIGN=TOP>Currency</td> <td width="50%"  VALIGN=TOP><? echo getcurrencyname($currency)?></td>
+  
+    </tr>
+	
+	<tr>
+    <td width="50%" valign="top">Exchange Rate</td>
+    <td width="50%" valign="top"><? echo $exchangerate?></td>
+	</tr>
+    
+	  <tr>
+   <td width="50%" valign="top">Beneficiary Amount</td>
+    <td width="50%" valign="top"><? echo $benamount?></td>
+  </tr>
+ 
+ <tr>
+    <td width="50%" valign="top">User defined transaction no</td>
+    <td width="50%"  valign="top"><?php echo $idno?></td>
+	</tr>
+	 <tr>
+    <td width="50%" valign="top">Send SMS</td>
+    <td width="50%"  valign="top"><?php echo $sms?></td>
+	</tr>
+	<tr>
+    <td width="50%" valign="top">Pickup ID Type</td>
+    <td width="50%"  valign="top"><?php echo $pickupidtype?></td>
+	</tr>
+	<tr>
+    <td width="50%" valign="top">Pickup Time</td>
+    <td width="50%"  valign="top"><?php echo $pickupidothers?></td>
+	</tr>
+	<tr>
+    <td width="50%" valign="top">Deposit Bank Name</td>
+    <td width="50%"  valign="top"><?php echo $depositbankname?></td>
+	</tr>
+	<tr>
+    <td width="50%" valign="top">Instructions</td>
+    <td width="50%"  valign="top"><?php echo $instructions?></td>
+	</tr>
+
+	
+
+	<tr>
+    <td width="100%" valign="top" colspan="2"><b>COLLECTION POINT DETAILS</b></td>
+  </tr>
+  <? 
+	  if($collectiontype =='Bank')
+		  {
+	  echo getpayingagentdetailsfororder($payingagent);
+		  } else
+		  {
+			   echo getcollectiondetailsfororder($collectionofficeid);
+		  }?>
+    <?  if($collectiontype =='Bank')
+		  {?>
+   <tr>
+    <td width="100%" valign="top" colspan="2"><b>BANK DETAILS</b></td>
+  </tr>
+  <? echo getbankdetailsfororder($Getsaleid)?>
+    
+	<? } ?>
+	 
+  </table>
+  </td>
+  </tr>
+  </table>
+
+</form>
+
+ <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  <tr>
+      <td width="25%" valign="top" >
+<form name="queryform" action="mtprintableview.php" method="post" target=_blank>
+<input type=hidden name="saleid" value="<?php echo $Getsaleid?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Print Receipt" class=btn3>
+
+</form>
+</td>
+
+  </tr>
+  </table>
+
+
+
+ </td>
+  </tr>
+  </table>
+
+   <form name="complainform" action="index.php?status=<?php echo base64_encode('newcomplaint')?>" method="post">
+ <br><table width="50%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Complaint Form </span></td>
+                    </tr>
+					
+                    <tr>
+                      <td class="Row">
+					  <table border="0"  cellspacing=0 cellpadding=0 style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  
+ <tr>
+    <td width="50%" valign="top">Question</td>
+    <td width="50%"  valign="top"><textarea name=question rows="5"  cols="40"><?php echo $question?></textarea></td>
+	</tr>
+  
+  </table>
+<input type=hidden name="orderid" value="<?php echo $orderid?>">
+<input type=hidden name="lastupdated" value="<?php echo $username?>">
+<input type=hidden name="saletype" value="MT">
+<input align=center type="submit"  name="cmd_Submit3" value="Record Complaint" class=btn3>
+
+</form>
+</td>
+
+  </tr>
+  </table>
+  
+<? } else {
+display_message("No record found for the order");
+ } ?>
+ </td>
+  </tr>
+ 
+ <? include('footer.html');   ?>
+

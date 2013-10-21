@@ -1,0 +1,129 @@
+ <? include('header.html');
+ include('usersidemenu.html');
+
+ ?>
+
+<?php  if($usersrights!='Y' && getusertype($username)!='Administrator')
+	  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for users rights and administrator rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+
+if($_GET['action']=='delete' && isset($_GET['file']))
+	 {
+		$conn = ftp_connect("ftp.globalnett.co.uk") or die("Could not connect");
+		ftp_login($conn,"u49081853","PsYgy97R");
+		ftp_delete($conn,"customeruploads/".urldecode($_GET['file']));
+		ftp_close($conn);
+    	$the_message = "<table width='50%' border='0' cellpadding='4' cellspacing='1' align='center'><tr><td  class='messageRow' valign=middle align=center><b>File Delete Completed</b></td></tr></table>";
+	 }
+
+if(strlen($_POST['Submit']))
+{
+$ftp_user_name='u49081853';
+$ftp_user_pass='PsYgy97R';
+$ftp_server='ftp.global-nett.co.uk';
+$ftp_dir='customeruploads/';
+//$web_location is needed for the file_exists function, the directories used by FTP
+//are not visible to it will will always return not found. 
+$web_dir='customeruploads/';
+$web_location=$web_dir.$imagefile_name;
+
+//build a fully qualified (FTP) path name where the file will reside
+$destination_file=$ftp_dir.$imagefile_name;
+
+// connect, login, and transfer the file
+$conn_id = ftp_connect($ftp_server); 
+$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass); 
+$upload = ftp_put($conn_id, $destination_file, $imagefile, FTP_BINARY); 
+
+//use ftp_site to change mode of the file
+//this will allow it be visible by the world,
+$ch=ftp_site($conn_id,"chmod 777 ".$destination_file);
+// close the FTP stream 
+ftp_close($conn_id); 
+$the_message = "<table width='50%' border='0' cellpadding='4' cellspacing='1' align='center'><tr><td  class='messageRow' valign=middle align=center><b>File Upload Completed</b></td></tr></table>";
+}
+function DirDisplay() {  
+      
+     $documentdir=opendir("../customeruploads/");  
+      
+     while ($file = readdir($documentdir)) {  
+          
+      if ($file == "." || $file == "..") { }  
+         else { 
+             print "<tr><td class=Row><a href='http://www.global-nett.co.uk/customeruploads/$file' target=_blank>$file</a></font></td>"; 
+			  print "<td class=Row><a href=index.php?status=".base64_encode("viewuploadeddocuments")."&action=delete&file=".urlencode($file)."  onclick='return confirmDelete()'><img src=images/del_contact.gif alt=delete  title=Delete border=0></a></td>";
+			 echo "</tr>"; 
+           
+          } 
+        
+     }  
+     closedir($TrackDir);  
+}  
+?>
+<script language=javascript>
+function confirmDelete()
+{
+var agree=confirm("Do you wish to delete the record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+</script>
+
+ <? if(strlen($the_message)) {
+	display_message($the_message); 	 
+ }?>
+
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr class=tableHeader>
+                      <td class=tableHeader >Upload File</td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+					
+<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+
+  <tr>
+    <td> <form enctype='multipart/form-data' action='index.php?status=<? echo base64_encode("viewwebsiteuploadeddocuments")?>' method='POST''>
+  <b>Choose the file which you want to upload</b><Br><br> <input name='imagefile' type=file size=80 class="filebox"/>
+   <input  id=Submit type=SUBMIT value="Upload" name=Submit class=smallcabutt>
+  </form>
+	</td>
+	</tr>
+	</table>
+	</td>
+  </tr>
+</table>
+<br>
+<div id="showTable" class="tableContainer">
+<b>List of Website Files</b><br>
+<table width="100%" border="0" align="center" cellpadding="2" cellspacing="2">
+ <tr class=headerRow><td class=tableHeader>File Name (Click on the name to view/download the file)</td>
+<td width=2% class=tableHeader>Action</td></tr>
+
+<? echo DirDisplay(); ?>
+</table>
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

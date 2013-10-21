@@ -1,0 +1,498 @@
+<?php
+
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Agent Export Orders ";
+include('header.html');
+include('reportsidemenu.html');
+
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('agentexport')?>>
+<?
+ if(isset($_GET['confirm'])=="true")
+   {
+  if(is_array($export_orders))
+ {
+	  for($k=0;$k<count($export_orders);$k++)
+	 {
+ $saleid=$export_orders[$k];
+ $sql   = "update sales_master set adminstatus='Uploaded' where saleid= '$saleid'";
+ //echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been set as Uploaded</font></p>");
+ }
+ }
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+  if($_POST['reportid'])
+  {
+	   $reportid=$_POST['reportid'];
+  }
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to export the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('agentexport')?>&confirm=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+ 
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('agentexport')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+
+	function checkAll()
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'allbox') && (e.type=='checkbox'))
+		{
+			e.checked=document.mtsalesform.allbox.checked;
+		}
+	}
+}
+
+
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction  value="<?php echo $pageAction ?>">
+<input type=hidden name=status value="<?php echo base64_encode('agentexport')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($userrole!='Administrator')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="adminstatus";
+ }
+ }
+
+
+ if($_GET['startdate']!='')
+ {
+ $startdate=$_GET['startdate'];
+ }
+ else
+ {
+ if($_POST['startdate']!='')
+ {
+ $startdate=$_POST['startdate'];
+ }
+ else
+ {
+ $startdate=$lastmonth;
+ }
+ }
+
+  if($_GET['enddate']!='')
+ {
+ $enddate=$_GET['enddate'];
+ }
+ else
+ {
+ if($_POST['enddate']!='')
+ {
+ $enddate=$_POST['enddate'];
+ }
+ else
+ {
+ $enddate=$datetoday;
+ }
+ }
+ 
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $title?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+ <tr>
+  <td width="25%" valign="top"><b>Select the agent</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getagentonlynames("agentid",$agentid,true)?>
+
+</td>
+ <td width="25%" valign="top"><b>Select the report</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getreportnames("reportid",$reportid,true)?>
+
+</td>
+</tr>
+   <tr>
+<td width="25%" valign="top"><b>Select the Collection Type</b></td>
+ <td width="25%"  valign="top">
+
+<select name=selecttype>
+<? if($selecttype!='')
+{?>
+<option value=<? echo $selecttype?>><? echo $selecttype?></option>
+<? } ?>
+<option value=ALL>ALL</option>
+<option value=Bank>Bank</option>
+<option value=CollectionPoint>CollectionPoint</option>
+</select>
+</td>
+
+  </tr>
+   <tr>
+  <td width="20%" valign="top"><b>Select the start date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="startdate" VALUE="<?php echo $startdate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.startdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="20%" valign="top"><b>Select the end date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="enddate" VALUE="<?php echo $enddate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.enddate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="20%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Orders" class=btn3 onclick="javascript:generatesalesreport('dailysales')" ></td>
+
+
+  </tr>
+ 
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+
+<?
+if($reportid == "")
+{
+	display_message("choose the report to get the report details");
+	exit();
+}
+else
+{
+ $report1sql = "select * from report_master where reportid='$reportid' ";
+ $report1Result         = safe_query($report1sql) ;
+ while ($sub1row = mysql_fetch_array( $report1Result))
+  {
+	 $is_empty_allowed = $sub1row['is_empty_allowed'];
+	 $apply_id_document_rule  = $sub1row['apply_id_document_rule'];
+	 $print_headers = $sub1row['export_headers'];
+	 $payingagent = $sub1row['payingagent'];
+      
+	 
+  }
+ // echo "the id rule is ".$apply_id_document_rule;
+}
+$report_fields = substr($report_fields,0,(strlen($report_fields)-3));
+?>
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+//	 echo "the report type is ".$pageAction;
+ $startdate = dateConvert($startdate);
+ $enddate = dateConvert($enddate);
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"adminstatus";
+ $reportsql = "select fieldname,displayname,is_dummy from report_fields,report_field_group where reportid='$reportid'  and report_fields.fieldid=report_field_group.fieldid order by report_field_group.position ASC";
+ $reportResult         = safe_query($reportsql) ;
+ $reportrowcount = mysql_num_rows($reportResult);
+ $reportheaderstart = "<tr>";
+ $reportheaderend = " <td class=TableHeader><b>Status</b></td><td width=2% class=TableHeader><b>Mark as Uploaded</b></td></tr>";
+ $reportcolumns="";
+
+	if($reportrowcount>0)
+  {
+ 
+ while ($subrow = mysql_fetch_array( $reportResult))
+  {
+	  if(strlen($subrow['fieldname']))
+	  {
+	  $reportsubquery = $reportsubquery.$subrow['fieldname'].",";
+	  }
+	  $reportcolumns = $reportcolumns."<td class=TableHeader>".$subrow['displayname']."</td>";
+	 
+  }
+  
+ $sql            = "select ".$reportsubquery." saleid,adminstatus from sales_master a,contact_master b,ben_master c,payingagent_master d where a.payingagent=d.agentid and a.contactid=b.contactid and a.benid=c.benid AND a.orderstatus in ('Confirmed') and d.agentid = '$payingagent'  and is_hidden='N' ";
+
+
+ if($agentid=='ALL' || $agentid == "")
+	  {
+$temp        = "  and a.orderdate>='$startdate' and a.orderdate<='$enddate'";
+	
+	  }
+	  else
+	  {
+    $temp        = " and a.orderdate>='$startdate' and a.orderdate<='$enddate' and a.officeid='$agentid' ";
+	  }
+
+	   if($selecttype!='ALL' && $selecttype != "")
+	  {
+$temp        = $temp."  and collectiontype='$selecttype' ";
+	
+	  }
+
+		
+ $temp=$temp."  order by ".$dataOrder." asc ";
+
+  $sql            = $sql.$temp;
+
+
+  
+  
+  $reportquery=$sql;
+
+
+  //echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+//  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="95%" colspan=4>
+  <b> Currently there is no orders to export in the system.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  
+
+	echo $reportheaderstart.$reportcolumns.$reportheaderend;
+
+  $i=0;
+  $no=0;
+  $totalprofit=0;
+  
+  while ($row = mysql_fetch_array($Result))
+  {
+//	print_r($row);
+	$reportrows="";
+    $i++;
+    $no=$no+1;
+	$bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+	$fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+	$saleid=$row['saleid'];
+	$adminstatus=$row['adminstatus'];
+	
+	if($orderstatus=='Processed')
+	  {
+	  $link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+	  }
+	  else
+	  {
+	  $link="index.php?status=".base64_encode('mtedit')."&saleid=".$saleid;
+	  }
+     
+	  for($j=0;$j<$reportrowcount;$j++)
+	  {
+
+		if(strlen($row[$j]))
+		  {
+			$value = $row[$j];
+		  }
+		  else
+		  {
+			  if($is_empty_allowed =='Y')
+			  {
+			  $value = "NONE";
+			  }
+			  else
+			  {
+				  $value = "";
+			  }
+		  }
+
+               if($apply_id_document_rule == 'Y')
+						 {
+				     if(substr($value,0,5) == 'No ID' || substr($value,0,6) == 'Others' || substr($value,0,15) == 'Driving Licence' || substr($value,0,8) == 'Passport' || substr($value,0,9) == 'School ID' || substr($value,0,7) == 'Work ID' || substr($value,0,11) == 'National ID' || substr($value,0,6) == 'Any ID' || substr($value,0,8) == 'Bank  ID')
+							 {
+						// echo "inside";
+						         if(substr($value,0,5) == 'No ID' || substr($value,0,7) == 'Others ')
+									 {
+									 $value = "NO ID";
+									 }
+									 else
+									 {
+									 $value = "ANY ID";
+									 }
+							 }
+						 }
+	 
+	  $reportrows = $reportrows."<td class=Row>".$value."</td>";
+	  }
+
+	 $reportrowstart = "<tr>";
+	 $reportrowrend = " <td class=Row><a href=".$link."><font color=darkblue>".$adminstatus."</FONT></a></td><td width=2% class=Row><input type=checkbox name=export_orders[] value=".$saleid."></td></tr>";
+ 
+ echo $reportrowstart.$reportrows.$reportrowrend;
+  }  
+
+ 
+  }?>
+  <tr>
+ <td colspan=100 align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+
+  <?
+  } 
+  ?>
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr><td valign=top>
+	 <input type=button nmae=c1 class=btn3 onclick="confirmSubmit()" value="Set Selected Orders as Uploaded">      
+ </td>
+ </tr>
+ </table>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+<form name="queryform" action="agentexporttoexcel.php" method="post" target="_blank">
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="bankquery" value="<?php echo $reportbankquery?>">
+<input type=hidden name="reportid" value="<?php echo $reportid?>">
+<input type=hidden name="startdate" value="<?php echo $startdate?>">
+<input type=hidden name="exportonlyuploaded" value="true">
+<input type=hidden name="enddate" value="<?php echo $enddate?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Export Orders to Excel" class=btn3 >
+
+</form>
+
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

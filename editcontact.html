@@ -1,0 +1,308 @@
+<?
+include("header.html");
+if($_GET['type'] == "online")
+{
+	include("onlinesidemenu.html");
+}
+else
+{
+include("customersidemenu.html");
+}?>
+<form name=editcontactform action=index.php enctype="multipart/form-data" method="post" >
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+<script language=javascript>
+
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.firstname,"Customer First Name"))
+                return false;
+     if (!validRequired(theForm.surname,"Customer Surname"))
+      return false;
+if (!validRequired(theForm.address,"Address"))
+      return false;
+if (!validRequired(theForm.postcode,"Postcode"))
+      return false;
+if (!validRequired(theForm.country,"Country"))
+      return false;
+if (!validInt(theForm.phone,"Telephone"))
+      return false;
+if (!validInt(theForm.mobile,"Mobile"))
+      return false;
+if (!validRequired(theForm.dob,"Date of Birth"))
+      return false;
+if(theForm.phone.value=="" && theForm.mobile.value=="")
+	{
+	alert("Please enter either Telephone/Mobile");
+	return false;
+	}
+if (!validInt(theForm.maxdailylimit,"Max Daily Limit",true))
+      return false;
+	   if (!validInt(theForm.maxmonthlylimit,"Max Monthly Limit",true))
+      return false;
+	    if (!validInt(theForm.maxyearlylimit,"Max Yearly Limit",true))
+      return false;
+
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editcontactform))
+{
+document.editcontactform.action="index.php?status=<?php echo base64_encode('editcontact')?>&action=editcontact&type=<? echo $_GET['type']?>";
+document.editcontactform.submit();
+}
+}
+
+</script>
+ <?
+ if($contactsrights!='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+  if($_GET['action']=="editcontact")
+   {
+  editcontact();
+
+   }
+
+   $Getcontactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $Getcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $Getcontactid=$_POST['contactid'];
+   }
+
+
+  $sql        = "select * from contact_master where contactid='".$Getcontactid."'";
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result);
+
+   ?>
+   <?   if($noOfRecords==0)
+  { ?>
+
+ <br>
+  <b> No record was found for the contact </b>
+
+ <?php
+ }
+  else
+ {
+
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+  $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+ $title      = (isset($row['title'])) ? $row['title'] : "";
+  $dob        = (isset($row['dob'])) ? $row['dob'] : "";
+    $fax_cc        = (isset($row['fax_cc'])) ? $row['fax_cc'] : "";
+  $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $phone_cc  = (isset($row['phone_cc'])) ? $row['phone_cc'] : "";
+    $phone_ext  = (isset($row['phone_ext'])) ? $row['phone_ext'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+      $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+     $city  = (isset($row['city'])) ? $row['city'] :"";
+      $state  = (isset($row['state'])) ? $row['state'] :"";
+      $country  = (isset($row['country'])) ? $row['country'] :"";
+$department  = (isset($row['department'])) ? $row['department'] :"";
+$mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+$status  = (isset($row['ID'])) ? $row['ID'] :"";
+$altphone  = (isset($row['alttelephone'])) ? $row['alttelephone'] :"";
+$altcontact  = (isset($row['altcontact'])) ? $row['altcontact'] :"";
+$website  = (isset($row['website'])) ? $row['website'] :"";
+$referredby = (isset($row['referredby'])) ? $row['referredby'] :"";
+$email  = (isset($row['email'])) ? $row['email'] :"";
+$idtype  = (isset($row['idtype'])) ? $row['idtype'] :"";
+$groupnameid  = (isset($row['groupid'])) ? $row['groupid'] :"";
+$sessuserid  = (isset($row['userid'])) ? $row['userid'] :"";
+$passportno  = (isset($row['passportno'])) ? $row['passportno'] :"";
+$userofficeid  = (isset($row['userofficeid'])) ? $row['userofficeid'] :"";
+$issuedby  = (isset($row['issuedby'])) ? $row['issuedby'] :"";
+$expirydate  = (isset($row['expirydate'])) ? $row['expirydate'] :"";
+$country  = (isset($row['country'])) ? $row['country'] :"";
+$maidenname  = (isset($row['maidenname'])) ? $row['maidenname'] :"";
+$idno  = (isset($row['idno'])) ? $row['idno'] :"";
+$maxdailylimit  = (isset($row['maxdailylimit'])) ? $row['maxdailylimit'] :0;
+$maxmonthlylimit  = (isset($row['maxmonthlylimit'])) ? $row['maxmonthlylimit'] :0;
+$maxyearlylimit  = (isset($row['maxyearlylimit'])) ? $row['maxyearlylimit'] :0;
+$expirydate = changeddate($expirydate);
+$additionalinfo  = (isset($row['additionalinfo'])) ? $row['additionalinfo'] :"";
+
+
+  }
+  ?>
+
+   <? if($agentid  != $userofficeid && $userrole!='Administrator' && $superuserrights !='Y')
+   {
+   display_message("You are not authorized to view this information");
+   include("footer.html");
+   exit;
+   } 
+   ?>
+<input type=hidden name=status value="<?php echo base64_encode('editcontact')?>">
+<input type=hidden name=contactid value="<?php echo $Getcontactid ?>">
+<input type=hidden name=pageAction>
+
+    <table width="100%"  border="0" cellpadding="0" cellspacing="0" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Customer Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+     <tr>
+        <td width="25%" valign="top">Customer First name</td>
+        <td width="25%" valign="top">
+    <b><input id="firstname" name="firstname" size="30" type="text" class="text"  value="<? echo stripslashes($firstname)?>"><font color=red>*</font>
+   </b></td>
+    <td width="25%" valign="top">Customer Surname</td>
+        <td width="25%" colspan="3" valign="top">
+    <b> <input id="surname"  name="surname" size="30" type="text" class="text"  value="<? echo stripslashes($surname)?>"><font color=red>*</font>
+    </b></td>
+        </tr>
+      <tr>
+       <td width="25%" valign="top">Address</td>
+        <td width="25%" valign="top">
+    <b>
+    <textarea id="address" name="address" size="30" type="text" class="text" rows="3" cols="30"><? echo stripslashes($address)?></textarea><font color=red>*</font></b></td>
+      
+        <td width="25%" valign="top">Postcode</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="postcode" name="postcode" size="30" type="text" class="text"  value="<? echo stripslashes($postcode)?>"><font color=red>*</font></b></td>
+      </tr>
+      <tr>
+     
+        <td width="25%" valign="top">City</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="city"  name="city" size="30" type="text" class="text"  value="<? echo stripslashes($city)?>"></b></td>
+	  <td width="25%" valign="top">Country</td>
+        <td width="25%" valign="top">
+    <b>
+    <? echo getcountries("country",$country)?><font color=red>*</font></b></td>
+     
+      </tr>
+     
+      <tr>
+        <td width="25%" valign="top">Phone</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="phone"  name="phone" size="30" type="text" class="text"  value="<? echo stripslashes($phone)?>"><font color=red>*</font></b></td>
+       <td width="25%" valign="top">DOB</td>
+        <td width="25%" valign="top">
+    <b>
+   
+    <INPUT TYPE="text" readonly NAME="dob" id="dob" class=text VALUE="<?php echo changeddate($dob)?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.editcontactform.dob,'anchor3','dd/MM/yyyy'); return false;" NAME="anchor3" ID="anchor3"><img border="0" src="images/calendar.gif" width="24" height="24"></A><font color=red>*</font><font color=red>*</font></b></td>
+      </tr>
+      <tr>
+        <td width="25%" valign="top">Mobile</td>
+        <td width="25%" valign="top">
+    <b>  <input id="mobile" name="mobile" size="30" type="text" class="text"  value="<? echo stripslashes($mobile)?>"><font color=red>*</font></b></td>
+        <td width="25%" valign="top">Email</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="email" name="email" size="30" type="text" class="text" value="<? echo stripslashes($email)?>"></b></td>
+      </tr>
+      <tr>
+        <td width="25%" valign="top">Group</td>
+        <td width="25%" valign="top">
+    <b>
+    <?php echo getgroupnames("groupnameid",$groupnameid,$agentid)?></b></td>
+      </tr>
+	   <tr>
+        <td width="25%" valign="top">ID Type</td>
+        <td width="25%" valign="top"><? echo getcustomerIdTypes("idtype",$idtype)?></td>
+
+		<td width="25%" valign="top">ID No</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="idno"  name="idno" size="30" type="text"  value="<? echo stripslashes($idno)?>"  class="text"></b></td>
+      
+       </tr>
+      <tr>
+        <td width="25%" valign="top">Expiry Date</td>
+        <td width="25%" valign="top">
+     <INPUT TYPE="text" readonly NAME="expirydate" id="expirydate" class=text VALUE="<?php echo $expirydate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.editcontactform.expirydate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A></b></td>
+       
+		<td width="25%" valign="top">Issued By</td>
+        <td width="25%" valign="top">
+    <b>
+   
+    <input id="issuedby"  name="issuedby" size="30" type="text" value="<? echo stripslashes($issuedby)?>" class="text"></b></td>
+      </tr>
+	   <tr>
+     <td width="25%" valign="top">Max Daily Limit</td>
+     <td width="25%" valign="top"><input class=text  id="maxdailylimit"  name="maxdailylimit" value="<?php echo ($maxdailylimit) ?>" size="10"></b></td>
+      
+     <td width="25%" valign="top">Max Monthly Limit</td>
+     <td width="25%" valign="top"><input class=text  id="maxmonthlylimit"  name="maxmonthlylimit" value="<?php echo ($maxmonthlylimit) ?>" size="10"></b></td>
+      
+    </TR>
+	 <tr>
+     <td width="25%" valign="top">Max Yearly Limit</td>
+     <td width="25%" valign="top"><input class=text  id="maxyearlylimit"  name="maxyearlylimit" value="<?php echo ($maxyearlylimit) ?>" size="10"></b></td>
+	  <td width="25%" valign="top">Additional Information</td>
+        <td width="25%" valign="top">
+    <b>
+    <textarea id="additionalinfo" name="additionalinfo" size="30" type="text" class="text" rows="3" cols="30"><? echo $additionalinfo?></textarea></b></td>
+      
+      
+    </TR>
+	
+    </table>
+     <? if ($updaterights=='Y')
+    {?>
+	 
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Information" > &nbsp;&nbsp;<input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:location.href='index.php?status=<?php echo base64_encode('newbeneficiary')?>&contactid=<?php echo $Getcontactid?>'" name=s1 value=" New Beneficiary" > &nbsp;&nbsp;<input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:location.href='index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<?php echo $Getcontactid?>'" name=s1 value=" View Beneficiaries" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Information" disabled>
+      <?}?>
+     <? }?>
+	 <br><br>
+     </td>
+     </tr>
+     </table>
+
+
+					
+					  </form>
+					  <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

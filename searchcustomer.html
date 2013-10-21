@@ -1,0 +1,316 @@
+<? include('header.html');
+ include('officesidemenu.html');
+ ?>
+<form name=searchresultsform method=get action=index.php>
+
+<?
+ 
+  $today = date("Y-m-d");
+ $lastmonth= date ("Y-m-d", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startdate  = (isset($startdate)) ? $startdate : $lastmonth;
+ $enddate  = (isset($enddate)) ? $enddate : $today;
+
+  ?>
+<script language="javascript">
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to copy the selected customer to new order ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+  function cal(field1)
+{
+
+var r=showModalDialog("Calender.html",field1,"dialogWidth:180px;dialogHeight:195px;status:no");
+if (typeof r != "undefined")
+{
+var thelength = r.length;
+//alert(thelength);
+var year = r.substring(0,4);
+var month=r.substring(6,7);
+if(month==1)
+displaymonth="January";
+if(month==2)
+displaymonth="February";
+if(month==3)
+displaymonth="March";
+if(month==4)
+displaymonth="April";
+if(month==5)
+displaymonth="May";
+if(month==6)
+displaymonth="June";
+if(month==7)
+displaymonth="July";
+if(month==8)
+displaymonth="August";
+if(month==9)
+displaymonth="September";
+if(month==10)
+displaymonth="October";
+if(month==11)
+displaymonth="November";
+if(month==12)
+displaymonth="December";
+
+var date=r.substring(8,thelength);
+if(date==1)
+{
+displaydate=date+'st';
+}
+else
+{
+if(date==2)
+{
+displaydate=date+'nd';
+}
+else
+{
+if(date==3)
+{
+displaydate=date+'rd';
+}
+else
+{
+if(date==21)
+{
+displaydate=date+'st';
+}
+else
+{
+if(date==22)
+{
+displaydate=date+'nd';
+}
+else
+{
+if(date==23)
+{
+displaydate=date+'rd';
+}
+else
+{
+displaydate=date+'th';
+}
+}
+}
+}
+}
+}
+
+
+field1.value = r;
+
+}
+
+}
+
+
+    function nextPage(val)
+    {
+        document.searchresultsform.displayPageNo.value=val;
+        document.searchresultsform.action="index.php?status=<?php echo base64_encode('searchcustomer')?>&PAGE="+val;
+        document.searchresultsform.submit();
+        }
+          function generatesalesreport(){
+        document.searchresultsform.pageAction.value="generatesalesreport";
+        document.searchresultsform.submit();
+    }
+      function generatesearchreport(){
+        document.searchresultsform.pageAction.value="generatesearchreport";
+        document.searchresultsform.submit();
+    }
+      function generatedailysalesreport(){
+        document.searchresultsform.pageAction.value="generatedailysalesreport";
+        document.searchresultsform.submit();
+    }
+
+     function pageOrder(val){
+        document.searchresultsform.dataOrder.value=val;
+        document.searchresultsform.submit();
+    }
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction>
+<input type=hidden name=status value="<?php echo base64_encode('searchcustomer')?>">
+
+<?php  if($officerights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+
+$searchvalue=$_POST['searchvalue'];
+ ?>
+
+
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Customer Search Results </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+   <b>Search Results: <font color=red size=3><?php echo $searchvalue?></font> </td>
+   </tr>
+  </table>
+  
+  
+
+     <?php
+
+     if($searchvalue!='')
+     {
+     
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $searchvalue=strtolower($searchvalue);
+
+ $pinno=substr($searchvalue,3,strlen($searchvalue));
+
+ $sql            = "select * from moneytransfer_sales where (lower(customername) like '$searchvalue%' or  lower(customeraddress) like '$searchvalue%'
+ or  lower(customertelephone1) like '$searchvalue%' or  lower(customertelephone2) like '$searchvalue%' or
+ lower(customermobile) like '$searchvalue%' or lower(customeremail) like '$searchvalue%' or mtsaleid='$pinno' or  lower(beneficiaryname) like '$searchvalue%' or  lower(beneficiaryaddress) like '$searchvalue%') ";
+ $temp=$temp."  order by mtsaleid DESC ";
+
+  $sql            = $sql.$temp;
+  $reportquery=$sql;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+//  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="95%" colspan=4>
+  <b> Currently there is no results for the search option specified. Please try again.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+
+   <tr>
+    <td width="1%" background="images/table_header_bkg.gif" class="tableHeaderText style5">
+                 <b>#</b></td>
+                <td width="10%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>First Name</a></b></td>
+               <td width="10%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>SurName</a></b></td>
+                  <td width="10%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Address</a></b></td>
+                <td width="10%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Telephone</a></b></td>
+               <td width="10%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Mobile</b></td>
+              <td background="images/table_header_bkg.gif" class="tableHeaderText style5">
+                 <b>Receiver Name</a></b></td>  
+ <td width="2%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Copy</b></td>
+ </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalprofit=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+  $bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+  $mtsaleid      = (isset($row['mtsaleid'])) ? $row['mtsaleid'] : 0;
+$customername      = (isset($row['customername'])) ? $row['customername'] : 0;
+$customeraddress      = (isset($row['customeraddress'])) ? $row['customeraddress'] : 0;
+$customertelephone1      = (isset($row['customertelephone1'])) ? $row['customertelephone1'] : 0;
+$customertelephone2      = (isset($row['customertelephone2'])) ? $row['customertelephone2'] : 0;
+$customermobile      = (isset($row['customermobile'])) ? $row['customermobile'] : 0;
+ $beneficiaryaccountno  = (isset($row['beneficiaryaccountno'])) ? $row['beneficiaryaccountno'] : "";
+ $beneficiarybranchname  = (isset($row['beneficiarybranchname'])) ? $row['beneficiarybranchname'] : "";
+ $beneficiarybankname  = (isset($row['beneficiarybankname'])) ? $row['beneficiarybankname'] : "";
+ $beneficiaryname     = (isset($row['beneficiaryname'])) ? $row['beneficiaryname'] : "";
+ $beneficiaryamount      = (isset($row['beneficiaryamount'])) ? $row['beneficiaryamount'] : "";
+ ?>
+
+
+ <tr>
+                 <td width="1%"  class=Row><?php echo $no?></b></td>
+                          <td width="10%"  class=Row><a href="index.php?status=<?php echo base64_encode('mtedit')?>&mtsaleid=<?php echo $mtsaleid?>"><font color=darkblue><?php echo $customername?></a></b></td>
+             <td width="10%"  class=Row><?php echo $customertelephone2?></b></td>
+                 <td width="10%"  class=Row><?php echo $customeraddress?> </b></td>
+                <td width="10%"  class=Row><?php echo $customertelephone?></b></td>
+                <td width="10%"  class=Row><?php echo $customermobile?></b></td>
+				 <td width="10%" class=Row >
+              <?php echo $beneficiaryname?></b></font></td>
+
+           <td width="2%"  class=Row><a onclick="return confirmSubmit()"  href="index.php?status=<?php echo base64_encode('office')?>&copysaleid=<?php echo $mtsaleid?>"><font color=darkblue><img src="images/copyicon.gif" alt="Copy Order" border=0></font></a></td>
+
+
+
+              </tr>
+
+
+          <?php
+
+
+         }
+         ?>
+ 
+
+
+
+  <? } ?>
+             
+
+     </table>
+     <?
+     }
+     else
+     {  ?>
+<table>     <tr>
+  <td width="95%" colspan=4>
+  <b>Please enter the search value</b>
+  </td>
+                   </tr>
+                   </table>
+     <?
+     }?>
+    <BR>
+<BR>
+</form>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

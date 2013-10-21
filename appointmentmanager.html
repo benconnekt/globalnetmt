@@ -1,0 +1,313 @@
+ <? include('header.html');
+ include('sidemenu.html');
+
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the schedule record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.appform.displayPageNo.value=val;
+        document.appform.action="index.php?status=<?php echo base64_encode('appointments')?>&PAGE="+val;
+        document.appform.submit();
+        }
+          function searchbyvendor()
+    {
+        document.appform.action="index.php?status=<?php echo base64_encode('appointments')?>&sortby=customer";
+        document.appform.submit();
+        }
+		  function searchbydate()
+    {
+        document.appform.action="index.php?status=<?php echo base64_encode('appointments')?>&sortby=date";
+        document.appform.submit();
+        }
+</script>
+
+<form name="appform" action="index.php" method="post">
+<?php  if($officerights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="tableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+  <?
+if(isset($_GET['deleteaction'])=="historydelete")
+   {
+  if($_GET['historyid']!="")
+ {
+	  $historyid=$_GET['historyid'];
+ $sql   = "delete from history_master where historyid= '$historyid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Schedule information has been successfully deleted</font></p></b>");
+ }
+ //exit;
+   } ?>
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=status value="<?php echo base64_encode('appointments')?>">
+   <?php
+   $today = getdate();
+$currentmonth = $today['mon'];
+$currentyear = $today['year'];
+$sortby=$_GET['sortby'];
+$customerref=$_POST['customerref'];
+ if($_POST['month']!='')
+ {
+ $thismonth=$_POST['month'];
+ }
+ else
+ {
+ $thismonth=$currentmonth;
+ }
+ if($_POST['year']!='')
+ {
+ $thisyear=$_POST['year'];
+ }
+ else
+ {
+ $thisyear=$currentyear;
+ }
+  if($thismonth==1)
+$displaymonth="January";
+if($thismonth==2)
+$displaymonth="February";
+if($thismonth==3)
+$displaymonth="March";
+if($thismonth==4)
+$displaymonth="April";
+if($thismonth==5)
+$displaymonth="May";
+if($thismonth==6)
+$displaymonth="June";
+if($thismonth==7)
+$displaymonth="July";
+if($thismonth==8)
+$displaymonth="August";
+if($thismonth==9)
+$displaymonth="September";
+if($thismonth==10)
+$displaymonth="October";
+if($thismonth==11)
+$displaymonth="November";
+if($thismonth==12)
+$displaymonth="December";
+ $DISP_REC_COUNT = 20;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"date";
+ $sql            = "select historyid,toid,date,regarding,hours,minutes,meredian,activity_type,withcontact,status from history_master where historyid is not null and userofficeid='$agentid' ";
+
+
+ if($customerref!='')
+ {
+ $temp           = $temp." and withcontact='$customerref'";
+ }
+
+ $temp           = $temp." and month(date)='$thismonth' and year(date)='$thisyear'";
+ 
+
+  $sql            = $sql.$temp."order by ".$dataOrder." DESC";
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+
+
+
+
+   <table cellSpacing="2" cellPadding="2" width="100%" >
+  <tr>
+    <td width="25%"  ><?php echo getcontactnames1("customerref",$customerref,$agentid)?></td>
+     <td width="25%" ><input type=button name=c2 class="btn3" onmouseover="this.className='btn1 btnhov1'" onmouseout="this.className='btn3'"  value=" Search By Customer" onclick="javascript:searchbyvendor()"></td>
+</tr>
+ <tr>
+<td width="25%"valign="top">
+
+<select name="month">
+<option value="<?php echo $thismonth?>" selected><?php echo $displaymonth?></option>
+<option value='01'>January</option>
+<option value='02'>February</option>
+<option value='03'>March</option>
+<option value='04'>April</option>
+<option value='05'>May</option>
+<option value='06'>June</option>
+<option value='07'>July</option>
+<option value='08'>August</option>
+<option value='09'>September</option>
+<option value='10'>October</option>
+<option value='11'>November</option>
+<option value='12'>December</option>
+</select>
+<select name="year">
+<option value="<?php echo $thisyear?>" selected><?php echo $thisyear?></option>
+<option value='2001'>2001</option>
+<option value='2002'>2002</option>
+<option value='2003'>2003</option>
+<option value='2004'>2004</option>
+<option value='2005'>2005</option>
+<option value='2006'>2006</option>
+<option value='2007'>2007</option>
+<option value='2008'>2008</option>
+<option value='2009'>2009</option>
+<option value='2010'>2010</option>
+<option value='2011'>2011</option>
+<option value='2012'>2012</option>
+</select>
+</td>
+<td width="25" valign=top>
+    <input type="button"  name="cmd_Submit1" value="Generate Appointments" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:searchbydate()" ></td>
+
+  </tr>
+</table>
+     <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no schedules in the system for the customer for the month.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="14%" class="tableHeader"><b>Date</b></td>
+                <td width="14%" class="tableHeader"><b>User</b></td>
+
+                <td width="14%" class="tableHeader"><b>Activity</b></td>
+                <td width="14%" class="tableHeader"><b>Time</b></td>
+                   <td width="14%" class="tableHeader"><b>Regarding</b></td>
+                   <td width="14%" class="tableHeader"><b>Customer</b></td>
+                    <td width="14%" class="tableHeader""><b>Status</b></td>
+                   <td width="15%" class="tableHeader"><b>Action</b></td>
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+
+  $historyid      = (isset($row['historyid'])) ? $row['historyid'] : 0;
+   $hours      = (isset($row['hours'])) ? $row['hours'] : "";
+    $minutes      = (isset($row['minutes'])) ? $row['minutes'] : "";
+      $meredian      = (isset($row['meredian'])) ? $row['meredian'] : "";
+  $regarding      = (isset($row['regarding'])) ? $row['regarding'] : "";
+  $withcontact      = (isset($row['withcontact'])) ? $row['withcontact'] : "";
+   $activity_type      = (isset($row['activity_type'])) ? $row['activity_type'] : "";
+    $toid      = (isset($row['toid'])) ? $row['toid'] : "";
+  $date      = (isset($row['date'])) ? $row['date'] : "";
+   $status      = (isset($row['status'])) ? $row['status'] : "YET TO CONFIRM";
+
+
+
+  ?>
+
+ <tr>
+
+<td width="14%" class="Row" bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editmeeting')?>&historyid=<?php echo $historyid?>"><font color=darkblue><?php echo changeddate($date)?>
+</a></td>
+
+ <td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo getusername($toid) ?></td>
+ <td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>">
+<? if($activity_type=='Call')
+{ ?>
+<img border="0" src="images/CALL.GIF" alt="call" >
+<?}
+if($activity_type=='Meeting')
+{ ?>
+<img border="0" src="images/MEET.GIF" alt="meeting" >
+<?}
+if($activity_type=='Todo')
+{ ?>
+<img border="0" src="images/TODO.GIF" alt="to do" >
+<? }?>
+</td>
+<td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $hours.":".$minutes." ".$meredian ?></td>
+<td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes($regarding)?></td>
+<td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes(getcontactname($withcontact))?></td>
+<td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><?php echo $status?></td>
+<?php if($deleterights=='Y')
+{ ?>
+<td width="15%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('appointments')?>&deleteaction=scheduledelete&historyid=<?php echo $historyid?>"><img border="0" src="images/del_contact.gif" alt="delete record" width="20" height="20">
+</a></td>
+<? }
+else
+{?>
+ <td width="2%"  valign=top class="Row"  bgcolor="<?php echo $bgcolor?>"> &nbsp;
+</td>
+<? }?>
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td class="Row" width=100% colspan=8 align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td class="Row" width=100% colspan=8 align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+         </table>
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

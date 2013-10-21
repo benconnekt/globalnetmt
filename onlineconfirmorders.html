@@ -1,0 +1,490 @@
+<?php
+ if (isset($_SESSION["MM_UserAuthorization1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Confirm Online Website Orders ";
+include('header.html');
+include('reportsidemenu.html');
+require_once ("sms_api.php");
+$mysms = new sms();
+
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('onlineconfirmorders')?>>
+ <input  type=hidden name=confirmby value="<?php echo $userid?>" readonly size="20">
+
+<?
+if(isset($_GET['sendsms'])=="true")
+   {
+		 if(is_array($send_customer_sms))
+		 {
+			 ?>
+	 <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">SMS Confirmation</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<?
+			 	for($k=0;$k<count($send_customer_sms);$k++)
+				{
+				 $contactid="";
+				 $smsmessage="";
+				 $saleid=$send_customer_sms[$k];
+				 $contactmobile = getcustomermobilefororder($saleid);
+				// $contactmobile = "447940180496";
+				 $smsmessage = getsmsmessagedetailsfororder($saleid);
+							 if(is_numeric($contactmobile))
+								{
+							$results = $mysms->send($contactmobile,"Global Net",$smsmessage);
+							 display_message(nl2br("Customer Mobile:\n ".$contactmobile."\nMessage:\n".$smsmessage."\nSMS Status:<font color=red>".$results."</font>"));
+								}
+				 }
+				 ?>
+</td></tr></table><br>
+				 <?
+		 }
+
+				  if(is_array($send_beneficiary_sms))
+		 {
+			 ?>
+	 <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">SMS Confirmation</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<?
+			 	for($j=0;$j<count($send_beneficiary_sms);$j++)
+				{
+				 $contactid="";
+				 $smsmessage="";
+				 $saleid=$send_beneficiary_sms[$j];
+				 $beneficiarymobile = getbeneficiarymobilefororder($saleid);
+				 $smsmessage = getsmsmessagedetailsfororder($saleid);
+							 if(is_numeric($beneficiarymobile))
+								{
+								$results = $mysms->send($beneficiarymobile,"Global Net",$smsmessage);
+							 display_message(nl2br("Beneficiary Mobile:\n ".$beneficiarymobile."\nMessage:\n".$smsmessage."\nSMS Status:<font color=red>".$results."</font>"));
+							
+								}
+				 }
+				 ?>
+</td></tr></table><br>
+				 <?
+		 }
+   }
+
+
+
+ if(isset($_GET['confirm'])=="true")
+   {
+ if(is_array($confirm_orders))
+ {
+for($k=0;$k<count($confirm_orders);$k++)
+{
+ $saleid=$confirm_orders[$k];
+ $sql   = "update sales_master set orderstatus='Confirmed',confirmby='$confirmby' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been confirmed</font></p>");
+ }
+ }
+
+ if(isset($_GET['hold'])=="true")
+   {
+ if(is_array($hold_orders))
+ {
+for($k=0;$k<count($hold_orders);$k++)
+{
+ $saleid=$hold_orders[$k];
+ $sql   = "update sales_master set orderstatus='Hold',confirmby='$confirmby' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been updated as Hold</font></p>");
+ }
+ }
+
+ if(isset($_GET['unhold'])=="true")
+   {
+ if(is_array($hold_orders))
+ {
+for($k=0;$k<count($hold_orders);$k++)
+{
+ $saleid=$hold_orders[$k];
+ $sql   = "update sales_master set orderstatus='Ordered',confirmby='$confirmby' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been updated as Ordered</font></p>");
+ }
+ }
+
+   $today = date("Y-m-d");
+$lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to confirm the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>&confirm=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function holdSubmit()
+{
+var agree=confirm("Do you wish to hold the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>&hold=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function unholdSubmit()
+{
+var agree=confirm("Do you wish to unhold the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>&unhold=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function sendSMSConfirmation()
+{
+var agree=confirm("Do you wish to send sms to the selected customers and beneficiaries ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>&sendsms=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+ 
+function checkAll(val)
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'confirmallbox') && (e.type=='checkbox') && e.name=='confirm_orders[]')
+		{
+			e.checked=document.mtsalesform.confirmallbox.checked;
+		}
+	}
+}
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+	function setSelectedOrders()
+{
+	var newvalue = "";
+	//alert("inside");
+	
+	var c=document.getElementsByTagName('input');
+	for(var i=0;i<c.length;i++) {
+		if((c[i].type=='checkbox') && (c[i].checked) && c[i].name == 'hold_orders[]')
+			{
+					if(newvalue.length>0)
+						{
+					newvalue = newvalue+","+c[i].value;
+						}
+						else
+						{
+					newvalue = c[i].value;
+						}
+			}
+	}
+	//alert(newvalue);
+	document.queryform.orderselections.value = newvalue;
+	//alert(newvalue);
+}
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction  value="<?php echo $pageAction ?>">
+<input type=hidden name=status value="<?php echo base64_encode('onlineconfirmorders')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($confirmrights != 'Y')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="orderstatus";
+ }
+ }
+
+
+ if($_GET['startdate']!='')
+ {
+ $startdate=$_GET['startdate'];
+ }
+ else
+ {
+ if($_POST['startdate']!='')
+ {
+ $startdate=$_POST['startdate'];
+ }
+ else
+ {
+ $startdate=$lastmonth;
+ }
+ }
+
+  if($_GET['enddate']!='')
+ {
+ $enddate=$_GET['enddate'];
+ }
+ else
+ {
+ if($_POST['enddate']!='')
+ {
+ $enddate=$_POST['enddate'];
+ }
+ else
+ {
+ $enddate=$datetoday;
+ }
+ }
+ 
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $title?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+
+   <tr>
+   <tr>
+  <td width="25%" valign="top"><b>Select the paying agent</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getpayingagents("selpayingagent",$selpayingagent,"","")?>
+
+</td></tr>
+<tr>
+  <td width="20%" valign="top"><b>Select the start date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="startdate" VALUE="<?php echo $startdate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.startdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="20%" valign="top"><b>Select the end date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="enddate" VALUE="<?php echo $enddate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.enddate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="20%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Orders" class=btn3 onclick="javascript:generatesalesreport('dailysales')" ></td>
+
+  </tr>
+ 
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+
+   <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+//	 echo "the report type is ".$pageAction;
+ $startdate = dateConvert($startdate);
+ $enddate = dateConvert($enddate);
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"orderstatus";
+
+
+ $temp        = " and orderdate >='$startdate' and orderdate <='$enddate' AND a.orderstatus in ('Ordered','Hold','Confirmed') ";
+
+ if(strlen($selpayingagent))
+ {
+$temp        = $temp." and h.agentid = '$selpayingagent' ";
+
+ }
+
+  $searchidno=substr($searchvalue,2,strlen($searchvalue));
+  if($_POST['searchvalue']!='')
+  {
+  $searchvalue=strtolower($_POST['searchvalue']);
+  $temp           = " and ( lower(orderid)='$searchvalue' or lower(b.surname) like '%$searchvalue%' or lower(b.firstname) like '%$searchvalue%' or lower(c.surname) like '%$searchvalue%'  or  lower(b.dob) like '%$searchvalue%' or  lower(b.postcode) like '%$searchvalue%' or lower(c.firstname) like '%$searchvalue%' or lower(a.contactid) = '$searchidno') ";
+  }
+ $reportquery = getMoneyTransferOrdersQuery($temp,"onlineconfirmorders");
+  echo getMoneyTransferOrders($temp,"onlineconfirmorders",false,"",$deleterights);
+
+
+  ?>
+
+<table width=100%>
+  <tr>
+  <td colspan=100 align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+	<BR>
+<BR>
+	 <input type=button name=c1 class=btn3 onclick="confirmSubmit()" value="Confirm Selected Orders"> 
+	  <input type=button name=c1 class=btn3 onclick="holdSubmit()" value="Hold Selected Orders"> 
+	   <input type=button name=c1 class=btn3 onclick="unholdSubmit()" value="UnHold Selected Orders"> 
+	 <input type=button name=c2 class=btn3 onclick="sendSMSConfirmation()" value="Send SMS for Selected Orders">      
+
+ 
+	 </center>
+     </div>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+
+<form name="queryform" action="mtprintableview.php" method="post" target=exportframe1>
+<input type=hidden name="orderselections">
+<input align=center type="submit"  name="cmd_Submit3" value="Print Selected Orders" class=btn3 >
+</form>
+<!--
+<form name="queryform" action="mtcomfirmreportsexcelview.php" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="startdate" value="<?php echo $startdate?>">
+<input type=hidden name="enddate" value="<?php echo $enddate?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Export Confirmed Orders to Excel" class=btn3 >
+
+</form> -->
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

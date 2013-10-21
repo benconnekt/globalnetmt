@@ -1,0 +1,23 @@
+ <tr align=center>
+ <td width="135" HEIGHT="14" valign="bottom" bgcolor="#E3E2DD" align=center style="padding-left:10">
+   </td>
+   <td width="871" HEIGHT="14" valign="bottom" colspan="3" align=right >
+    </td></tr>
+<tr>
+    <td width="100%" HEIGHT="14" valign="middle" colspan="4" bgcolor="#E3E2DD" align=center >
+   <?  if(ispayingagent($userid)=='Y')
+	  {
+		  echo getCollectionLoginDetails($_SESSION['session_id']);
+	  }else
+	  {
+		   echo getLoginDetails($_SESSION['session_id']);
+	  }
+	?>
+	<? if($alertrights == 'Y')
+	{?>
+	 <iframe src="checkmessages.php?status=<? echo $_GET['status']?>" name=bol width="2" height="2" marginwidth="0" marginheight="0" hspace="0" vspace="0" frameborder="0" scrolling="auto" align="right" >
+</iframe>
+<? } ?>
+   </td></tr></table></form>
+   
+   </body></html>

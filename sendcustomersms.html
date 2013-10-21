@@ -1,0 +1,348 @@
+<?php
+ if (isset($_SESSION["MM_UserAuthorization1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Send Bulk Customer SMS";
+include('header.html');
+if($userrole=='Administrator')	 
+  {
+include('reportsidemenu.html');
+  }
+  else
+  {
+include('officesidemenu.html');
+
+  }
+require_once ("sms_api.php");
+$mysms = new sms();
+
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('sendcustomersms')?>>
+ <input  type=hidden name=confirmby value="<?php echo $userid?>" readonly size="20">
+
+<?
+if(isset($_GET['sendsms'])=="true")
+   {
+		 if(is_array($send_customer_sms))
+		 {
+			 ?>
+	 <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">SMS Confirmation</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<?
+				$message=$sms_message;
+			 	for($k=0;$k<count($send_customer_sms);$k++)
+				{
+				 $contactid="";
+				 $smsmessage="";
+				 $contactmobile=$send_customer_sms[$k];
+				 		 if(is_numeric($contactmobile) && strlen($message))
+								{
+							$results = $mysms->send($contactmobile,"Global Net",$message);
+							 display_message(nl2br("Customer Mobile:\n ".$contactmobile."\nMessage:\n".$message."\nSMS Status:<font color=red>".$results."</font>"));
+								}
+				 }
+				 ?>
+</td></tr></table><br>
+				 <?
+		 }
+   }
+
+$txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['selagentid'])
+  {
+	   $selagentid=$_POST['selagentid'];
+  }
+  else
+  {
+	  $selagentid= $agentid;
+  }
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to confirm the selected orders ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('sendcustomersms')?>&confirm=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function sendSMSConfirmation()
+{
+var agree=confirm("Do you wish to send sms to the selected customers ?");
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('sendcustomersms')?>&sendsms=true";
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+ 
+ function checkAll()
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'allbox') && (e.type=='checkbox'))
+		{
+			e.checked=document.mtsalesform.allbox.checked;
+		}
+	}
+}
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('sendcustomersms')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="firstname">
+<input type=hidden name=pageAction  value="<?php echo $pageAction ?>">
+<input type=hidden name=status value="<?php echo base64_encode('sendcustomersms')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($userrole!='Administrator' && $superuserrights!='Y')	 
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+ 
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader" colspan=4><? echo $title?> </span></td>
+                    </tr>
+                  
+   <tr>
+  <td width="25%"  class=Row  valign="top"><b>Select the agent</b></td>
+ <td width="25%"   class=Row  valign="top" colspan=4>
+
+<?php echo getagentonlynames("selagentid",$selagentid,true)?>
+
+</td>
+
+  </tr>
+  <tr>
+  <td width="25%"  class=Row  valign="top"><b>Search the Customer</b></td>
+ <td width="25%"   class=Row  valign="top"><input type=text name=searchcustomervalue value="<?php echo $_POST['searchcustomervalue']?>" maxlength=10  size=15></TD>
+ <td width="25%" class=Row  valign="top">&nbsp;</td>
+   <td width="25%"  class=Row   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Customer Report" class=btn3 onclick="javascript:generatesalesreport('agentsales')" ></td>
+
+      </TR>
+  </table>
+
+
+
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"firstname";
+ $sql            = "select a.surname,a.firstname,a.address,a.mobile,a.phone,a.postcode,a.idno,a.fax,a.contactid from contact_master a where contactid is not null ";
+
+ if($selagentid != '' && $selagentid != 'ALL')
+ {
+	 $temp = $temp. " and userofficeid='$selagentid'  ";
+ }
+
+     if(strlen($_POST['searchcustomervalue']))
+  {
+	  $searchvalue=$_POST['searchcustomervalue'];
+	  $idno=substr($searchvalue,2,strlen($searchvalue));
+   $temp           = $temp." and (lower(a.firstname) like '%$searchvalue%' or  lower(a.surname) like '%$searchvalue%'  or  lower(a.phone) like '%$searchvalue%' or  lower(a.mobile) like '%$searchvalue%' or  lower(a.postcode) like '%$searchvalue%'  or  lower(a.idno) like '%$searchvalue%' or a.contactid='$idno' )";
+  }
+ $temp=$temp."  order by ".$dataOrder." ";
+
+  $sql            = $sql.$temp;
+  $reportquery=$sql;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+//  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="95%" colspan=4>
+  <b> Currently there is no contacts in the system.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+
+
+  <tr>
+                   <td width="2%" class="TableHeader"><b><font color=white>#</a></b></td>
+				  <td width="14%" class="TableHeader"><b><font color=white>First name</a></b></td>
+			    <td width="14%" class="TableHeader"><b><font color=white>Surname</a></b></td>
+				 <td width="14%" class="TableHeader"><b><font color=white>Address</a></b></td>
+                     <td width="7%" class="TableHeader"><b><font color=white>Mobile</a></b></td>
+                     <td width="2%" class="TableHeader"><b>Send SMS</b></td>
+				 
+             
+			  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+   $totalsales=0;
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+   $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+  $fax        = (isset($row['fax'])) ? $row['fax'] : "";
+  $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+	 $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+	 $idno  = (isset($row['idno'])) ? $row['idno'] :"";
+   $mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+
+
+  ?>
+
+ <tr>
+ <td width="2%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($i)?></td>
+<td width="14%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($firstname)?></td>
+
+<td width="14%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($surname)?></td>
+<td width="14%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($address)?> <? echo stripslashes($postcode)?></td>
+
+<td width="7%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($mobile)?></td>			  
+<td width="2%" align=center  class=Row><input type=checkbox name=send_customer_sms[] checked value="<? echo $mobile?>"></td>
+	   </tr>
+  <? 
+  }  }?>
+  <tr>
+  <td colspan=100 align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+<b>Enter the SMS Message</b><br><br><textarea name=sms_message rows=5 cols=40></textarea>
+	 <input type=button name=c2 class=btn3 onclick="sendSMSConfirmation()" value="Send SMS for Selected Customers">      
+
+ 
+	 </center>
+     </div>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

@@ -1,0 +1,66 @@
+ <? $contactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $contactid=$_GET['contactid'];
+   }
+   else
+   {
+   $contactid=$_POST['contactid'];
+   }
+   ?>
+ <span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Customer Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+
+<tr>
+        <TD width="100%" >
+		<b><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<? echo $contactid?>"><? echo getcontactname($contactid)?></a></b>
+		</td></tr>
+           <tr>
+        <TD width="100%" >
+         <a href="index.php?status=<?php echo base64_encode('newbeneficiary')?>&contactid=<? echo $contactid?>">New beneficiary</a></TD>
+          </tr>
+
+          <tr>
+        <TD width="100%" >
+
+          <a href="index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<? echo $contactid?>">View beneficiaries</a>
+        </TD>
+          </tr>
+          
+
+ <TR>
+        <TD  width=100%>
+       <a href="index.php?status=<?php echo base64_encode('newdocument')?>&contactid=<? echo $contactid?>"> Add Document</a></TD>
+      </TR>
+	<?  if($userrole=='Administrator' || $superuserrights =='Y')
+   { ?>
+      <TR>
+        <TD  width=100%>
+       <a href="index.php?status=<?php echo base64_encode('viewdocuments')?>&contactid=<? echo $contactid?>">View Documents</a></TD>
+      </TR>
+	  <? } ?>
+
+ <TR>
+        <TD  width=100%>
+       <a href="index.php?status=<?php echo base64_encode('customersales')?>&contactid=<? echo $contactid?>">View MT Orders</a></TD>
+      </TR>
+	
+
+       </TABLE>
+       </div>
+                </div>
+        </span>
+		
+      </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:2" valign=top >

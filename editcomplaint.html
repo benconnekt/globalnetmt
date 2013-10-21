@@ -1,0 +1,159 @@
+<? include('header.html');   ?>
+
+ <?
+ include('officesidemenu.html');
+
+ $Getbankid=0;
+if(isset($_POST['complaintid'])!="")
+   {
+   $Getcomplaintid=$_POST['complaintid'];
+   }
+   else
+   {
+    $Getcomplaintid=$_GET['complaintid'];
+   }
+  
+  $updateSQL = "update complaints set readstatus='Y' where complaintid='$Getcomplaintid'";
+ //echo $insertSQL;
+  $Result1 = mysql_query($updateSQL) or die(mysql_error());
+?>
+<?php   if($officerights!='Y' || $updaterights!='Y')
+  {  ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office and update rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=editcomplaintform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.answer,"Answer"))
+                return false;
+	
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editcomplaintform))
+{
+document.editcomplaintform.action="index.php?status=<?php echo base64_encode('editcomplaint')?>&action=addnew";
+document.editcomplaintform.submit();
+}
+}
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('editcomplaint')?>">
+<input type=hidden name=complaintid value="<?php echo $Getcomplaintid?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+  $complaintdate = date("y/m/d", UKdst_datetime());
+  $complianttime = date("H:i:s", UKdst_datetime()); 
+  $formatted_answer =  $answer."<br><i>(by <b>".$username."</b> at ".date("d/m/Y H:i:s", UKdst_datetime()).")</i><br><br>";
+  $updateSQL = "update complaints set answer= concat('$formatted_answer','',answer),lastupdated='$username' where complaintid='$complaintid'";
+
+ //echo $insertSQL;
+  $Result1 = mysql_query($updateSQL) or die(mysql_error());
+  display_message( "<b><p align=center>Complaint information has been successfully updated</p>");
+ }
+
+    if($Getcomplaintid!="")
+   {
+    $sql    = "select * from complaints where complaintid='$Getcomplaintid'"; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+      $complaintid      = (isset($row['complaintid'])) ? $row['complaintid'] : 0;
+    $question  = (isset($row['question'])) ? $row['question'] : "";
+        $answer = (isset($row['answer'])) ? $row['answer'] : "";
+		$currsaletype = (isset($row['saletype'])) ? $row['saletype'] : "";
+		$lastupdated = (isset($row['lastupdated'])) ? $row['lastupdated'] : "";
+		$orderid = (isset($row['orderid'])) ? $row['orderid'] : "";
+		$complaintdate = (isset($row['complaintdate'])) ? $row['complaintdate'] : "";
+       	$complaintdate = (isset($row['complaintdate'])) ? $row['complaintdate'] : "";
+		$complainttime = (isset($row['complainttime'])) ? $row['complainttime'] : "";
+
+
+
+      }
+    }
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Complaint Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="3" cellspacing="3">
+      <tr>
+        <td height="1" width="268" >
+        Question<td height="1" width="536" >
+       <? echo nl2br($question)?></td>
+      </tr>
+	   <tr>
+        <td height="1" width="268" >
+        Question<td height="1" width="536" >
+      <font color=darkblue><?php echo changeddate($complaintdate)?> <? echo $complainttime?></b></a></font></td>
+      </tr>
+	    <tr>
+        <td height="1" width="268" >
+        Reply<td height="1" width="536" >
+        <textarea rows=5 cols=40  name="answer"></textarea></td>
+      </tr>
+	  <tr>
+	  <td colspan="2" valign="top">
+	  <? echo nl2br($answer)?>
+	  </td>
+	  </tr>
+	  
+   
+   
+      </table>
+      </center>
+</div>
+
+
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+
+	
+
+</form>
+	  <form name="queryform" action="complaintprintableview.php" method="post" target=_blank>
+<input type=hidden name="complaintid" value="<?php echo $Getcomplaintid?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Print Complaint" class=btn3>
+
+</form>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

@@ -1,0 +1,247 @@
+<? include('header.html');
+ include('reportsidemenu.html');
+ if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"a.SDN_Name";
+
+ ?>
+<script language=javascript>
+ 
+function nextPage(val)
+    {
+        document.contactform.displayPageNo.value=val;
+        document.contactform.action="index.php?status=<?php echo base64_encode('viewsdn')?>";
+        document.contactform.submit();
+        }
+        function pageOrder(val){
+        document.contactform.dataOrder.value=val;
+        document.contactform.submit();
+    }
+  function opensdndetails(id)
+{
+window.open("snddetails.php?ent_num="+id, "sdndetails", "width=700,height=600,location=no, menubar=no, status=no, toolbar=no, scrollbars=yes, resizable=yes");
+}  
+</script>
+
+<?
+if($userrole != 'Administrator')
+  { ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+ ?>
+<form name="contactform1" action="index.php" method="get">					  
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">View SDN And Blocked Persons List</td>
+                    </tr>
+					<tr>
+                      <td class="Row"> List of SDN and Blocked Persons List from Bank of England<br>
+					  Enter search criteria:&nbsp;&nbsp;<input type="text" name="searchvalue" value="<? echo $_GET['searchvalue']?>">&nbsp;<input type="submit" name="search" value="Search" class="btn3">
+					  <input type=hidden name=status value="<?php echo base64_encode('viewsdn')?>">
+					  </td>
+</tr>
+                   
+  </table>
+</form>
+  <form name="contactform" action="index.php" method="post">
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<input Type="hidden" name="txtsearch" value="<?php echo $txtsearch?>">
+<input Type="hidden" name="option" value="<?php echo $option?>">
+<input type=hidden name=status value="<?php echo base64_encode('viewsdn')?>">
+
+   <?php
+     if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+  if($_POST['startrow']!='')
+  {
+ $startrow= $_POST['startrow'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $startrow  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $display = 50; 
+  
+
+  $limitstring = " LIMIT $startrow, $display ";
+  $sql            = "select a.ent_num,a.sdn_name,a.sdn_type,a.program,a.title from ml_sdnlist a where sdn_name is not null ";
+    
+	 if(strlen($_GET['searchvalue']))
+  {
+	  $searchvalue=$_GET['searchvalue'];
+	  $searchvalue = strtolower($searchvalue);
+  // $temp           = $temp." and (lower(a.sdn_name) like '%$searchvalue%' or  lower(b.address) like '%$searchvalue%'  or  lower(b.city) like '%$searchvalue%' or  lower(b.country) like '%$searchvalue%' or  lower(c.alt_name) like '%$searchvalue%')";
+  $temp           = $temp." and (lower(a.sdn_name) like '%$searchvalue%' or  lower(a.program) like '%$searchvalue%' or  lower(a.title) like '%$searchvalue%')";
+  }
+   $countsql = $sql.$temp;
+  $countResult         = safe_query($countsql) ;
+  $countrecords    = @mysql_num_rows($countResult); // Total no of records returned
+
+
+  $temp           = $temp."  order by a.sdn_name "." ".$limitstring;
+  $sql            = $sql.$temp;
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+?>
+
+   <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+
+<?
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no customers in the system .</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                   <td width="10%" class="TableHeader"><b><font color=white>Name</b></td>
+               <td width="10%" class="TableHeader"><b><font color=white>Type</a></b></td>
+			    <td width="10%" class="TableHeader"><b><font color=white>Program</a></b></td>
+				 <td width="10%" class="TableHeader"><b><font color=white>Title</a></b></td>
+                   <!-- <td width="10%" class="TableHeader"><b><font color=white>Address</a></b></td>
+				     <td width="10%" class="TableHeader"><b><font color=white>City</a></b></td>
+                       <td width="10%" class="TableHeader"><b><font color=white>Country</a></b></td>
+					    <td width="10%" class="TableHeader"><b><font color=white>Alt Type</a></b></td>
+						<td width="10%" class="TableHeader"><b><font color=white>Alt Name</a></b></td>
+						-->
+                
+			  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+   $totalsales=0;
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+  $sdn_name      = (isset($row['sdn_name'])) ? $row['sdn_name'] : "";
+  $ent_num      = (isset($row['ent_num'])) ? $row['ent_num'] : "";
+   $sdn_type      = (isset($row['sdn_type'])) ? $row['sdn_type'] : "";
+  $program      = (isset($row['program'])) ? $row['program'] : "";
+  $title        = (isset($row['title'])) ? $row['title'] : "";
+ /* $address        = (isset($row['address'])) ? $row['address'] : "";
+  $city  = (isset($row['city'])) ? $row['city'] : "";
+   $country  = (isset($row['country'])) ? $row['country'] :"";
+    $alt_type  = (isset($row['alt_type'])) ? $row['alt_type'] :"";
+	 $alt_name  = (isset($row['alt_name'])) ? $row['alt_name'] :"";
+	*/ 	
+
+  ?>
+
+ <tr>
+ <td width="10%" class="<?php echo $bgcolor?>"   ><a href="javascript:opensdndetails('<? echo $ent_num?>')"><? echo stripslashes($sdn_name)?></a></td>
+<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($sdn_type)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($program)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($title)?></td>
+<!--<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($address)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"  ><? echo stripslashes($city)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($country)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($alt_type)?></td>
+<td width="10%" class="<?php echo $bgcolor?>"   ><? echo stripslashes($alt_name)?></td>
+-->
+</tr>
+   <?
+              }
+         }
+
+
+
+         ?>
+          
+
+         </table>
+
+		  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+<?
+if ($startrow != 0) { 
+    $prevrow = $startrow - $display; 
+    print("<td width=10% align=left  valign=top><a href=\"JavaScript:nextPage('".$prevrow."')\"><img src=images/prev.jpg alt=prev border=0></a></td> ");  
+}
+
+// Calculate the total number of pages 
+$pages = intval($countrecords / $display); 
+
+if ($countrecords % $display) { 
+    // has left over from division, so add one page 
+    $pages++; 
+} 
+// Print the next pages, first check if 
+//     there are more pages then 1 
+print("<td width=80% align=center  valign=top>");
+if ($pages > 1) { 
+    for ($i=1; $i <= $pages; $i++) { // Begin loop 
+    $nextrow = $display * ($i - 1); 
+	if($displayPageNo == $nextrow)
+		{
+    print("<font size=1 color=red>$i</font> ");
+		}
+		else
+		{
+	print("<a href=\"JavaScript:nextPage('".$nextrow."')\"><font size=1>$i</font></a> ");
+		}
+    } 
+} 
+print("</td>");
+//End loop 
+// Check if we are at the last page, if 
+//     so, dont print 'Next' 
+if (!(($startrow / $display) == $pages) && $pages != 1) { 
+    // not the last page so print 'Next' 
+    $nextrow = $startrow + $display; 
+    print("<td width=10% align=right valign=top><a href=\"JavaScript:nextPage('".$nextrow."')\"><img src=images/next.jpg alt=next border=0></a></td>"); 
+} 
+// If there are no results at all 
+if ($countrecords < 1) { 
+    //print("<table border=0 width=795><tr><td>$XX</td></tr></table>"); 
+} 
+
+?>
+</tr></table>
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>
+

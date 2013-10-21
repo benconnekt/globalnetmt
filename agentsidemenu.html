@@ -1,0 +1,61 @@
+<?$today = getdate();
+$month = $today['mon'];
+$mday = $today['mday'];
+$year = $today['year'];
+
+if($txt_date=='')
+{
+$txt_date=$year."-".$month."-".$mday;
+}
+//echo "the txtdate is ".$txt_date;
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+$userrole=getusertype($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+?>
+
+
+ <span>
+                <div style="width:150" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%"><img src="images/reports.gif" width="16" height="14"> Offices</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:150">
+                        <div>
+
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+
+      <TR>
+        <TD >
+         &nbsp;&nbsp;  <a href="index.php?status=<?php echo base64_encode('newagent')?>"> Add Office</a></TD>
+      </TR>
+      <TR>
+        <TD >
+         &nbsp;&nbsp;  <a href="index.php?status=<?php echo base64_encode('agentlists')?>"> Office Lists</a></TD>
+      </TR>
+
+
+
+           </TABLE>
+       </div>
+                </div>
+        </span>
+
+   </div>
+   
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<div align="center" valign=bottom><a href="index.php"><img src="images/thumblogo.jpg"  border="0"></a></div> 
+  
+      </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:2" valign=top >

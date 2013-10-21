@@ -1,0 +1,284 @@
+<?
+include("header.html");
+
+   $Getpaymentid=0;
+if(isset($_GET['paymentid'])!="")
+   {
+   $Getpaymentid=$_GET['paymentid'];
+   }
+   else
+   {
+   $Getpaymentid=$_POST['paymentid'];
+   }
+
+  $Getexpenseid=0;
+if(isset($_GET['expenseid'])!="")
+   {
+   $Getexpenseid=$_GET['expenseid'];
+   }
+   else
+   {
+   $Getexpenseid=$_POST['expenseid'];
+   }
+    $Getagentid=0;
+if(isset($_GET['agentid'])!="")
+   {
+   $Getagentid=$_GET['agentid'];
+   }
+   else
+   {
+   $Getagentid=$_POST['agentid'];
+   }
+
+if($Getpaymentid > 0)
+{
+	$recordid = $Getpaymentid;
+	$recordtype = "payment";
+	include("accountssidemenu.html");
+
+}
+elseif($Getexpenseid > 0)
+{
+	$recordid = $Getexpenseid;
+	$recordtype = "expense";
+	include("accountssidemenu.html");
+
+}
+elseif($Getagentid > 0)
+{
+	$recordid = $Getagentid;
+	$recordtype = "agent";
+	include("usersidemenu.html");
+
+}
+?>
+<form name=newidform action=index.php enctype="multipart/form-data" method="post" >
+<input type=hidden name=pageAction>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+
+<script language=javascript>
+function uploadproofimage()
+{
+
+if(document.newidform.proofimage.value!='')
+{
+var Filename ="";
+var ext =  new Array("gif","GIF","jpeg","JPEG","jpg","JPG","pdf","PDF","tiff","TIFF","tif","TIF","EFX","efx") ;
+Filename =  document.newidform.proofimage.value;
+var check = false;
+for(y = 0;y < ext.length;y++){
+if(Filename.substr(Filename.lastIndexOf(".")+1,Filename.length)==ext[y]){
+check = true;
+}
+}
+if(check==false){
+document.newidform.proofimage.value = '';
+alert('Please upload a valid image (GIF/JPG/TIFF/PDF/EFX) file');
+return;
+}
+}
+
+document.newidform.pageAction.value="uploadimage";
+document.newidform.action="index.php?status=<?php echo base64_encode('newpaymentdocument')?>&action=editimage&paymentid=<? echo $Getpaymentid?>&expenseid=<? echo $Getexpenseid?>&agentid=<? echo $Getagentid?>";
+document.newidform.submit();
+//document.newidform.submit();
+}
+
+</script>
+ <?
+ if($userrole!='Administrator' &&  $superuserrights !='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+ 
+if(isset($_GET['deleteaction'])=="delete")
+   {
+  if($_GET['imageid']!="")
+ {
+ deletePaymentImage($_GET['imageid']);
+  display_message("<b><p align=center>Payment/Expense document information has been successfully deleted</font></p>");
+ }
+ }
+if (isset($_POST['pageAction']) and $_POST['pageAction']=="uploadimage")
+{
+if($proofimage_name != "")
+	{
+		$ftp_user_name='u49081853';
+		$ftp_user_pass='PsYgy97R';
+		$ftp_server='ftp.global-nett.co.uk';
+		$ftp_dir='/globalnetmt/proofimages/';
+		//$web_location is needed for the file_exists function, the directories used by FTP
+		//are not visible to it will will always return not found. 
+		$web_dir='globalnetmt/proofimages/';
+		$web_location=$web_dir.$proofimage_name;
+
+		//build a fully qualified (FTP) path name where the file will reside
+		$destination_file=$ftp_dir.$proofimage_name;
+
+		// connect, login, and transfer the file
+		$conn_id = ftp_connect($ftp_server); 
+		$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass); 
+		$upload = ftp_put($conn_id, $destination_file, $proofimage, FTP_BINARY); 
+
+		//use ftp_site to change mode of the file
+		//this will allow it be visible by the world,
+		$ch=ftp_site($conn_id,"chmod 777 ".$destination_file);
+		// close the FTP stream 
+		ftp_close($conn_id); 
+	}
+addpaymentimage($proofimage_name,$Getpaymentid,$Getexpenseid,$Getagentid);
+}
+
+if($recordid!='' && is_numeric($recordid))
+{
+?>
+	   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Payment/Expense/Agent documents</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row" valign=top>
+<br>
+
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+<tr>
+    <td width="50%" valign="top">
+Upload Document Image:
+</td>
+  <td width="50%" valign="top">
+<input   class=input size=40 name="proofimage" type="file" /><br>(Max Width=300,Max Height=200)
+</td>
+</tr>
+</table>
+<input type=hidden name=verifiedby value="<? echo $username?>">
+
+<input type=button name=b2 value="Add Document" class=btn3 onclick="javascript:uploadproofimage()">
+ 				  	<DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+
+</td></tr></table>
+
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">List of Documents</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row" valign=top>
+ <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<?php
+	if($recordtype == 'payment')
+	{
+ $sql            = "select * from payment_images where paymentid='$Getpaymentid' ";
+	}
+	elseif($recordtype == 'agent')
+	{
+ $sql            = "select * from payment_images where agentid='$Getagentid' ";
+	}
+	else
+	{
+ $sql            = "select * from payment_images where expenseid='$Getexpenseid' ";
+
+	}
+ $Result         = safe_query($sql) ;
+ $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $i=0;
+  $no=0;
+  if($noOfRecords==0)
+  {
+  print "<tr><td class=orange align=center colspan=6><i>Currently there are no documents</td></tr>";
+  }
+  else
+  {
+  ?>
+     <tr style="HEIGHT: 25px" >  
+	  <td width="33%" class="TableHeader"><b><font color=white><b>Image</b></td>
+				 <td width="5%" class="TableHeader"><b><font color=white><b>Action</a></b></td>
+
+                  </tr>
+<?  
+	while ($row = mysql_fetch_array($Result))
+	  {
+	$is_image = false;
+	$is_pdf = false;
+	$imagename      = (isset($row['imagename'])) ? $row['imagename'] : 0;
+    $imageid      = (isset($row['imageid'])) ? $row['imageid'] : 0;
+if($imagename=="")
+	  {
+	$imagename="noimage.gif";
+	  }
+	   $file="proofimages/".$imagename;
+    if(!file_exists($file))
+		  {
+		$imagename="noimage.gif";
+		$imgstr = "<img src=\"proofimages/".$imagename."\" border=0 >";
+		  }
+		  else
+		  {
+		   $file_type = strrchr( $imagename, "." ); 
+           $is_image = eregi( "jpg|gif",$file_type ); 
+		   $is_pdf = eregi( "pdf",$file_type ); 
+		   if($is_image)
+			  {
+			   $imgstr = "<img src=\"proofimages/".$imagename."\" border=0 width=900>";
+			  }
+			  else
+			  {
+			$imgstr = "<a href=\"proofimages/".$imagename."\" target=\"_blank\">".$imagename."</a>";
+			  }
+
+		  }
+	 ?>
+     <tr> <td width="33%" class=Row valign=top >
+	 <? echo $imgstr; ?></td>
+	  <td valign=top width="5%"  class=Row >
+	  <?php if($deleterights=='Y')
+{ ?>
+	  <a onclick="return confirmSubmit()"  href="index.php?status=<?php echo base64_encode('newpaymentdocument')?>&contactid=<? echo $Getcontactid?>&paymentid=<? echo $Getpaymentid?>&expenseid=<? echo $Getexpenseid?>&agentid=<? echo $Getagentid?>&imageid=<?echo $imageid?>&deleteaction=delete&type=<? echo $_GET['type']?>"><img src="images/del_contact.gif" border=0></a>
+	  <? } ?>
+   </td></tr>
+ <?
+  }// End of WHile
+  }
+  ?>
+  </table>
+ 
+  
+</td></tr></table>
+</form>
+
+
+
+	<? } else
+{
+	display_message("Please choose the payment record/expense record/agent record from the list");
+} ?>
+					
+					  </form>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

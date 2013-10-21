@@ -1,0 +1,33 @@
+<?php
+   if (isset($_SESSION["MM_UserAuthorization1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+$agentid=getagentid($userid);
+}  ?>
+
+ <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Language" content="en-gb">
+<title>Global Net MT</title>
+<LINK href="printstyle.css" rel=stylesheet type=text/css>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+</head>
+<script language="javascript1.2">
+
+function printnow()
+ {
+   window.print();
+}
+
+</script>
+<body TOPMARGIN=5 LEFTMARGIN=20 RIGHTMARGIN=20 >
+  <table id="AutoNumber1" style="BORDER-COLLAPSE: collapse" borderColor="#111111" height="1" cellPadding="2" width="100%"  border="0">
+      <tr>
+    <td width="50%" valign="top"><img src="images/printlogo.jpg" border="0"></td>
+    <td width="50%" align="right" valign="top">GlobalNet Rcsr Limited <br>6 Minor Park Parade, Lee High Road,Lewisham, London SE13 5PB
+<br>Phone: +442083185860<br>Fax:+442081816629
+</td>
+  </tr>
+      </table>

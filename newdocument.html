@@ -1,0 +1,199 @@
+<?
+include("header.html");
+if($_GET['type'] == "online")
+{
+	include("onlinesidemenu.html");
+}
+else
+{
+include("customersidemenu.html");
+}
+   $Getcontactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $Getcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $Getcontactid=$_POST['contactid'];
+   }
+
+?>
+<form name=newidform action=index.php enctype="multipart/form-data" method="post" >
+<input type=hidden name=pageAction>
+
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+
+<script language=javascript>
+function uploadproofimage()
+{
+
+if(document.newidform.proofimage.value!='')
+{
+var Filename ="";
+var ext =  new Array("gif","GIF","jpeg","JPEG","jpg","JPG","pdf","PDF","tiff","TIFF","tif","TIF","EFX","efx") ;
+Filename =  document.newidform.proofimage.value;
+var check = false;
+for(y = 0;y < ext.length;y++){
+if(Filename.substr(Filename.lastIndexOf(".")+1,Filename.length)==ext[y]){
+check = true;
+}
+}
+if(check==false){
+document.newidform.proofimage.value = '';
+alert('Please upload a valid image (GIF/JPG/TIFF/PDF/EFX) file');
+return;
+}
+}
+
+if (!validRequired(document.newidform.documenttype,"Document Type"))
+      return false;
+
+if (!validRequired(document.newidform.documentno,"Document No"))
+      return false;
+
+if (!validRequired(document.newidform.documentexpiry,"Document Expiry Date"))
+      return false;
+
+document.newidform.pageAction.value="uploadimage";
+document.newidform.action="index.php?status=<?php echo base64_encode('newdocument')?>&action=editimage&contactid=<? echo $Getcontactid?>&type=<? echo $_GET['type']?>";
+document.newidform.submit();
+//document.newidform.submit();
+}
+
+</script>
+ <?
+ if($contactsrights!='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+ 
+
+if (isset($_POST['pageAction']) and $_POST['pageAction']=="uploadimage")
+{
+if($proofimage_name != "")
+	{
+		$ftp_user_name='u44672876';
+		$ftp_user_pass='Conn&*Globalnett';
+                //$ftp_user_pass='azuiyioloko';
+		$ftp_server='ftp.globalnett.co.uk';
+		$ftp_dir='/globalnetmt/proofimages/';
+		//$web_location is needed for the file_exists function, the directories used by FTP
+		//are not visible to it will will always return not found. 
+		$web_dir='globalnetmt/proofimages/';
+		$web_location=$web_dir.$proofimage_name;
+
+		//build a fully qualified (FTP) path name where the file will reside
+		$destination_file=$ftp_dir.$proofimage_name;
+
+		// connect, login, and transfer the file
+		$conn_id = ftp_connect($ftp_server); 
+		$login_result = ftp_login($conn_id, $ftp_user_name, $ftp_user_pass); 
+		$upload = ftp_put($conn_id, $destination_file, $proofimage, FTP_BINARY); 
+
+		//use ftp_site to change mode of the file
+		//this will allow it be visible by the world,
+		$ch=ftp_site($conn_id,"chmod 777 ".$destination_file);
+		// close the FTP stream 
+		ftp_close($conn_id); 
+	}
+addimage($proofimage_name,$Getcontactid,$documenttype,$documentno,$documentexpiry,$verifiedby,$description);
+}
+
+if($Getcontactid!='' && is_numeric($Getcontactid))
+{
+?>
+	   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Proof of ID/Address documents</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row" valign=top>
+<br>
+
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+   
+<tr>
+    <td width="50%" valign="top">
+Document Type:
+</td>
+  <td width="50%" valign="top">
+<? echo getcustomerIdTypes("documenttype",$documenttype)?>
+</td>
+</tr>
+ <tr>
+    <td width="50%" valign="top">
+Document No:
+</td>
+  <td width="50%" valign="top">
+<input   class=input size=40 name="documentno" type="text" value="<? echo $documentno?>" />
+</td>
+</tr>
+
+<tr>
+    <td width="50%" valign="top">
+Document Expiry:
+</td>
+  <td width="50%" valign="top">
+<INPUT TYPE="text" readonly NAME="documentexpiry" id="documentexpiry" value="<? echo $documentexpiry?>" class=text SIZE=25>
+<A HREF="#" onClick="calobject.select(document.newidform.documentexpiry,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+</tr>
+<tr>
+    <td width="50%" valign="top">
+Upload Document Image:
+</td>
+  <td width="50%" valign="top">
+<input   class=input size=40 name="proofimage" type="file" /><br>(Max Width=300,Max Height=200)
+</td>
+</tr>
+<tr>
+    <td width="50%" valign="top">
+Document Description:
+</td>
+  <td width="50%" valign="top">
+<textarea name="description" rows=5 cols=40 class="text"><? echo $documentno?></textarea>
+</td>
+</tr>
+</table>
+<input type=hidden name=verifiedby value="<? echo $username?>">
+
+<input type=button name=b2 value="Add Document" class=btn3 onclick="javascript:uploadproofimage()">
+ 				  	<DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+
+</td></tr></table></form>
+
+	<? } else
+{
+	display_message("Please choose the customer from the list");
+} ?>
+					
+					  </form>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

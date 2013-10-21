@@ -1,0 +1,378 @@
+<? include('header.html');   ?>
+ <?
+ include('usersidemenu.html');
+$displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+
+ ?>
+  <?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=productlist method=post action=index.php>
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<script language=javascript>
+function activeSubmit()
+{
+var agree=confirm("Do you wish to activate the selected collection points ?");
+if (agree)
+	{
+		 document.productlist.action="index.php?status=<?php echo base64_encode('collectionpoints')?>&active=true";
+       document.productlist.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+function inactiveSubmit()
+{
+var agree=confirm("Do you wish to inactivate the selected collection points ?");
+if (agree)
+	{
+		 document.productlist.action="index.php?status=<?php echo base64_encode('collectionpoints')?>&inactive=true";
+       document.productlist.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the collection point record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.productlist.displayPageNo.value=val;
+        document.productlist.action="index.php?status=<?php echo base64_encode('collectionpoints')?>&PAGE="+val;
+        document.productlist.submit();
+        }
+		function generatesalesreport(val){
+        document.productlist.pageAction.value=val;
+		 document.productlist.action="index.php?status=<?php echo base64_encode('collectionpoints')?>";       
+        document.productlist.submit();
+    }
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('collectionpoints')?>">
+
+ <?
+ if(isset($_GET['deleteaction'])=="agentdelete")
+   {
+	      $delagentid=$_GET['delagentid'];
+  if($delagentid!="")
+ {
+	   if(check_records($delagentid,"office"))
+	 {
+ $sql   = "delete from agent_master where agentid= '$delagentid'";
+ //echo $sql;
+$Result1= safe_query($sql) ;
+  display_message(  "<font color=darkblue><b><p align=center>Collection point information has been successfully deleted</font></p></b>");
+	 }
+ }
+   }
+
+     if(isset($_GET['active'])=="true")
+   {
+if(is_array($agents))
+ {
+for($k=0;$k<count($agents);$k++)
+{
+ $selcollagentid=$agents[$k];
+ $sql   = "update agent_master set agentstatus='Active' where agentid= '$selcollagentid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected collection points have been Activated</font></p>");
+ }
+ }
+
+ if(isset($_GET['inactive'])=="true")
+   {
+ if(is_array($agents))
+ {
+for($k=0;$k<count($agents);$k++)
+{
+ $selcollagentid=$agents[$k];
+ $sql   = "update agent_master set agentstatus='Inactive' where agentid= '$selcollagentid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><font size=3 color=darkblue><p align=center>The selected collection points have been Inactivated</font></p>");
+ }
+ }
+
+
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+  if($_POST['startrow']!='')
+  {
+ $startrow= $_POST['startrow'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $startrow  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $display = 50; 
+
+$limitstring = " LIMIT $startrow, $display ";
+ $dataOrder      = "d.statename";
+ $sql            = "select a.agentid as agentid,a.agenttelephone as agenttelephone,a.is_default as is_default ,a.agentname as agentname,a.agentaddress as agentaddress,b.agentname as payingagentname,c.cityname as city,d.statename as state,e.countryname as country,a.agentstatus as agentstatus from agent_master a, payingagent_master b,city_master c, state_master d,country_master e where a.payingagent=b.agentid and a.city = c.cityid and a.state = d.stateid and a.country = e.countryid and a.agenttype='collectionpoint'  ";
+
+  $temp = $temp. " and a.payingagent= '$selagentid'";
+ if(strlen($selstate))
+ {
+	 $temp = $temp. " and a.state= '$selstate'";
+ }
+ if(strlen($selcity))
+ {
+	 $temp = $temp. " and a.city= '$selcity'";
+ }
+ if(strlen($recordstatus))
+ {
+	 $temp = $temp. " and a.agentstatus= '$recordstatus'";
+ }
+ if($_POST['searchvalue']!='')
+  {
+	  $searchvalue=$_POST['searchvalue'];
+	 
+   $temp           = $temp." and (lower(a.agentname) like '$searchvalue%' or  lower(a.agentref) like '$searchvalue%'  or  lower(c.cityname) like '$searchvalue%'  or  lower(d.statename) like '$searchvalue%'  or  lower(e.countryname) like '$searchvalue%' )";
+  }
+  
+  $countsql = $sql.$temp;
+  $countResult         = safe_query($countsql) ;
+  $countrecords    = @mysql_num_rows($countResult); // Total no of records returned
+
+$temp           = $temp."  order by a.agentstatus ASC ".$limitstring;
+ $sql            = $sql.$temp;
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+   
+ ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?></span></td>
+                    </tr>
+					 <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+					 <tr>
+
+  <td width="20%" valign="top"><b>Select the Corresponding Agent</b></td>
+ <td width="20%"  valign="top">
+
+<?php echo getpayingagents("selagentid",$selagentid)?>
+
+</td></tr>
+<tr>
+<td width="15%" valign="top"><b>Select the State</b></td>
+        <td width="15%" valign="top">
+    <b>
+    <? echo getstates("selstate",$selstate,"","")?></td>
+	 </tr>
+<tr> 
+	  <td width="15%" valign="top"><b>Select the City</b></td>
+        <td width="15%" valign="top">
+    <b>
+    <? echo getcities("selcity",$selcity,$selstate,"")?></b></td>
+     </tr>
+	 <tr>
+<td width="20%" valign="top"><b>Status</b></td>
+<td width="20%"   valign="top"><select name=recordstatus><option value="">SELECT ONE</option><option value="Active" <? echo ($recordstatus=='Active')?"selected":""?>>Active</option><option value="Inactive" <? echo ($recordstatus=='Inactive')?"selected":""?>>Inactive</option></select></td>
+  <td width="20%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Filter by Corresponding Agent" class=btn3 onclick="javascript:generatesalesreport('agentsales')" ></td>
+
+  </tr>
+
+  </table>
+  </td>
+  </tr>
+
+                   
+  </table>
+     <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no collection points in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+ <tr>
+                 <td width="2%" class="TableHeader"><b>#</b></td>
+				 <td width="10%" class="TableHeader"><b>Name</b></td>
+				 <td width="10%" class="TableHeader"><b>Corresponding Agent</td>
+				 <td width="5%" class="TableHeader"><b>Status</b></td>
+				 <td width="20%" class="TableHeader"><b>Address</b></td>
+                 <td width="10%" class="TableHeader"><b>Telephone</b></td>
+                <td width="5%" class="TableHeader"><b>City</td>
+				<td width="5%" class="TableHeader"><b>State</td>
+				<td width="5%" class="TableHeader"><b>Country</td>
+				<td width="2%" class="TableHeader"><b>Default</td>
+              						   
+                         <?
+if($deleterights=='Y')
+{?>
+            <td width="2%" class="TableHeader"><b>Activate</b></td>
+			<td width="2%" class="TableHeader"><b>Delete</b></td>
+
+					 <? } ?>
+
+              </tr>
+
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+  $bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+
+  $agentid1     = (isset($row['agentid'])) ? $row['agentid'] : 0;
+ $agentaddress = (isset($row['agentaddress'])) ? $row['agentaddress'] : "";
+        $agentname = (isset($row['agentname'])) ? $row['agentname'] : "";
+        $payingagentname = (isset($row['payingagentname'])) ? $row['payingagentname'] : "";
+        $agentstatus = (isset($row['agentstatus'])) ? $row['agentstatus'] : "";
+         $city = (isset($row['city'])) ? $row['city'] : "0";
+		 $state = (isset($row['state'])) ? $row['state'] : "";
+		 $country = (isset($row['country'])) ? $row['country'] : "";
+        $agenttelephone = (isset($row['agenttelephone'])) ? $row['agenttelephone'] : "";
+      $is_default = (isset($row['is_default'])) ? $row['is_default'] : "";
+
+
+
+  ?>
+     <tr><td class="Row" bgcolor="<?php echo $bgcolor?>"><? echo ($i)?></td><td class="Row"  bgcolor="<?php echo $bgcolor?>">
+ <a href="index.php?status=<?php echo base64_encode('editcollectionpoint')?>&editagentid=<?php echo $agentid1?>"><font color=darkblue><b><?php echo $agentname?>
+</a></td>
+<td class="Row" bgcolor="<?php echo $bgcolor?>"><? echo ($payingagentname)?></td>
+
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $agentstatus?></td>
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $agentaddress?></td>
+<td class="Row"  bgcolor="<?php echo $bgcolor?>">
+ <a href="index.php?status=<?php echo base64_encode('editcollectionpoint')?>&editagentid=<?php echo $agentid1?>"><font color=darkblue><b><?php echo $agenttelephone?>
+</a></td>
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo ($city)?></td>
+
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo ($state)?></td>
+
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo ($country)?></td>
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $is_default?></td>
+
+     <?php if($deleterights=='Y')
+{ ?>
+		<td class="Row" width=2% ><input type=checkbox name=agents[] value="<? echo $agentid1?>"></td>	
+		
+<td class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('collectionpoints')?>&deleteaction=agentdelete&delagentid=<?php echo $agentid1?>"><img border="0" src="images/del_contact.gif" alt="delete record" >
+</a></td>
+<? }
+?>
+              </tr>
+
+   <?
+             
+         }
+ }
+      ?>
+         </table>
+		  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+<?
+if ($startrow != 0) { 
+    $prevrow = $startrow - $display; 
+    print("<td width=10% align=left  valign=top><a href=\"JavaScript:nextPage('".$prevrow."')\"><img src=images/prev.jpg alt=prev border=0></a></td> ");  
+}
+
+// Calculate the total number of pages 
+$pages = intval($countrecords / $display); 
+
+if ($countrecords % $display) { 
+    // has left over from division, so add one page 
+    $pages++; 
+} 
+// Print the next pages, first check if 
+//     there are more pages then 1 
+print("<td width=80% align=center  valign=top>");
+if ($pages > 1) { 
+    for ($i=1; $i <= $pages; $i++) { // Begin loop 
+    $nextrow = $display * ($i - 1); 
+	if($displayPageNo == $nextrow)
+		{
+    print("<font size=1 color=red>$i</font> ");
+		}
+		else
+		{
+	print("<a href=\"JavaScript:nextPage('".$nextrow."')\"><font size=1>$i</font></a> ");
+		}
+    } 
+} 
+print("</td>");
+//End loop 
+// Check if we are at the last page, if 
+//     so, dont print 'Next' 
+if (!(($startrow / $display) == $pages) && $pages != 1) { 
+    // not the last page so print 'Next' 
+    $nextrow = $startrow + $display; 
+    print("<td width=10% align=right valign=top><a href=\"JavaScript:nextPage('".$nextrow."')\"><img src=images/next.jpg alt=next border=0></a></td>"); 
+} 
+
+
+?>
+</tr></table>
+ <br><br>
+		 <input type=button name=c1 class=btn3 onclick="activeSubmit()" value="Activate Selected Collection Points"> 
+	  <input type=button name=c1 class=btn3 onclick="inactiveSubmit()" value="Inactivate Selected Collection Points"> 
+
+         </form>
+
+ <? include('footer.html');   ?>

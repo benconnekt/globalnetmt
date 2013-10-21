@@ -1,0 +1,438 @@
+<? include('header.html');
+ include('onlinesidemenu.html');
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator </td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the payment record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.paymentsform.displayPageNo.value=val;
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>&PAGE="+val;
+        document.paymentsform.submit();
+        }
+        function raisereceipt()
+    {
+        document.paymentsform.pageAction.value="raisereceipt";
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>&updateaction=raisereceipt";
+        document.paymentsform.submit();
+        }
+          function generateofficesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>&sortby=office";
+        document.paymentsform.submit();
+        }
+		     function generateaccountsreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>&sortby=account";
+        document.paymentsform.submit();
+        }
+        function submitpage()
+{
+document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>";
+document.paymentsform.submit();
+}
+   function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('customeraccountreport')?>";
+        document.paymentsform.submit();
+        }
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('customeraccountreport')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+<input type=hidden name=type value="<? echo $type?>">
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+  $selcontact  = (isset($_POST['selcontact'])) ? $_POST['selcontact'] : $_GET['selcontact'];
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+
+?>
+
+ 
+ 
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Customer Account Report</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+						<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdate' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+ 
+  </tr>
+  
+ <tr>
+  <td width="25%" valign="top"><b>Select the customer</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getaccountcontactnames("selcontact",$selcontact,$agentid);?>
+
+</td>
+ <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Customer Account Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport()" ></td>
+
+
+  </tr>
+    
+  </table>
+ 
+					  </TD>
+					  </TR>
+					  </TABLE>
+					  <BR>
+<?  
+$queryagent = $selcontact;
+
+?>
+ <?
+
+ $DISP_REC_COUNT = 50;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $startsalesdate = dateConvert($startsalesdate);
+ $endsalesdate = dateConvert($endsalesdate);
+
+ $dataOrder      = isset($dataOrder)?$dataOrder:"a.orderid desc";
+ 
+   $sql            = "select d.username as username,a.orderdate as orderdate,a.orderstatus as orderstatus,a.orderby,a.ordercountry as country,concat(c.firstname,' ',c.surname) as customername,b.firstname as beneficiaryname,a.orderid as orderid,a.orderamount as orderamount,a.agentcommission as agentcommission,a.commission1 as commission1,'MT' as ordertype from sales_master a left join user_master d on d.userid=a.orderby ,ben_master b,contact_master c  where a.contactid=c.contactid and a.benid=b.benid and a.contactid ='$selcontact' and a.orderdate>='$startsalesdate' and a.orderdate<='$endsalesdate'";
+   $temp           = $temp."  order by ".$dataOrder;
+  $sql            = $sql.$temp; 
+  $reportquery = $sql;
+ // echo $sql;
+  $Result         = safe_query($sql) ;
+  while ($row = mysql_fetch_array( $Result))
+  {
+	$reports_rows[] = $row;
+  }
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+
+     $accountsql            = "select a.username as username,a.transid as orderid,a.reference as reference,a.paymenttype as typeofpayment,a.transdate as orderdate,a.amount as agentamount,a.transtype as paymenttype,'Transaction' as ordertype from account_transactions a where a.customer ='$selcontact' and a.transdate>='$startsalesdate' and a.transdate<='$endsalesdate'";
+   $accounttemp           = $accounttemp."  order by a.transid desc ";
+  $accountsql            = $accountsql.$accounttemp; 
+  $accountreportquery = $accountsql;
+ // echo $accountsql;
+  $accountResult         = safe_query($accountsql) ;
+   while ($row = mysql_fetch_array( $accountResult))
+  {
+	$reports_rows[] = $row;
+  }
+  $noOfaccountRecords    = @mysql_num_rows($accountResult); // Total no of records returned
+
+		foreach ($reports_rows as $key => $value) 
+		{
+		$orderdate[$key] = $value['orderdate'];
+		$ordertype[$key] = $value['ordertype'];
+		$orderid[$key] = $value['orderid'];
+		}
+		array_multisort($orderdate, SORT_ASC, $ordertype, SORT_ASC,$orderid,SORT_ASC,$reports_rows);
+	
+
+
+  ?>
+	  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0 && $noOfaccountRecords ==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no transactions in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+ <tr>
+            <td width="3%" class="TableHeader"><b>S No</b></td>
+            <td width="7%" class="TableHeader"><b>Date</b></td>
+			<td width="10%" class="TableHeader"><b>Trans Code</b></td>
+			<td width="7%" class="TableHeader"><b>Ordered By</b></td>
+			<td width="10%" class="TableHeader"><b>Type</b></td>
+			<td width="12%" class="TableHeader"><b>Sender Name</b></td>
+			<td width="12%" class="TableHeader"><b>Receiver Name</b></td>
+			<td width="12%" class="TableHeader"><b>Country</b></td>
+			<td width="5%" class="TableHeader"><b>DR</b></td>
+			<td width="5%" class="TableHeader"><b>CR</b></td>
+			<td width="5%" class="TableHeader"><b>Balance</b></td>
+			
+			  
+ </tr>
+
+  <?php
+$startingbalance = totalcustomerbalancebeforedate($queryagent,$startsalesdate);
+  ?>
+<tr>
+ <td width="10%" colspan=3 align=left class="Row"><b>Starting Balance</b></td>
+ <td width="90%" colspan=8 align=right class="Row"><b><? echo number_format($startingbalance,2);?></b></td>
+</tr>
+  <?
+  $i=0;
+  $no=0;
+  $balanceamount=0;
+  $totalcreditamount =0;
+  $totaldebitamount =0;
+
+for($i=0;$i<sizeof($reports_rows);$i++) {
+	$searchrows=$reports_rows[$i];
+	$orderdate     = $searchrows['orderdate'];
+	$officeid     = $searchrows['officeid'];
+	$country     = $searchrows['country'];
+	$orderid = $searchrows['orderid'];
+	$orderamount = $searchrows['orderamount'];
+	$agentcommission = $searchrows['agentcommission'];
+	$commission1 = $searchrows['commission1'];
+	$cashcommission = $searchrows['cashcommission'];
+	$exchcommission = $searchrows['exchcommission'];
+	$customername = $searchrows['customername'];
+		$orderstatus = $searchrows['orderstatus'];
+
+	$username = $searchrows['username'];
+	$beneficiaryname = $searchrows['beneficiaryname'];
+	$description = $searchrows['description'];
+	$agentamount = $searchrows['agentamount']; 
+	$ordertype = $searchrows['ordertype'];
+	$reference = $searchrows['reference'];
+	$paymenttype = $searchrows['paymenttype'];
+	$typeofpayment = $searchrows['typeofpayment'];
+
+	if($username == "")
+	{
+		$username="Website Order";
+	}
+ 
+ if($ordertype == 'Payment')
+	 {	
+if($agentamount<0)
+	  {
+	$agentamount=0;
+	  }
+	
+$balanceamount = $balanceamount+$agentamount;
+$totalcreditamount = $totalcreditamount + $agentamount;
+	 }
+	 elseif($ordertype == 'Transaction')
+	 {	
+			if($agentamount<0)
+				  {
+				$agentamount=0;
+				  }
+		if($paymenttype == 'Credit')
+				 {
+		$balanceamount = $balanceamount+$agentamount;
+		$totalcreditamount = $totalcreditamount + $agentamount;
+				 }
+				 else
+				 {
+		$balanceamount = $balanceamount-$agentamount;
+		$totaldebitamount = $totaldebitamount + $agentamount;
+		
+				 }
+	 }
+	 else
+	{
+
+if($orderamount<0)
+	  {
+	$orderamount=0;
+	  }
+	  if($agentcommission<0)
+	  {
+	$agentcommission=0;
+	  }
+$totaldebitamount = $totaldebitamount + $orderamount + $agentcommission + $cashcommission;
+$balanceamount = $balanceamount-$orderamount-$agentcommission-$cashcommission;
+	}
+	 
+?>
+  <? if($ordertype == 'MT')
+	 { ?>
+
+  <tr><td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><?php echo ($i+1)?></a></td>
+ <td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo changeddate($orderdate)?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $orderid?></td>
+<td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo $username?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $orderstatus?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $customername?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $beneficiaryname?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo getcountryname($country)?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><? echo number_format(($orderamount+$agentcommission+$cashcommission),2)?></td>
+<td class="Row" valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><b><? echo number_format($startingbalance+$balanceamount,2)?></b></td>
+
+
+ </tr>
+ <? } elseif($ordertype == 'Transaction') { ?>
+
+
+ <tr><td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><?php echo ($i+1)?></a></td>
+ <td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo changeddate($orderdate)?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"> <? echo $typeofpayment?> - <? echo $reference?></td>
+<td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo $username?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $paymenttype?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? if($paymenttype == 'Debit')
+	 {
+	 echo number_format(($agentamount),2);
+	 }
+	 ?>
+</td>
+<td class="Row" valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><? if($paymenttype == 'Credit')
+	 {
+	 echo number_format(($agentamount),2);
+	 }
+	 ?></td>
+
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><b><? echo number_format($startingbalance+$balanceamount,2)?></b></td>
+
+
+ </tr>
+<? } else { ?>
+
+
+ <tr><td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><?php echo ($i+1)?></a></td>
+ <td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo changeddate($orderdate)?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $reference?></td>
+<td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><? echo $paymenttype?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"></td>
+<td class="Row" valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><? echo number_format(($agentamount),2)?></td>
+
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>" nowrap><b><? echo number_format($startingbalance+$balanceamount,2)?></b></td>
+
+
+ </tr>
+<? } ?>
+ 
+   <? 
+  } ?>
+
+ 
+<?
+	$closingbalance = totalcustomerbalanceafterdate($queryagent,$endsalesdate);
+?>
+<tr>
+ <td width="10%" colspan=3 align=left class="Row"><b>Closing Balance</b></td>
+ <td width="90%" colspan=8 align=right class="Row"><b><? echo number_format($startingbalance+$balanceamount+$closingbalance,2);?></b></td>
+ </tr>
+<tr>
+ <td width="70%" colspan=8 align=right class="Row"><b>Totals</b></td>
+ <td width="10%" class="Row"><b><font color=red><? echo number_format($totaldebitamount,2);?></font></b></td>
+ <td width="10%" colspan=2 class="Row"><b><font color=blue><? echo number_format($totalcreditamount,2);?></font></b></td>
+</tr>
+
+  <?
+ }?>
+
+
+</table>
+
+   </form>
+   <!--
+   <form name="queryform" action="reportprintableview.php" method="post" target=_blank>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="bankquery" value="<?php echo $bankreportquery?>">
+<input type=hidden name="paymentquery" value="<?php echo $paymentreportquery?>">
+<input type=hidden name="accountquery" value="<?php echo $accountreportquery?>">
+<input type=hidden name="adjustmentquery" value="<?php echo $adjustmentsreportquery?>">
+<input type=hidden name="expensequery" value="<?php echo $expensesreportquery?>">
+
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="searchcustomer" value="<?php echo $selcontact?>">
+<input type=hidden name="reporttype" value="customeraccountreport">
+<input type=hidden name="title" value="Customer Account Report">
+<input align=center type="submit"  name="cmd_Submit3" value="Printable View" class=btn3 >
+
+</form>
+
+<form name="queryform" action="reportprintableview.php?type=excel" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="bankquery" value="<?php echo $bankreportquery?>">
+<input type=hidden name="paymentquery" value="<?php echo $paymentreportquery?>">
+<input type=hidden name="accountquery" value="<?php echo $accountreportquery?>">
+<input type=hidden name="adjustmentquery" value="<?php echo $adjustmentsreportquery?>">
+<input type=hidden name="expensequery" value="<?php echo $expensesreportquery?>">
+
+
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="searchcustomer" value="<?php echo $selcontact?>">
+<input type=hidden name="reporttype" value="customeraccountreport">
+<input type=hidden name="title" value="Customer Account Report">
+<input align=center type="submit"  name="cmd_Submit3" value="Export to Excel" class=btn3 >
+
+</form>
+-->
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+  
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

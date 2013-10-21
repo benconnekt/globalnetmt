@@ -1,0 +1,993 @@
+<?
+include("header.html");
+include('officesidemenu.html');
+$datetoday = date("Y/m/d");
+$Getsaleid=0;
+if(isset($_POST['saleid'])!="")
+   {
+   $Getsaleid=$_POST['saleid'];
+   }
+   else
+   {
+    $Getsaleid=$_GET['saleid'];
+   }
+   
+  
+?>
+<body TOPMARGIN=0 LEFTMARGIN=0 RIGHTMARGIN=0 >
+
+<script language=javascript>
+function validateForm(theForm)
+{
+        // Customize these calls for your form
+
+        // Start ------->
+		if (!validRequired(theForm.collectiontype,"Collection Type"))
+                return false;
+       var collectiontype = document.newmtform.collectiontype.options[document.newmtform.collectiontype.selectedIndex].value;
+
+		if(collectiontype == 'Bank')
+	{
+        if (!validRequired(theForm.payingagent,"Corresponding Agent"))
+                return false;
+	}
+	else
+	{
+		 if (!validRequired(theForm.collectionofficeid,"Collection Point"))
+                return false;
+	}
+
+	var orderamount = document.newmtform.orderamount.value;
+        var actualorderamount = document.newmtform.actualorderamount.value;
+		if(parseFloat(orderamount) != parseFloat(actualorderamount))
+		{
+			alert("The order amount has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+		var benamount = document.newmtform.benamount.value;
+        var actualbenamount = document.newmtform.actualbenamount.value;
+		if(parseFloat(benamount) != parseFloat(actualbenamount))
+		{
+			alert("The beneficiary amount has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+		var exchangerate = document.newmtform.exchangerate.value;
+        var actualexchangerate = document.newmtform.actualexchangerate.value;
+		if(parseFloat(exchangerate) != parseFloat(actualexchangerate))
+		{
+			alert("The exchange rate has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+		var agentcommission = document.newmtform.agentcommission.value;
+        var actualagentcommission = document.newmtform.actualagentcommission.value;
+		if(parseFloat(agentcommission) != parseFloat(actualagentcommission))
+		{
+			alert("The commission has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+
+		var bankcharges = document.newmtform.agentbankcharges.value;
+        var actualbankcharges = document.newmtform.actualbankcharges.value;
+		if(parseFloat(bankcharges) != parseFloat(actualbankcharges))
+		{
+			alert("The bank charges has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+
+		var totalamount = document.newmtform.totalamount.value;
+        var actualtotalamount = document.newmtform.actualtotalamount.value;
+		if(parseFloat(totalamount) != parseFloat(actualtotalamount))
+		{
+			alert("The total amount has been changed after re-calculating. Please re-calculate again before submitting the order");
+			return false;
+		}
+
+	var payingagent = document.newmtform.payingagent.options[document.newmtform.payingagent.selectedIndex].value;
+        var actualpayingagent = document.newmtform.actualpayingagent.value;
+		if(payingagent != actualpayingagent)
+		{
+			alert("The corresponding agent has been changed after getting the rates. Please get the rates again with the new corresponding agent before submitting the order");
+			return false;
+		}
+
+	if (!validRequired(theForm.payingagent,"Corresponding Agent"))
+                return false;
+			if (!validRequired(theForm.orderamount,"Order Amount"))
+                return false;
+				if (!validRequired(theForm.currency,"Currency"))
+                return false;
+					if (!validRequired(theForm.benamount,"Beneficiary Amount"))
+                return false;
+						if (!validRequired(theForm.status,"Status"))
+                return false;
+			if (!validRequired(theForm.exchangerate,"Exchange rate"))
+                return false;
+
+			if (!validRequired(theForm.totalamount,"Total Amount"))
+                return false;
+			if (!validRequired(document.newmtform.sourceoffunds,"Source of Funds"))
+                return false;
+				if (!validRequired(document.newmtform.purposeoftransfer,"Purpose of Funds"))
+                return false;
+
+        // <--------- End
+
+        return true;
+}
+function displayoptions()
+	  {
+var collectiontype=document.newmtform.collectiontype.options[document.newmtform.collectiontype.selectedIndex].value;
+if(collectiontype=='Bank')
+		  {
+	document.newmtform.bankname.disabled=false;
+	document.newmtform.branchaddress.disabled=false;
+	document.newmtform.swiftcode.disabled=false;
+	document.newmtform.ibanno.disabled=false;
+	document.newmtform.branchname.disabled=false;
+	document.newmtform.accountno.disabled=false;
+	document.newmtform.accounttype.disabled=false;
+	document.newmtform.sortcode.disabled=false;
+	document.newmtform.collectioncity.disabled=true;
+	document.newmtform.collectionstate.disabled=true;
+	document.newmtform.collectionname.disabled=true;
+	document.newmtform.collectionofficeid.disabled=true;
+		  }
+		  else
+		  {
+	document.newmtform.bankname.disabled=true;
+	document.newmtform.branchname.disabled=true;
+	document.newmtform.accountno.disabled=true;
+	document.newmtform.accounttype.disabled=true;
+	document.newmtform.branchaddress.disabled=true;
+	document.newmtform.swiftcode.disabled=true;
+	document.newmtform.ibanno.disabled=true;
+	document.newmtform.sortcode.disabled=true;
+	document.newmtform.collectioncity.disabled=false;
+	document.newmtform.collectionstate.disabled=false;
+	document.newmtform.collectionname.disabled=false;
+	document.newmtform.collectionofficeid.disabled=false;
+		
+		  }
+		 
+	  }
+function getinfo(val)
+{
+if (!validRequired(document.newmtform.payingagent,"Corresponding Agent"))
+                return false;
+	if (!validRequired(document.newmtform.benamount,"Beneficiary Amount"))
+                return false;
+	if(!validInt(document.newmtform.benamount,"Beneficiary Amount"))
+                return false;
+	if (!validRequired(document.newmtform.orderamount,"Order Amount"))
+                return false;
+	if(!validInt(document.newmtform.orderamount,"Order Amount"))
+                return false;
+	if (!validRequired(document.newmtform.totalamount,"Total Amount"))
+                return false;
+	if(!validInt(document.newmtform.totalamount,"Total Amount"))
+                return false;
+	if (!validRequired(document.newmtform.exchangerate,"Exchange Rate"))
+                return false;
+	if(!validInt(document.newmtform.exchangerate,"Exchange Rate"))
+                return false;
+	if (!validRequired(document.newmtform.currency,"Currency"))
+                return false;
+	if (!validRequired(document.newmtform.agentcommission,"Commission Amount"))
+                return false;
+	if(!validInt(document.newmtform.agentcommission,"Commission Amount"))
+                return false;
+
+document.newmtform.pageAction.value="getrates";
+document.newmtform.action="index.php?status=<?php echo base64_encode('editmt')?>&requesttype="+val;
+document.newmtform.submit();
+}
+
+
+
+function setinfo()
+{
+if (!validRequired(document.newmtform.payingagent,"Corresponding Agent"))
+                return false;
+	if (!validRequired(document.newmtform.benamount,"Beneficiary Amount"))
+                return false;
+	if(!validInt(document.newmtform.benamount,"Beneficiary Amount"))
+                return false;
+	if (!validRequired(document.newmtform.orderamount,"Order Amount"))
+                return false;
+	if(!validInt(document.newmtform.orderamount,"Order Amount"))
+                return false;
+	if (!validRequired(document.newmtform.totalamount,"Total Amount"))
+                return false;
+	if(!validInt(document.newmtform.totalamount,"Total Amount"))
+                return false;
+	if (!validRequired(document.newmtform.exchangerate,"Exchange Rate"))
+                return false;
+	if(!validInt(document.newmtform.exchangerate,"Exchange Rate"))
+                return false;
+	if (!validRequired(document.newmtform.agentcommission,"Commission Amount"))
+                return false;
+	if(!validInt(document.newmtform.agentcommission,"Commission Amount"))
+                return false;
+	var benamount = parseFloat(document.newmtform.orderamount.value)*parseFloat(document.newmtform.exchangerate.value);
+	var totalamount = parseFloat(document.newmtform.orderamount.value)+parseFloat(document.newmtform.agentcommission.value);
+	document.newmtform.totalamount.value=Math.round(100*totalamount)/100;
+	document.newmtform.benamount.value=Math.round(100*benamount)/100;
+
+}
+function saveinfo()
+{
+if(validateForm(document.newmtform))
+{
+document.newmtform.pageAction.value="addnew";
+document.newmtform.action="index.php?status=<?php echo base64_encode('editmt')?>";
+document.newmtform.submit();
+}
+}
+
+function submitform()
+{
+document.newmtform.pageAction.value="refresh";
+document.newmtform.action="index.php?status=<?php echo base64_encode('editmt')?>&requesttype=refresh";
+document.newmtform.submit();
+}
+</script>
+	
+ <? 
+ if($officerights!='Y')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights and update rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+  if($_REQUEST['pageAction']=="addnew")
+	  {
+    editmtsale();
+    }
+
+	
+	
+     if($Getsaleid!="")
+   {
+
+$requesttype=($_POST['requesttype'])?$_POST['requesttype']:0;
+if($requesttype == 'refresh')
+{
+$_POST['exchangerate'] =($_POST['actualexchangerate'])?$_POST['actualexchangerate']:0;
+$_POST['benamount']=($_POST['actualbenamount'])?$_POST['actualbenamount']:0;
+$_POST['orderamount']=($_POST['actualorderamount'])?$_POST['actualorderamount']:0;
+$_POST['agentcommission']=($_POST['actualagentcommission'])?$_POST['actualagentcommission']:0;
+}
+    $sql            = "select * from sales_master  where saleid='$Getsaleid'";
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+	$orderid=($_POST['orderid']!="")?$_POST['orderid']:$row['orderid'];
+	$contactid=($_POST['contactid']!="")?$_POST['contactid']:$row['contactid'];
+	$benid=($_POST['benid']!="")?$_POST['benid']:$row['benid'];
+	$currency=($_POST['currency']!="")?$_POST['currency']:$row['currency'];
+	$collectiontype=($_POST['collectiontype']!="")?$_POST['collectiontype']:$row['collectiontype'];
+	$collectionofficeid=($_POST['collectionofficeid']!="")?$_POST['collectionofficeid']:$row['collectionofficeid'];
+	$bankname=($_POST['bankname']!="")?$_POST['bankname']:$row['bankname'];
+	$branchname=($_POST['branchname']!="")?$_POST['branchname']:$row['branchname'];
+	$accountno=($_POST['accountno']!="")?$_POST['accountno']:$row['accountno'];
+	$sortcode=($_POST['sortcode']!="")?$_POST['sortcode']:$row['sortcode'];
+	$benamount=($_POST['benamount']!="")?$_POST['benamount']:$row['benamount'];
+	$exchangerate=($_POST['exchangerate']!="")?$_POST['exchangerate']:$row['exchangerate'];
+	$orderamount=($_POST['orderamount']!="")?$_POST['orderamount']:$row['orderamount'];
+	$orderstatus=($_POST['orderstatus']!="")?$_POST['orderstatus']:$row['orderstatus'];
+	$officeid=($_POST['officeid']!="")?$_POST['officeid']:$row['officeid'];
+	$agentcommissionamount=($_POST['agentcommission']!="")?$_POST['agentcommission']:$row['agentcommission'];
+	$orderby=($_POST['orderby']!="")?$_POST['orderby']:$row['orderby'];
+	$instructions=($_POST['instructions']!="")?$_POST['instructions']:$row['instructions'];
+	$orderdate=($_POST['orderdate']!="")?$_POST['orderdate']:$row['orderdate'];
+	$processby=($_POST['processby']!="")?$_POST['processby']:$row['processby'];
+	$processdate=($_POST['processdate']!="")?$_POST['processdate']:$row['processdate'];
+	$bencountry=getbencountry($benid);
+	$beneficiaryidno=($_POST['beneficiaryidno']!="")?$_POST['beneficiaryidno']:$row['beneficiaryidno'];
+	$paymenttype=($_POST['paymenttype']!="")?$_POST['paymenttype']:$row['paymenttype'];
+	$idno=($_POST['idno']!="")?$_POST['idno']:$row['idno'];
+	$ibanno=($_POST['ibanno']!="")?$_POST['ibanno']:$row['ibanno'];
+	$swiftcode=($_POST['swiftcode']!="")?$_POST['swiftcode']:$row['swiftcode'];
+	$branchaddress=($_POST['branchaddress']!="")?$_POST['branchaddress']:$row['branchaddress'];
+	$sms=($_POST['sms']!="")?$_POST['sms']:$row['sms'];
+	$pickupidothers=($_POST['pickupidothers']!="")?$_POST['pickupidothers']:$row['pickupidothers'];
+	$pickupidtype=($_POST['pickupidtype']!="")?$_POST['pickupidtype']:$row['pickupidtype'];
+	$payingagent=($_POST['payingagent']!="")?$_POST['payingagent']:$row['payingagent'];
+	$ordercountry=($_POST['ordercountry']!="")?$_POST['ordercountry']:$row['ordercountry'];
+	$depositbankname=($_POST['depositbankname']!="")?$_POST['depositbankname']:$row['depositbankname'];
+	$purposeoftransfer=($_POST['purposeoftransfer']!="")?$_POST['purposeoftransfer']:$row['purposeoftransfer'];
+	$sourceoffunds=($_POST['sourceoffunds']!="")?$_POST['sourceoffunds']:$row['sourceoffunds'];
+    $ordertime = $row['ordertime'];
+	$releaseorder = ($_POST['releaseorder']!="")?$_POST['releaseorder']:"";
+	$agentbankcharges = ($_POST['agentbankcharges']!="")?$_POST['agentbankcharges']:$row['agentbankcharges'];
+	$accounttype = ($_POST['accounttype']!="")?$_POST['accounttype']:$row['accounttype'];
+    $actualpayingagent = $payingagent;
+	$processtime = $row['processtime'];
+	$statuscodedesc = $row['statuscodedesc'];
+
+	//$collectionname = ($_POST['collectionname']!="")?$_POST['collectionname']:getagentname($collectionofficeid);
+	$collectionname = ($_POST['collectionname']!="")?$_POST['collectionname']:"";
+
+		if($orderstatus=='Processed')
+		{
+		$link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+		}
+		elseif($orderstatus=='Confirmed' && $userrole != 'Administrator' && $superuserrights != 'Y')
+	    {
+		$link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+		}
+		elseif($orderstatus=='Confirmed' && $userrole != 'Administrator' && $superuserrights != 'Y')
+	    {
+		$link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+		}
+		elseif($orderstatus=='Cancelled With Commission' && $userrole != 'Administrator' && $superuserrights != 'Y')
+	    {
+		$link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+		}
+		elseif($orderstatus=='Cancelled Without Commission' && $userrole != 'Administrator' && $superuserrights != 'Y')
+	    {
+		$link="index.php?status=".base64_encode('processedorder')."&saleid=".$saleid;
+		}
+		else
+		 {
+		$link = "";
+		 }
+		if(strlen($link))
+		 {
+		 ?>
+		 <script language=javascript>
+		location.href = "<? echo $link?>";
+		 </script>
+		 <?
+		 }
+	
+}
+
+	if(!strlen($orderid))
+			   {
+			display_message("No record found for the order");
+			include("footer.html");
+			exit;
+			   }
+		if($agentid  != $officeid && $userrole!='Administrator' && $superuserrights != 'Y')
+				{
+			display_message("You are not authorized to view this information");
+			include("footer.html");
+			exit;
+			   }
+			   if(ispayingagent($userid)=='Y')
+			{
+			if($payingagentid  != $payingagent)
+				{
+			display_message("You are not authorized to view this information");
+			include("footer.html");
+			exit;
+			   }
+			}
+
+   if($_GET['neworder']=='y')
+	{
+		
+		$amlMessage = validateAMLConditions($saleid);
+		
+		if(strlen($amlMessage) && $releaseorder != 'Y')
+		{
+			$fontColor = "#FFA500";
+			if(strpos($amlMessage,"SDN Block Persons") !== false)
+			{
+			$fontColor = "redRow";
+			$contactlink= $contactlink;
+			}	
+		}
+		  if(strlen($amlMessage))
+		  {
+		  ?><script language="javascript">alert("Notice: This order failed to meet\n\nAnti Money Laundering checks\n\n<? echo str_replace('&nbsp;','\n\n',$amlMessage)?>\nCustomer original scanned(coloured) id document(s) to be sent to compliance@globalnett.co.uk\n\nClick OK to print customer receipt");</script>
+		  <?
+		  }
+
+			  $salesamount=getagentsalestotal($agentid);
+					  $creditamount=getagentcreditlimit($agentid);
+                      $paymentamount=getagentpaymentamount($agentid);
+					  $commissionamount=getagentcommissiontotal($agentid);
+					  $openingbalance = getagentopeningbalance($agentid);
+
+					  $outstandingbalance = $openingbalance+$paymentamount-$salesamount-$commissionamount+$creditamount;
+
+					  if($outstandingbalance<0)
+					{
+						  $alertmessage = "<b><font color=red>You have exceeded your credit limit.</font>Transaction Code - ".$orderid." <font color=red>has been submitted successfully and might not be paid out.</font></b>";
+						  display_message($alertmessage);
+					}
+	}
+
+ if($_REQUEST['pageAction']=="getrates")
+	  {
+		$orderamount=$_REQUEST['orderamount'];
+		$currency=$_REQUEST['currency'];
+		$exchangerate=$_REQUEST['exchangerate'];
+		$benamount=$_REQUEST['benamount'];
+		$totalamount=$_REQUEST['totalamount'];
+		$payingagent=$_REQUEST['payingagent'];
+		$actualpayingagent = $_REQUEST['payingagent'];
+
+		if($_GET['requesttype']=="benamount" &&  is_numeric($_REQUEST['benamount']))
+	  {
+			$exchangerate=getbenexchangerate($benamount,$currency,$payingagent);
+			$exchangerate = round($exchangerate,2);
+			$benamount = round($benamount,2);
+			if(is_numeric($exchangerate))
+				  {
+			$orderamount = round(($benamount/$exchangerate),2);
+				  }
+	  }
+	 
+	  elseif($_GET['requesttype']=="orderamount"  &&  is_numeric($_REQUEST['orderamount']))
+	  {
+		  $exchangerate=getexchangerate($orderamount,$currency,$payingagent);
+		  if(is_numeric($exchangerate))
+				  {
+				$benamount=round(($exchangerate*$orderamount),2);
+				  }
+	  }
+	  
+	  elseif($_GET['requesttype']=="rate"  &&  is_numeric($_REQUEST['exchangerate']))
+	  {
+		  $benamount = round($benamount,2);
+		  $exchangerate = round($exchangerate,2);
+				if(is_numeric($exchangerate))
+				  {
+				$orderamount = round(($benamount/$exchangerate),2);
+				  }
+
+	  }
+	   elseif($_GET['requesttype']=="totalamount"  &&  is_numeric($_REQUEST['totalamount']))
+	  {
+		  $commissionamount=getcommissionamount($totalamount,$currency);
+		  $orderamount = $totalamount - $commissionamount; 
+		  $exchangerate=getexchangerate($orderamount,$currency,$payingagent);
+		  if(is_numeric($exchangerate))
+				  {
+				$benamount=round(($exchangerate*$orderamount),2);
+				  }
+	  }
+	  elseif($_GET['requesttype']=="commission"  &&  is_numeric($_REQUEST['agentcommission']))
+	  {
+		 
+	  }
+	  elseif($_GET['requesttype']=="bankcharges"  &&  is_numeric($_REQUEST['agentbankcharges']))
+	  {
+		 $agentbankcharges = $_REQUEST['agentbankcharges'];
+	  }
+	  
+	  if($collectiontype == 'Bank' && $_GET['requesttype']!="bankcharges")
+		{
+		 $agentbankcharges = getagentbankchargesvalue($orderamount);
+		}
+
+				if(is_numeric($orderamount))
+				  {
+				  $agentcommissionamount=getcommissionamount($orderamount,$currency);				
+				  }
+				 if($_GET['requesttype']=="commission"  &&  is_numeric($_REQUEST['agentcommission']))
+					  {
+					$agentcommissionamount=$_REQUEST['agentcommission'];
+					  }
+			 elseif($_GET['requesttype']=="totalamount"  &&  is_numeric($_REQUEST['totalamount']))
+				{
+				$agentcommissionamount=getcommissionamount($totalamount,$currency);
+				}
+		
+	  }
+
+
+	  $actualagentcommission = $agentcommissionamount;
+	  $actualtotalamount = $agentcommissionamount+$orderamount+$agentbankcharges;
+	  $actualbenamount = $benamount;
+	  $actualorderamount = $orderamount;
+	  $actualbankcharges = $agentbankcharges;
+	  $actualexchangerate = $exchangerate;
+
+?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Money Transfer Application Information </span></td>
+                    </tr>
+					<tr>
+                      <td class="Row">
+					 <strong>TRANSACTION CODE: <FONT COLOR=RED><? echo $orderid;?></strong>
+					 </td>
+					  </tr>
+                    <tr>
+                      <td class="Row">
+					 
+<form name="queryform" action="mtprintableview.php" method="post" target=_blank>
+<input type=hidden name="saleid" value="<?php echo $Getsaleid?>">
+<input align=center type="submit"  name="cmd_Submit3" value="Print Receipt" class=btn3> &nbsp; <input type="button" onclick="javascript:location.href='index.php?status=<?php echo base64_encode('viewbeneficiaries')?>&contactid=<?php echo $contactid?>'" name="newcustomer" value="Make new order for this customer" class="btn3"/>
+
+
+</form>
+
+
+  <form name=newmtform method=post action=index.php>
+<input type=hidden name=status value="<?php echo base64_encode('editmt')?>">
+<input type=hidden name=saleid value="<?php echo $Getsaleid?>">
+<input type=hidden name=ordercountry value="<?php echo $ordercountry ?>">
+<input type=hidden name=officeid value="<?php echo $officeid ?>">
+<input type=hidden name=actualpayingagent value="<?php echo $actualpayingagent ?>">
+
+<input type=hidden name=actualorderamount value="<?php echo $actualorderamount ?>">
+<input type=hidden name=actualbenamount value="<?php echo $actualbenamount ?>">
+<input type=hidden name=actualagentcommission value="<?php echo $actualagentcommission ?>">
+<input type=hidden name=actualexchangerate value="<?php echo $actualexchangerate ?>">
+<input type=hidden name=actualbankcharges value="<?php echo $actualbankcharges ?>">
+<input type=hidden name=actualtotalamount value="<?php echo $actualtotalamount ?>">
+
+<input type=hidden name=pageAction >
+
+ <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber1">
+  <tr>
+    <td width="50%" valign=top>
+	
+	
+	<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  
+  <tr>
+    <td width="100%" valign="top" colspan="2"><b>CUSTOMER DETAILS</b></td>
+  </tr>
+    <tr>
+    <td width="100%" valign="top" colspan="2"><? echo getcustomerdetailsfororder($contactid)?></td>
+  </tr>
+<tr>
+    <td width="100%" valign="top" colspan="2"><b>BENEFICIARY DETAILS</b></td>
+  </tr>
+   <tr>
+    <td width="100%" valign="top" colspan="2"><? echo getbeneficiarydetailsfororder($benid)?></td>
+  </tr>
+</table>
+<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+   <tr>
+    <td width="100%" valign="top" colspan="4"><b>OFFICE INFORMATION</b></td>
+  </tr>
+<tr>
+	 <td width="50%" valign="top">Office/Agent</td>
+    <td width="50%" valign="top"><b><?php echo getofficename($officeid)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Ordered By</td>
+    <td width="50%" valign="top"><b><?php echo getusername($orderby)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Order Date</td>
+    <td width="50%" valign="top"><b><?php echo changeddate($orderdate)?> <? echo $ordertime?></b></td>
+  </tr>
+   <tr>
+	 <td width="50%" valign="top">Processed By</td>
+    <td width="50%" valign="top"><b><?php echo getusername($processby)?></b></td>
+  </tr>
+   <tr>
+	 <td width="50%" valign="top">Auth Code</td>
+    <td width="50%" valign="top"><b><?php echo $beneficiaryidno?></b></td>
+  </tr>
+   <tr>
+	 <td width="50%" valign="top">Processed Date</td>
+    <td width="50%" valign="top"><b><?php echo changeddate($processdate)?> <?php echo ($processtime)?></b></td>
+  </tr>
+  <tr>
+	 <td width="50%" valign="top">Status Code Description</td>
+    <td width="50%" valign="top"><b><?php echo $statuscodedesc?></b></td>
+  </tr>
+    <tr>
+    <td width="50%" valign="top">Instructions</td>
+    <td width="50%"  valign="top"><textarea name=instructions rows="5"  cols="40"><?php echo $instructions?></textarea></td>
+	</tr>
+	<tr>
+   <td width="50%" valign=top>Source of Funds of Transfer</td>
+    <td width="50%" valign=top>
+	<select name=sourceoffunds style="border-style: solid; border-width: 1">
+	<? if($sourceoffunds!='')
+	  {?>
+<option value='<? echo $sourceoffunds?>' selected ><? echo $sourceoffunds?></option>
+	  <? } 
+	 else {?>
+	  <option value='' >Choose one</option>
+ 
+	 <? } ?>
+ <option value='Salary' >Salary</option>
+ <option value='Loan'>Loan</option>
+ <option value='Remortgage'>Remortgage</option>
+ <option value='Business'>Business</option>
+ <option value='Others'>Others</option>
+</select>
+</td>
+ </tr>
+ <tr>
+   <td width="50%" valign=top>Purpose of Transfer</td>
+    <td width="50%" valign=top>
+	<select name=purposeoftransfer style="border-style: solid; border-width: 1">
+	<? if($purposeoftransfer!='')
+	  {?>
+<option value='<? echo $purposeoftransfer?>' selected ><? echo $purposeoftransfer?></option>
+	  <? } 
+	 else {?>
+	  <option value='' >Choose one</option>
+ 
+	 <? } ?>
+ <option value='Family Assistance' >Family Assistance</option>
+ <option value='Business'>Business</option>
+ <option value='Charity'>Charity</option>
+ <option value='Others'>Others</option>
+</select>
+</td>
+ </tr>
+  </table>
+
+  <? if($agentid  == $officeid || $userrole=='Administrator' || $superuserrights == 'Y')
+	   {
+	   if($orderstatus != 'Ordered' && $userrole!='Administrator' && $superuserrights == 'Y')
+	   {
+	   }
+	   elseif($userrole!='Administrator')
+	   {
+	   ?>
+		<input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Information" >
+	   <?
+	   }
+	   else
+	   {
+	   ?>
+    <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Information" >
+	<? } }?>
+     
+</td>
+
+    <td width="50%" valign=top> 
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+   <tr>
+    <td width="100%" valign="top" colspan="4"><b>ORDER INFORMATION</b></td>
+  </tr>
+  <tr>
+	 <td width=100% colspan=2 valign=top>
+	  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td colspan=2 class="TableHeader">Specify Order Details</span></td>
+                    </tr>
+    <tr>
+   <td width="50%" valign="top"><b>Corresponding Agent</b></td>
+    <td width="50%" valign="top"><? echo getpayingagents("payingagent",$payingagent,$bencountry,$payingagent_disabled)?></td>
+  </tr>
+   <tr>
+   <td width="50%" valign="top"><b>Beneficiary Amount</b></td>
+    <td width="50%" valign="top"><input  class="text"  name=benamount value="<? echo $benamount?>"  size="10">&nbsp;<input type=button name=b1 class=btn3 value="Get Rates" onclick="javascript:getinfo('benamount')"></td>
+  </tr>
+  
+  <tr>
+	 <td width="50%"  VALIGN=TOP><b>Currency</b></td> <td width="50%"  VALIGN=TOP><? echo getcurrencies("currency",$currency,$bencountry)?></td>
+  
+    </tr>
+	<? if($exchangerate=="0" && $_REQUEST['pageAction']=="getrates")
+	  {?>
+	 <tr>
+	 <td width="100%" VALIGN=TOP colspan=2><font color=red><b>NO exchange rate is found for the amount and the currency. please select another corresponding agent.</font></b></td>
+  
+    </tr>
+	<? } ?>
+	<tr>
+    <td width="50%" valign="top"><b>RATE</b></td>
+    <?if($userrole=='Administrator')
+	{?>
+	<td width="50%" valign="top"><input  class="text" name=exchangerate SIZE=10 value="<? echo $exchangerate?>"  size="20">&nbsp;<input type=button name=b1 class=btn3 value="Re-calculate" onclick="javascript:getinfo('rate')"></td>
+	</tr>
+	<?} else { ?>
+<td width="50%" valign="top"><input  class="text" name=exchangerate SIZE=10 value="<? echo $exchangerate?>"  readonly size="20"></td>
+	<? } ?>
+	</tr>
+    <tr>
+    <td width="50%" valign="top"><b>Order Amount</b></td>
+    <td width="50%" valign="top"><input type=text class="text" name=orderamount value="<? echo $orderamount?>" size="10">&nbsp;<input type=button name=b1 class=btn3 value="Re-calculate" onclick="javascript:getinfo('orderamount')">
+    </td>
+	</tr>
+  <tr>
+   <td width="50%" valign="top"><b>Commission</b></td>
+ <?if($userrole=='Administrator'  || $superuserrights =='Y')
+	{?>
+	<td width="50%" valign="top"><input  class="text" name=agentcommission  value="<? echo $agentcommissionamount?>" size="10">&nbsp;<input type=button name=b1 class=btn3 value="Re-calculate" onclick="javascript:getinfo('commission')"></td>
+	<? } else { ?>
+<td width="50%" valign="top"><input  class="text" name=agentcommission  value="<? echo $agentcommissionamount?>" readonly size="10"></td>
+	
+	<? }?> </tr>
+	  <tr>
+   <td width="50%" valign="top"><b>Bank Charges</b></td>
+    <?if($userrole=='Administrator'  || $superuserrights =='Y')
+	{?>
+	<td width="50%" valign="top"><input  class="text" name=agentbankcharges  value="<? echo $agentbankcharges?>" size="10">&nbsp;<input type=button name=b1 class=btn3 value="Re-calculate" onclick="javascript:getinfo('bankcharges')"></td>
+	<? } else { ?>
+<td width="50%" valign="top"><input  class="text" name=agentbankcharges  value="<? echo $agentbankcharges?>" readonly size="10"></td>
+	
+	<? }?></td>
+	
+  </tr>
+  <tr>
+   <td width="50%" valign="top"><b>TOTAL</b></td>
+    <td width="50%" valign="top"><input  class="text"  name=totalamount  value="<? echo ($orderamount+$agentcommissionamount+$agentbankcharges)?> " size="10">&nbsp;<input type=button name=b1 class=btn3 value="Re-calculate" onclick="javascript:getinfo('totalamount')"></td>
+  </tr>
+  <tr>
+   <td width="50%" valign=top>Payment Type</td>
+    <td width="50%" valign=top>
+	<select name=paymenttype style="border-style: solid; border-width: 1">
+		 <option value='<? echo $paymenttype?>' selected><? echo $paymenttype?></option>
+ <option value='Cash' >Cash</option>
+ <option value='Cheque'>Cheque</option>
+ <option value='BankDeposit'>BankDeposit</option>
+ <option value='CreditCard'>CreditCard</option>
+ <option value='BAC/ONLINE TRANSFER'>BAC/ONLINE TRANSFER</option>
+ <option value='TRANSFER'>TRANSFER</option>
+ <option value='FAST PAYMENT'>FAST PAYMENT</option>
+ <option value='CHAPS'>CHAPS</option>
+ <option value='TELEPHONE TRANSFER'>TELEPHONE TRANSFER</option>
+</select>
+</td>
+ </tr>
+ <tr>
+   <td width="50%" valign="top">Deposit Bank Name</td>
+    <td width="50%" valign="top"><input  class="text" name=depositbankname  value="<? echo $depositbankname?>" size="20"></td>
+  </tr>
+ <tr>
+   <td width="50%" valign=top>Send SMS</td>
+    <td width="50%" valign=top>
+	<select name=sms style="border-style: solid; border-width: 1">
+	<? if($sms!='')
+	  {?>
+<option value='<? echo $sms?>' ><? echo $sms?></option>
+	  <? } ?>
+ <option value='Y'>Y</option>
+ <option value='N'>N</option>
+ </select>
+</td>
+ </tr>
+    <tr>
+   <td width="50%" valign=top>Select ID for Pickup</td>
+    <td width="50%" valign=top>
+	<select name=pickupidtype style="border-style: solid; border-width: 1">
+	<? if($pickupidtype!='')
+	  {?>
+<option value='<? echo $pickupidtype?>' ><? echo $pickupidtype?></option>
+	  <? } else { ?>
+	  <option value='' >Choose one</option>
+
+	  <? } ?>
+ <option value='Passport' >Passport</option>
+ <option value='Driving Licence'>Driving Licence</option>
+ <option value='School ID'>School ID</option>
+ <option value='Work ID'>Work ID</option>
+ <option value='National ID'>National ID</option>
+ <option value='No ID'>No ID</option>
+ <option value='Bank  ID'>Bank  ID</option>
+ <option value='Any ID'>Any ID</option>
+  <option value='Others'>Others</option>
+</select>
+</td>
+ </tr>
+ <tr>
+   <td width="50%" valign="top">Pickup Time</td>
+    <td width="50%" valign="top"><input  class="text" name=pickupidothers  value="<? echo $pickupidothers?>" size="20"></td>
+  </tr>
+  <tr>
+   <td width="50%" valign="top">User defined transaction no</td>
+    <td width="50%" valign="top"><input  class="text"  name=idno  value="<? echo $idno?>" size="20"></td>
+  </tr>
+  <tr>
+   <td width="50%" valign=top><b>STATUS</b></td>
+    <td width="50%" valign=top><select name=orderstatus style="border-style: solid; border-width: 1">
+ <option value='<? echo $orderstatus?>' selected><? echo $orderstatus?></option>
+ <?if($userrole=='Administrator')
+	{?>
+ <option value='Cancelled With Commission'>Cancelled With Commission</option>
+ <option value='Cancelled Without Commission'>Cancelled Without Commission</option>
+ <option value='Ordered'>Ordered</option>
+ <option value='Confirmed'>Confirmed</option>
+ <option value='Hold'>Hold</option>
+ <? } elseif($orderstatus=='Hold' || $orderstatus=='Ordered')
+	{?>
+	 <option value='Ordered'>Ordered</option>
+	 <option value='Hold'>Hold</option>
+	 <? if($confirmrights == 'Y')
+	 {?>
+	 <option value='Confirmed'>Confirmed</option>
+	<? }
+	 } ?>
+</select></td>
+ </tr>
+ </table>
+ </td>
+ </tr>
+   <tr>
+    <td width="100%" valign="top" colspan="4"><b>COLLECTION INFORMATION</b></td>
+  </tr>
+  <?
+  if($collectiontype=='CollectionPoint')
+	  {
+		$payingagent_disabled = " disabled = true ";
+		$collectionpoint_disabled = " disabled = false ";
+	  } 
+	  elseif($collectiontype=='Bank')
+	  {
+		$payingagent_disabled = " disabled = false ";
+		$collectionpoint_disabled = " disabled = true ";
+	  } 
+	  else
+	  {
+		  $payingagent_disabled = " disabled = true ";
+		  $collectionpoint_disabled = " disabled = false ";
+	  }
+
+	  ?>
+	<tr>
+   <td width="50%" valign=top>Collection Type</td>
+    <td width="50%" valign=top><select name=collectiontype style="border-style: solid; border-width: 1" onchange="submitform()">
+	<option value='' selected>--Choose the collection type--</option>
+	<? if($collectiontype=='CollectionPoint')
+	  {
+		$collectionpointselected=" selected";
+	  } 
+	  elseif($collectiontype=='Bank')
+	  {
+		$bankselected=" selected";
+	  } 
+			?>
+	<option value='CollectionPoint' <? echo $collectionpointselected?>>Collection Point</option>
+	<option value='Bank'  <? echo $bankselected?>>Bank Account</option>
+	</select></td>
+	</tr>
+	 <tr>
+	 <td width=100% colspan=2 valign=top>
+	  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td colspan=2 class="TableHeader">Choose collection point</span></td>
+                    </tr>
+                  
+  <tr>
+     
+        <td width="50%" valign="top">State</td>
+        <td width="50%" valign="top">
+    <b>
+    <? echo getstates("collectionstate",$collectionstate,$bencountry,$collectionpoint_disabled." onchange=javascript:submitform()")?></td>
+	<tr>
+	  <td width="50%" valign="top">City</td>
+        <td width="50%" valign="top">
+    <b>
+    <? echo getcities("collectioncity",$collectioncity,$collectionstate,$collectionpoint_disabled." onchange=javascript:submitform()")?></b></td>
+     
+      </tr>
+	<tr>
+	<td width="50%" valign="top">Collection Point</td>
+    <td width="50%" valign="top"><? echo getcollectionnames("collectionname",$collectionname,$bencountry,$collectionstate,$collectioncity,$collectionpoint_disabled." onchange=javascript:submitform()",$payingagent);?></td>
+	</tr>
+
+	<tr>
+	<td width="50%" valign="top">Collection Point Address</td>
+    </tr>
+	<tr>
+    <td width="100%" valign="top" colspan="2"><? echo getordercollectionpoints("collectionofficeid",$collectionofficeid,$bencountry,$collectionstate,$collectioncity,$collectionname,$collectionpoint_disabled,$payingagent);?></td>
+	</tr>
+	</table>
+	</td>
+	</tr>
+ <tr>
+	 <td width=100% colspan=2 valign=top>
+	  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td colspan=2 class="TableHeader">Specify Bank Transfer Details</span></td>
+                    </tr>
+	<tr>
+	<td width="50%" valign="top">Bank Name</td>
+    <td width="50%" valign="top"><input  class="text" name=bankname value="<? echo $bankname?>" size="30"   disabled></td>
+   </tr>
+   <tr>
+   <td width="50%" valign="top">Branch Name</td>
+    <td width="50%" valign="top"><input  class="text" name=branchname value="<? echo $branchname?>" size="30"   disabled></td>
+  </tr>
+    <tr>
+   <td width="50%" valign="top">Branch Address</td>
+    <td width="50%" valign="top"><input  class="text" name=branchaddress value="<? echo $branchaddress?>" size="30"   disabled></td>
+  </tr>
+   <tr>
+   <td width="50%" valign="top">Account No</td>
+    <td width="50%" valign="top"><input  class="text" name=accountno  value="<? echo $accountno?>" size="30"   disabled></td>
+  </tr>
+   <tr>
+   <td width="50%" valign="top">Account Type</td>
+    <td width="50%" valign="top"><input  class="text" name=accounttype  value="<? echo $accounttype?>" size="30"   disabled></td>
+  </tr>
+     <tr>
+   <td width="50%" valign="top">Swift Code</td>
+    <td width="50%" valign="top"><input  class="text" name=swiftcode value="<? echo $swiftcode?>" size="30"  disabled></td>
+  </tr>
+   <tr>
+   <td width="50%" valign="top">IBAN No</td>
+    <td width="50%" valign="top"><input  class="text" name=ibanno value="<? echo $ibanno?>" size="30"  disabled></td>
+  </tr>
+   <tr>
+   <td width="50%" valign="top">Sort Code</td>
+    <td width="50%" valign="top"><input  class="text" name=sortcode  value="<? echo $sortcode?>" size="30"  disabled></td>
+  </tr> 
+  </table>
+  <script language=javascript>displayoptions();</script>
+
+	</td>
+	</tr>
+  
+  </table>
+  
+  </TD>
+  </TR>
+</table>
+</form>  
+
+<script language=javascript>
+	 hide("bank_div");
+</script>
+<?if($collectiontype=='Bank')
+			{
+			?>
+			<script language=javascript>displayoptions();</script>
+			<?
+			}
+			?>
+ 
+<? } else {
+display_message("No record found for the order");
+ } ?>
+
+  </td>
+  </tr>
+  </table>
+  
+<form name="complainform" action="index.php?status=<?php echo base64_encode('newcomplaint')?>" method="post">
+ <br><table width="50%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Complaint Form </span></td>
+                    </tr>
+					
+                    <tr>
+                      <td class="Row">
+					  <table border="0"  cellspacing=0 cellpadding=0 style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+  
+ <tr>
+    <td width="50%" valign="top">Question</td>
+    <td width="50%"  valign="top"><textarea name=question rows="5"  cols="40"><?php echo $question?></textarea></td>
+	</tr>
+  
+  </table>
+<input type=hidden name="orderid" value="<?php echo $orderid?>">
+<input type=hidden name="lastupdated" value="<?php echo $username?>">
+<input type=hidden name="saletype" value="MT">
+<input align=center type="submit"  name="cmd_Submit3" value="Record Complaint" class=btn3>
+
+</form>
+</td>
+</tr>
+</table>
+ </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

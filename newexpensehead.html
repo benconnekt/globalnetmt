@@ -1,0 +1,104 @@
+<? include('header.html');   ?>
+
+ <?
+ include('usersidemenu.html');
+
+ ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+<?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=newexpenseheadform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+      if (!validRequired(theForm.expenseheadname,"Expense Head Name"))
+                return false;
+	
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.newexpenseheadform))
+{
+document.newexpenseheadform.action="index.php?status=<?php echo base64_encode('newexpensehead')?>&action=addnew";
+document.newexpenseheadform.submit();
+}
+}
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('newexpensehead')?>">
+
+ <?
+ if(isset($_GET['action'])=="addnew")
+   {
+    addexpensehead();
+    }
+   ?>
+   
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Expense Head Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1" width="268" >
+        Expensehead Name<td height="1" width="536" >
+        <input maxLength="1000"  name="expenseheadname" size="30">&nbsp;</td>
+      </tr>
+     
+     
+   
+      </table>
+
+  <? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" disabled>
+      <?}?> </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

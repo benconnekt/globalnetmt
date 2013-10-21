@@ -1,0 +1,305 @@
+<? include('header.html');   ?>
+
+ <?
+ include('accountssidemenu.html');
+  ?>
+  
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the payment record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.paymentsform.displayPageNo.value=val;
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>&PAGE="+val;
+        document.paymentsform.submit();
+        }
+        function raisereceipt()
+    {
+        document.paymentsform.pageAction.value="raisereceipt";
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>&updateaction=raisereceipt";
+        document.paymentsform.submit();
+        }
+          function generateofficesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>&sortby=office";
+        document.paymentsform.submit();
+        }
+		     function generateaccountsreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>&sortby=account";
+        document.paymentsform.submit();
+        }
+        function submitpage()
+{
+document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>";
+document.paymentsform.submit();
+}
+   function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>";
+        document.paymentsform.submit();
+        }
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('viewpayments')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Payments Summary </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+   
+    <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+  <tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdae' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Sales Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport()" ></td>
+
+  </tr>
+  </table>
+  
+  </td>
+  </tr>
+  </table>
+ <?
+ $Getpaymentid=0;
+
+if(isset($_POST['$paymentid'])!="")
+   {
+   $Getpaymentid=$_POST['paymentid'];
+   }
+   else
+   {
+    $Getpaymentid=$_GET['paymentid'];
+   }
+  if(isset($_GET['deleteaction'])=="paymentdelete")
+   {
+  if($Getpaymentid!="")
+ {
+ $sql   = "delete from accounts_payments where paymentid= '$Getpaymentid'";
+ $Result1= safe_query($sql) ;
+
+  print "<font color=darkblue><b><p align=center>Payment information has been successfully deleted</font></p></b>";
+ }
+   }
+
+
+
+
+   $DISP_REC_COUNT = 20;  // No of rows appearing per page
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"paymentdate";
+
+ $sql2            = "select * from accounts_payments  ";
+$startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+ $temp3=$temp3." where userofficeid='$agentid'  and paymentdate>='$startsalesdate' and paymentdate<='$endsalesdate'";
+
+  $temp3           = $temp3."  order by ".$dataOrder." DESC";
+
+
+  $sql2            = $sql2.$temp3;
+// echo $sql2;
+
+  $Result2         = safe_query($sql2) ;
+  $noOfRecords2    = @mysql_num_rows($Result2); // Total no of records returned
+
+
+
+ ?>
+    <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+   <td width=15% class="TableHeader"><b>Date</B></td>
+      <td class="TableHeader"><b>Name</B></td>
+      <td class="TableHeader"><b>A/c No</B></td>
+      <td class="TableHeader"><b>Amount</B></td>
+
+       <td class="TableHeader"><b>Currency</B></td>
+           <td class="TableHeader"><b>Exchange rate </B></td>
+             
+			      <td class="TableHeader"><b>Amount(£) </B></td>
+             
+			   <td width=2% class="TableHeader"><b>Action</B></td>
+  </B>  </tr>
+  </thead>
+  <tbody>
+
+<?php
+
+  if($noOfRecords2==0)
+  { ?>
+
+  <tr>
+      <td align="middle" colSpan="8">No payments.</td>
+    </tr>
+ <?php }
+  else
+ {
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result2))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+
+
+
+  $beneficiaryname     = (isset($row['beneficiaryname'])) ? $row['beneficiaryname'] : 0;
+   $paymentid     = (isset($row['paymentid'])) ? $row['paymentid'] : 0;
+   $beneficiaryaccno      = (isset($row['beneficiaryaccno'])) ? $row['beneficiaryaccno'] : "";
+  $beneficiaryamount      = (isset($row['beneficiaryamount'])) ? $row['beneficiaryamount'] : "";
+  $beneficiarycurrency   = (isset($row['beneficiarycurrency'])) ? $row['beneficiarycurrency'] : "";
+  $paymentdate        = (isset($row['paymentdate'])) ? $row['paymentdate'] : "";
+  $beneficiaryexchangerate = (isset($row['beneficiaryexchangerate'])) ? $row['beneficiaryexchangerate'] :"";
+
+   
+	$totalukamount=$beneficiaryamount/$beneficiaryexchangerate;
+   $totalpaymentamount=$totalpaymentamount+$totalukamount;
+
+
+  ?>
+
+
+
+   <tr>
+      <td class="Row"  ><a href="index.php?status=<?php echo base64_encode('editpayment')?>&paymentid=<?php echo $paymentid?>"><font color=darkblue><?php echo changeddate($paymentdate)?></td>
+      <td class="Row"  ><?php echo stripslashes($beneficiaryname)?></td>
+     <td class="Row"  ><?php echo stripslashes($beneficiaryaccno)?></td>
+     <td class="Row"  ><?php echo number_format(round($beneficiaryamount,2), 2, '.', '')?></td>
+     <td class="Row"  > <?php echo stripslashes($beneficiarycurrency)?></td>
+         <td class="Row"  ><?php echo $beneficiaryexchangerate?></td>
+ <td class="Row"  >£ <?php echo number_format(round($totalukamount,2), 2, '.', '')?></td>
+    
+		  <?php if($deleterights=='Y')
+{ ?>
+          <td class="Row" width=2% ><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('viewpayments')?>&deleteaction=paymentdelete&paymentid=<?php echo $paymentid?>"><img border="0" src="images/del_contact.gif" alt="delete payment" ></td>
+<? }
+
+else
+{?>
+ <td class="Row" width="2%" bgcolor="<?php echo $bgcolor?>"></td>
+<? } ?>
+    </tr>
+
+
+   <?
+
+         }
+       ?>
+
+   </tbody>
+   <tfoot>
+     <tr>
+          <td class=Row > </td>
+          <td class=Row > </td>
+          <td class=Row ><b>Totals</b> </td>
+
+         <td class=Row ></td>
+   <td class=Row >  </td>
+    <td class=Row >   </td>
+	   <td class=Row >  <b><font color=red> £ <? echo number_format(round($totalpaymentamount,2), 2, '.', '') ?></font></b>    </td>
+  <td class=Row width=2% >   </td>
+     </tr>
+
+
+  </tfoot>
+
+
+  <? }?>
+  </table>
+
+ <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+     
+
+   </form>
+ <!--  <form name="queryform4" action="printpayments.php" method="post" target=_blank>
+<input type=hidden name=startsalesdate value="<?php echo $startsalesdate?>">
+  <input type=hidden name=endsalesdate value="<?php echo $endsalesdate?>">
+   <input type=hidden name=userofficeid value="<?php echo $agentid?>">
+ <input type=submit  name=pay value="Print Payments" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'" >
+
+</form>-->
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

@@ -1,0 +1,91 @@
+<? include('header.html');
+ include('sidemenu.html');
+
+ ?>
+<form name=newgroupform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.name,"Group Name"))
+                return false;
+    
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.newgroupform))
+{
+document.newgroupform.action="index.php?status=<?php echo base64_encode('newgroup')?>&action=addnew";
+document.newgroupform.submit();
+}
+}
+</script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('newgroup')?>">
+  <?php  if($customerrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for customer rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+ <?
+
+ if(isset($_GET['action'])=="addnew")
+   {
+  addgroup();
+ // include("groupmanager.html");
+  exit;
+   }
+   ?>
+
+
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Group Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+      <tr>
+        <td width="13%" valign="top">Name</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  id="name"  name="name" size="30"></b></td>
+        <td width="17%" valign="top">Description</td>
+        <td width="40%" valign="top">
+    <b>
+    <textarea id="description" name="description" size="30" rows="3" cols="26"></textarea></b></td>
+      </tr>
+     
+    </table>
+	<input type=hidden name=userofficeid value="<? echo $agentid?>">
+    <? if ($addrights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add Group" >
+      <?}
+      else {?>
+      <input type=button  class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add Group" disabled>
+      <?}?>
+ </td>
+ </tr>
+ </table>
+      </td>
+  </tr>
+<? include('footer.html');   ?>

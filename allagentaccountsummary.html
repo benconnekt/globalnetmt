@@ -1,0 +1,258 @@
+<? include('header.html');
+ include('accountssidemenu.html');
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($superuserrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for super user rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+if(isset($_GET['updateaction'])=="yes")
+   {
+  if($_GET['agentid']!="" && $_GET['lockstatus']!="")
+ {
+ $sql   = "update agent_master set lockstatus = '".$_GET['lockstatus']."' where agentid= '".$_GET['agentid']."'";
+ $Result1= safe_query($sql) ;
+ display_message( "<font color=darkblue><b><p align=center>Agent information has been successfully updated</font></p></b>");
+	
+ }
+ }
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+
+ function confirmStatus(status)
+{
+var agree=confirm("Do you wish to "+status+" the agent ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+
+
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the payment record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.paymentsform.displayPageNo.value=val;
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('viewpayments')?>&PAGE="+val;
+        document.paymentsform.submit();
+        }
+        function raisereceipt()
+    {
+        document.paymentsform.pageAction.value="raisereceipt";
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyreport')?>&updateaction=raisereceipt";
+        document.paymentsform.submit();
+        }
+          function generateofficesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyreport')?>&sortby=office";
+        document.paymentsform.submit();
+        }
+		     function generateaccountsreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyreport')?>&sortby=account";
+        document.paymentsform.submit();
+        }
+        function submitpage()
+{
+document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyreport')?>";
+document.paymentsform.submit();
+}
+   function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyreport')?>";
+        document.paymentsform.submit();
+        }
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('dailyreport')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+  $selagent  = (isset($_POST['selagent'])) ? $_POST['selagent'] : $agentid;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+
+?>
+
+ 
+  <?
+  if($userrole=='Administrator')
+ {
+ $queryagent = $selagent;
+ }
+ else
+ {
+ $queryagent = $agentid;
+ }
+     $DISP_REC_COUNT = 50;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+  $startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+
+ $dataOrder      = isset($dataOrder)?$dataOrder:"agentname";
+ 
+$sql            = "select * from agent_master where  agenttype!='collectionpoint'";
+ 
+ $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+  
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+   
+ ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">All Agent Account Summary</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<? if($userrole=='Administrator')
+ {?>
+						<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+  </table>
+  <? } ?>
+					  </TD>
+					  </TR>
+					  </TABLE>
+					  <BR>
+      <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no agents in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+ <tr>
+                 <td width="12%" class="TableHeader"><b>Agent Name</b></td>
+               <td width="12%" class="TableHeader"><b>Agent Mobile No</b></td>
+			    <td width="12%" class="TableHeader"><b>Agent Contact Number</b></td>
+			  <td width="12%" class="TableHeader"><b>Balance</b></td>
+			  <td width="12%" class="TableHeader"><b>Lock/Unlock</b></td>
+				
+              </tr>
+
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalallsales=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+$agentid     = (isset($row['agentid'])) ? $row['agentid'] : 0;
+$agentpaymenttype     = (isset($row['agentpaymenttype'])) ? $row['agentpaymenttype'] : "";
+$agentname     = (isset($row['agentname'])) ? $row['agentname'] : "";
+$agentmobile     = (isset($row['agentmobile'])) ? $row['agentmobile'] : "";
+$agenttelephone     = (isset($row['agenttelephone'])) ? $row['agenttelephone'] : "";
+$lockstatus     = (isset($row['lockstatus'])) ? $row['lockstatus'] : "";
+
+$agentopeningbalance     = (isset($row['agentopeningbalance'])) ? $row['agentopeningbalance'] : 0;
+  $agentcommission = (isset($row['commission'])) ? $row['commission'] : "";
+		   $agentcommission1 = (isset($row['commission1'])) ? $row['commission1'] : "";
+		    $commcountry = (isset($row['commcountry'])) ? $row['commcountry'] : "";
+$creditamount=getagentcreditlimit($agentid);
+$salesamount=getagentsalestotal($agentid);
+$commissionamount=getagentcommissiontotal($agentid);
+$earnedcommission=getagentearnedcommissiontotal($agentid,$commcountry,$agentcommission1,$agentcommission);
+$paymentamount=getagentpaymentamount($agentid);
+$agentbalance = $agentopeningbalance+$paymentamount-$salesamount-$commissionamount;
+
+if($lockstatus == 'Y')
+	  {
+$confirm_link = "<a onclick=\"return confirmStatus('unlock')\" href=\"index.php?status=".base64_encode('allagentaccountsummary')."&updateaction=yes&lockstatus=N&agentid=".$agentid."\"><font color=blue>Unlock Agent</a></a>";
+	  }
+	  else
+	  {
+
+$confirm_link = "<a onclick=\"return confirmStatus('lock')\" href=\"index.php?status=". base64_encode('allagentaccountsummary')."&updateaction=yes&lockstatus=Y&agentid=".$agentid."\"><font color=red>Lock Agent</font></a>";
+	  }
+  ?>
+  
+
+  <tr><td class="Row" width="10%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentname?></a></td>
+ <td class="Row" width="10%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentmobile?></a></td>
+ <td class="Row" width="10%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agenttelephone?></a></td>
+ <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format(($agentbalance),2)?></td>
+  <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>"><? echo $confirm_link ?></td>
+
+ </tr>
+ 
+   <? 
+  }
+ }?>
+
+
+</table>
+
+   </form>
+  
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

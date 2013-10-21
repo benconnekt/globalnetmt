@@ -1,0 +1,119 @@
+<? include('header.html');   ?>
+
+ <?
+ include('usersidemenu.html');
+
+ $Getstateid=0;
+if(isset($_POST['stateid'])!="")
+   {
+   $Getstateid=$_POST['stateid'];
+   }
+   else
+   {
+    $Getstateid=$_GET['stateid'];
+   }
+?>
+<?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=editstateform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.statename,"State Name"))
+                return false;
+	 if (!validRequired(theForm.country,"Country"))
+                return false;
+   
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editstateform))
+{
+document.editstateform.action="index.php?status=<?php echo base64_encode('editstate')?>&action=addnew";
+document.editstateform.submit();
+}
+}
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('editstate')?>">
+<input type=hidden name=stateid value="<?php echo $Getstateid?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+    editstate();
+    }
+    if($Getstateid!="")
+   {
+    $sql    = "select * from state_master where stateid='$Getstateid'"; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+        $statename  = (isset($row['statename'])) ? $row['statename'] : "";
+		 $country  = (isset($row['country'])) ? $row['country'] : "";
+       
+
+      }
+    }
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update State Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1" width="268" >
+        State Name<td height="1" width="536" >
+        <input maxLength="1000"  name="statename" value="<? echo $statename?>"  size="30">&nbsp;</td>
+      </tr>
+	   <tr>
+        <td height="1" width="268" >
+       Country<td height="1" width="536" >
+        <? echo getbencountries("country",$country)?>&nbsp;</td>
+      </tr>
+   
+   
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

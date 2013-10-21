@@ -1,0 +1,357 @@
+<?php
+
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['contactid'])!="")
+   {
+   $selcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['contactid'];
+   }
+  $reporttype="";
+ $title="Instant Customer Sales";
+
+include('header.html');
+
+include('customersidemenu.html');
+
+ ?>
+<form name=customerinstantsalesform method=get action=index.php>
+<?
+ 
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("Y-m-d", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+
+
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the money transfer record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+ 
+    function nextPage(val)
+    {
+        document.customerinstantsalesform.displayPageNo.value=val;
+        document.customerinstantsalesform.action="index.php?status=<?php echo base64_encode('customerinstantsales')?>&PAGE="+val;
+        document.customerinstantsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.customerinstantsalesform.pageAction.value=val;
+        document.customerinstantsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.customerinstantsalesform.dataOrder.value=val;
+        document.customerinstantsalesform.submit();
+    }
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction>
+<input type=hidden name=status value="<?php echo base64_encode('customerinstantsales')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($officerights!='Y')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+ 
+ 
+
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+ $thisday = dateConvert($thisday);
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"orderdate";
+ $sql            = "select a.officeid,a.orderdate,a.orderid,a.orderamount,a.agentcommission,a.orderby,a.currency,a.exchangerate,a.benamount,b.surname as customersurname,b.firstname as customerfirstname,c.surname as bensurname,c.firstname as benfirstname,a.orderstatus,a.saleid,a.benid,a.contactid from instantsales_master a,contact_master b,ben_master c where a.contactid=b.contactid and a.benid=c.benid ";
+
+
+    $temp        = " and a.contactid='$selcontactid'";
+  
+ $temp=$temp."  order by ".$dataOrder." desc ";
+
+  $sql            = $sql.$temp;
+  $reportquery=$sql;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+//  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+<table border="0" cellpadding="1" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="95%" colspan=4>
+  <b> Currently there is no <? echo $title?> information in the system.</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+
+
+ <tr>
+    <td width="5%" class="TableHeader">
+                 <b><B> Office</b></td>
+<td class="TableHeader">
+                 <b>Order Date</a></b></td>
+                 <td class="TableHeader">
+                 <b> Trans Code</b></td>
+
+
+    <td class="TableHeader">
+                 <b>Customer</b></td>
+                <td width=5% class="TableHeader">
+                 <b>Amount</a></b></td>
+				 <td width=5%  class="TableHeader">
+                 <b>Comm</a></b></td>
+				 <td width=5% class="TableHeader">
+                 <b>Total Amount</a></b></td>
+				 <td class="TableHeader">
+                 <b>Currency</a></b></td>
+   <td class="TableHeader">
+                 <b>Rate</b></td>
+   <td class="TableHeader">
+                 <b>Beneficiary</a></b></td>
+
+                <td class="TableHeader">
+                 <b>Beneficiary Amount</b></td>
+				    <td class="TableHeader">
+                 <b>Ordered By</b></td>
+				    <td class="TableHeader">
+                 <b>Status</b></td>
+
+               </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalprofit=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+  $bgcolor       = ($i % 2) ? "#FFFFFF" : "#EAEAEA";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+	$currency=$row['currency'];
+	$saleid=$row['saleid'];
+	$benamount=$row['benamount'];
+	$exchangerate=$row['exchangerate'];
+	$orderamount=$row['orderamount'];
+	$orderstatus=$row['orderstatus'];
+	$officeid=$row['officeid'];
+	$orderby=$row['orderby'];
+	$orderdate=$row['orderdate'];
+	$orderid=$row['orderid'];
+	$contactid=$row['contactid'];
+	$benid=$row['benid'];
+	$agentcommissionamount=$row['agentcommission'];
+
+	$customername=$row['customerfirstname']." ".$row['customersurname'];
+	$beneficiaryname=$row['benfirstname'];
+	
+	$totalturnover=$totalturnover+$orderamount;
+	$totalturnovercomm=$totalturnovercomm+$agentcommissionamount;
+    
+	if($orderstatus=='Processed')
+	  {
+	  $link="index.php?status=".base64_encode('instantprocessedorder')."&saleid=".$saleid;
+	  }
+	  else
+	  {
+		$link="index.php?status=".base64_encode('editinstantorder')."&saleid=".$saleid;
+	  }
+  ?>
+
+
+
+
+
+
+              </tr>
+            
+  <tr>
+  
+                <td width="5%" class=Row>
+             <a href="<?php echo $link?>"><font color=darkblue> <?php echo getofficename($officeid)?></b></a></font></td>
+               <td width="7%" class=Row >
+              <a href="<?php echo $link?>"><font color=darkblue><?php echo changeddate($orderdate)?></b></a></font></td>
+               <td width="5%" class=Row >
+              <?php echo $orderid?></b></font></td>
+               <td width="10%" class=Row >
+              <?php echo $customername?> </b></font></td>
+               <td width="5%" class=Row>
+              <?php echo number_format($orderamount)?></b></font></td>
+			   <td width="5%" class=Row>
+              <?php echo number_format($agentcommissionamount)?></b></font></td>
+			   <td width="5%" class=Row>
+              <?php echo number_format($orderamount+$agentcommissionamount)?></b></font></td>
+               <td width="5%" class=Row >
+              <?php echo getshortcurrencyname($currency)?></b></font></td>
+              
+			   <td width="5%" class=Row >
+              <?php echo $exchangerate?></b></font></td>
+               <td width="10%" class=Row >
+              <?php echo $beneficiaryname?></b></font></td>
+
+                <td width="5%" class=Row >
+              <?php echo number_format($benamount)?></font></td>
+			  
+			  <td width="5%" class=Row >
+              <?php echo getusername($orderby)?></b></font></td>
+			  <td width="5%" class=Row >
+              <?php echo $orderstatus?></b></font></td>
+            
+                 </tr>
+ <? }  ?>
+
+
+
+  <tr>
+
+                 <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%">
+                 <b><br></b></td>
+				   <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%">
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+				  <td width="5%" >
+                 <b><br></b></td>
+				  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+                  <td width="5%" >
+                 <b><br></b></td>
+				 <td width="5%" >
+                 <b><br></b></td>
+
+
+
+  </tr>
+        <tr>
+
+                 <td width="5%">
+                 <b>Totals:</b></td>
+                  <td width="5%" >
+                 <b></b></td>
+                  <td width="5%" >
+                 <b></b></td>
+                  <td width="5%" >
+                 <b></b></td>
+       <td width="5%" >
+                 <b>£ <?php echo number_format($totalturnover)?></b></td>
+				   <td width="5%" >
+                 <b>£ <?php echo number_format($totalturnovercomm)?></b></td>
+				   <td width="5%" >
+                 <b>£ <?php echo number_format($totalturnover+$totalturnovercomm)?></b></td>
+                  <td width="5%">
+				  <td width="5%">
+                 <b><br></b></td>
+            
+                 <b><br></b></td>
+                  <td width="5%" >
+                 </td>
+                 <td width="5%" >
+                 </td>
+				 <td width="5%" >
+                 <b><br></b></td>
+
+
+
+
+  </tr>
+                   <? 
+                   }?>
+
+     </table></center>
+     </div>
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    <BR>
+<BR>
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ 
+</form>
+
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

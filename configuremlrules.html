@@ -1,0 +1,175 @@
+<? include('header.html'); 
+include('reportsidemenu.html');
+?>
+<?
+if($userrole != 'Administrator')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+ ?>
+
+<form name=setupform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validInt(theForm.customermaxdaily,"Customer Amount Daily Limit",true))
+      return false;
+	 if (!validInt(theForm.customermaxmonthly,"Customer Amount Monthly Limit",true))
+      return false;
+	  if (!validInt(theForm.customermaxyearly,"Customer Amount Yearly Limit",true))
+      return false;
+	   if (!validInt(theForm.customernamecheck_amount,"Customer Name Check Limit",true))
+      return false;
+	    if (!validInt(theForm.customeridcheck_amount,"Customer ID Check Limit",true))
+      return false;
+		
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.setupform))
+{
+document.setupform.action="index.php?status=<?php echo base64_encode('configuremlrules')?>&action=addnew";
+document.setupform.submit();
+}
+}
+        </script>
+<input type=hidden name=status value="<?php echo base64_encode('configuremlrules')?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+	{
+    updatesetup();
+    }
+   $sql    = "select * from ml_setup "; // folders of the user
+//echo $sql;
+    $Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {
+        $customeridcheck  = (isset($row['customeridcheck'])) ? $row['customeridcheck'] : "";
+		$customernamecheck  = (isset($row['customernamecheck'])) ? $row['customernamecheck'] : "";
+		$customeramountcheck  = (isset($row['customeramountcheck'])) ? $row['customeramountcheck'] : "";
+		$sdncheck  = (isset($row['sdncheck'])) ? $row['sdncheck'] : "";
+		$customermaxdaily  = (isset($row['customermaxdaily'])) ? $row['customermaxdaily'] : "";
+		$customermaxmonthly  = (isset($row['customermaxmonthly'])) ? $row['customermaxmonthly'] : "";
+		$customermaxyearly  = (isset($row['customermaxyearly'])) ? $row['customermaxyearly'] : "";
+		$customeridcheck_amount  = (isset($row['customeridcheck_amount'])) ? $row['customeridcheck_amount'] : "";
+		$customernamecheck_amount  = (isset($row['customernamecheck_amount'])) ? $row['customernamecheck_amount'] : "";
+		$onlinemaxamount  = (isset($row['onlinemaxamount'])) ? $row['onlinemaxamount'] : "";
+       
+
+      }
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Configure Anti Money Laundering Setup Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td width="25%" valign="top">Is Customer Name Check Active</td>
+        <td width="25%" valign="top">
+    <b>
+   <select name="customernamecheck"  class="smallSelect">
+    <option value="<?php echo $customernamecheck?>" selected><?php echo $customernamecheck?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	</tr>
+	 <tr>
+        <td width="25%" valign="top">Is Customer ID Check Active</td>
+        <td width="25%" valign="top">
+    <b>
+   <select name="customeridcheck"  class="smallSelect">
+    <option value="<?php echo $customeridcheck?>" selected><?php echo $customeridcheck?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	</tr>
+	 <tr>
+        <td width="25%" valign="top">Is Customer Amount Check Active</td>
+        <td width="25%" valign="top">
+    <b>
+   <select name="customeramountcheck"  class="smallSelect">
+    <option value="<?php echo $customeramountcheck?>" selected><?php echo $customeramountcheck?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	</tr>
+	 <tr>
+        <td width="25%" valign="top">Is SDN Check Active</td>
+        <td width="25%" valign="top">
+    <b>
+   <select name="sdncheck"  class="smallSelect">
+    <option value="<?php echo $sdncheck?>" selected><?php echo $sdncheck?></option>
+    <option value="Y">Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+</tr>
+     <tr>
+     <td width="25%" valign="top">Customer Amount Daily Limit</td>
+     <td width="25%" valign="top"><input class=text  id="customermaxdaily"  name="customermaxdaily" value="<?php echo ($customermaxdaily) ?>" size="10"></b></td>
+      
+    </TR>
+	 <tr>
+     <td width="25%" valign="top">Customer Amount Montly Limit</td>
+     <td width="25%" valign="top"><input class=text  id="customermaxmonthly"  name="customermaxmonthly" value="<?php echo ($customermaxmonthly) ?>" size="10"></b></td>
+      
+    </TR>
+	 <tr>
+     <td width="25%" valign="top">Customer Amount Yearly Limit</td>
+     <td width="25%" valign="top"><input class=text  id="customermaxyearly"  name="customermaxyearly" value="<?php echo ($customermaxyearly) ?>" size="10"></b></td>
+      
+    </TR>
+		<tr>
+     <td width="25%" valign="top">Customer Name Check Limit</td>
+     <td width="25%" valign="top"><input class=text  id="customernamecheck_amount"  name="customernamecheck_amount" value="<?php echo ($customernamecheck_amount) ?>" size="10"></b></td>
+      
+    </TR>
+	<tr>
+     <td width="25%" valign="top">Customer ID Check Limit</td>
+     <td width="25%" valign="top"><input class=text  id="customeridcheck_amount"  name="customeridcheck_amount" value="<?php echo ($customeridcheck_amount) ?>" size="10"></b></td>
+      
+    </TR>
+
+	
+   
+      </table>
+      </center>
+</div>
+<? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

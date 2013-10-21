@@ -1,0 +1,235 @@
+ 	<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14"> Search Page</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+      <form name=searchform action="index.php?status=<? echo $_GET['status']; ?>" method=post>
+    <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+
+    <TR>
+        <TD ><input type=text name=searchvalue value="<?php echo $_POST['searchvalue']?>" maxlength=10  size=15></TD>
+      </TR>
+      <TR>
+        <TD > <input type=submit name="Search Customer" class="btn3"></TD>
+      </TR>
+      
+                 </TABLE>
+				 <input type=hidden name=thismonth value="<?php echo $_POST['thismonth']?>">
+				 <input type=hidden name=thisyear value="<?php echo $_POST['thisyear']?>">
+				 <input type=hidden name=thisday value="<?php echo $_POST['thisday']?>">
+				  <input type=hidden name=startdate value="<?php echo $_POST['startdate']?>">
+				   <input type=hidden name=enddate value="<?php echo $_POST['enddate']?>">
+				 <input type=hidden name=agentid value="<?php echo $_POST['agentid']?>">
+				  <input type=hidden name=reporttype value="<?php echo $reporttype?>">
+				 </form>
+       </div>
+                </div>
+        </span>
+        <br>	 
+ <span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">MT Sales Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+						 <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+    
+	<TR>
+        <TD width=100%>
+      <a href="index.php?status=<?php echo base64_encode('mtsales')?>&reporttype=dailysales">MT Daily Sales </a></TD>
+      </TR>
+      <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('mtsales')?>&reporttype=agentsales">MT Sales By Agent</a></TD>
+      </TR>
+	  
+	  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('mtsales')?>&reporttype=countrysales">MT Sales By Country</a></TD>
+      </TR>
+	   
+       <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('mtsales')?>&reporttype=customersales">MT Sales By Customer</a></TD>
+      </TR>
+
+	  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('collectionsales')?>&reporttype=agentsales">Collections By Corresponding Agent</a></TD>
+      </TR>
+     
+
+
+           </TABLE>
+       </div>
+	                   </div>
+        </span>
+		<br>
+		
+		 <? if($userrole=='Administrator'  || $superuserrights =='Y')
+		 {?>
+		 <span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Admin Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+						 <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+     <? if($userrole=='Administrator')
+		 {?>
+	 <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('updateorders')?>">Update Orders</a></TD>
+      </TR>
+     
+	  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('updatebankorders')?>">Update Bank Orders</a></TD>
+      </TR>
+
+	   <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('updateforex')?>">Update Forex Records for Orders</a></TD>
+      </TR>
+	 <? if($confirmrights == "Y")
+	  {?>
+     
+		  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('confirmorders')?>">Confirm Orders</a></TD>
+      </TR>
+	    <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('onlineconfirmorders')?>">Confirm Online Orders</a></TD>
+      </TR>
+	  <? } ?>
+	  <? } ?>
+	  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('sendcustomersms')?>">Send Bulk Customer SMS</a></TD>
+      </TR>
+	  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('sendagentsms')?>">Send Agent SMS</a></TD>
+      </TR>
+
+	  <!-- <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('viewarchiveorders')?>">View Archive Orders</a></TD>
+      </TR>-->
+  
+
+           </TABLE>
+       </div>
+	                   </div>
+        </span>
+		 <? if($userrole=='Administrator')
+		 {?>
+		<br>
+
+<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Anti Money Laundering Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+						 <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+						   <TR>
+        <TD  width=100% >
+        <a href="index.php?status=<?php echo base64_encode('failedmllist')?>">View Security 'Q' Waiting List</u></a></TD>
+      </TR>
+
+						   <TR>
+        <TD  width=100% >
+        <a href="index.php?status=<?php echo base64_encode('releasedorders')?>">View Security Q Released Orders</u></a></TD>
+      </TR>
+    
+		   <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('idexpirylist')?>">View Expired Customer IDs</a></TD>
+      </TR>
+<TR>
+        <TD  width=100% >
+        <a href="index.php?status=<?php echo base64_encode('configuremlrules')?>">Configure Anti Money Laundering Rules</u></a></TD>
+      </TR>	
+	  	  <TR>
+        <TD  width=100%>
+        <a onclick="return confirmSDNUpdate()" href="index.php?status=<?php echo base64_encode('updatesdn')?>">Update SDN And Blocked Persons List</u></a></TD>
+      </TR>
+	   <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('viewsdn')?>">View SDN And Blocked Persons List</u></a></TD>
+      </TR>
+	     </TABLE>
+       </div>
+	                   </div>
+        </span>
+
+		<br>
+
+		<span>
+                <div style="width:180" >
+                        <table width="100%" cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="90%" class="Menu_Head"><img src="images/reports.gif" width="16" height="14">Export Menu</td>
+                                        <td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+                <div class="Menu_Items" style="width:180">
+                        <div>
+						 <TABLE style="border-collapse: collapse" cellpadding="2" border="0">
+    
+	
+  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('addreport')?>">Add Report</a></TD>
+      </TR>
+	    <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('viewreports')?>">View Reports</a></TD>
+      </TR>
+	  
+		  <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('agentexport')?>">Agent Export</a></TD>
+      </TR>
+
+	   <TR>
+        <TD  width=100%>
+        <a href="index.php?status=<?php echo base64_encode('exportedorders')?>">Uploaded Orders</a></TD>
+      </TR>
+     
+
+
+           </TABLE>
+       </div>
+	                   </div>
+        </span>
+
+		<? } }?>
+   <? echo getcolorentries(); ?>
+  </TD>
+      <TD vAlign=top width=4 height=494>&nbsp;</TD>
+<td width="100%" style="padding-left:2;padding-top:2" valign=top >

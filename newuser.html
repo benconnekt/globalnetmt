@@ -1,0 +1,335 @@
+ <? include('header.html');
+ include('usersidemenu.html');
+
+ ?>
+<form name=newuserform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.username1,"Username"))
+                return false;
+     if (!validRequired(theForm.password1,"Password"))
+      return false;
+	  if (!validRequired(theForm.firstname,"First Name"))
+      return false;
+	   if (!validRequired(theForm.lastname,"Last Name"))
+      return false;
+        if (!validRequired(theForm.useroffice,"User Office"))
+      return false;
+
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.newuserform))
+{
+
+document.newuserform .action="index.php?status=<?php echo base64_encode('newuser')?>&action=addnew";
+document.newuserform .submit();
+}
+}
+</script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('newuser')?>">
+  <?php  if($usersrights!='Y'  && $usercreationrights !='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for users rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+ <?
+
+ if(isset($_GET['action'])=="addnew")
+   {
+  adduser();
+ // include("usermanager.html");
+  exit;
+   }
+ ?>
+
+     <br>
+
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add User Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+      <tr>
+     <? 
+	 if($usersrights =='Y')
+ { ?>
+		<td width="13%" valign="top">User type</td>
+        <td width="30%" valign="top">
+    <b>
+	
+    <select name="usertype">
+    <option value="Administrator" >Administrator</option>
+    <option value="User" selected>User</option>
+    </select>
+	</b></td>
+	<? } else
+	 {?>
+<input type=hidden name=usertype value="User">
+	 <? } ?>
+        <td width="17%" valign="top">Status</td>
+        <td width="40%" valign="top">
+    <b>
+    <select name="status">
+    <option value="Active" selected>Active</option>
+    <option value="Inactive">Inactive</option>
+    </select></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Username</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  id="username1"  name="username1" size="30"></b></td>
+        <td width="17%" valign="top">First name</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="firstname" name="firstname" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Password</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  id="password1" name="password1" size="30" type="password"></b></td>
+        <td width="17%" valign="top">Last name</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="lastname"  name="lastname" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Add Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="add_rights">
+    <option value="Y" selected>Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+        <td width="17%" valign="top">Address</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="address" name="address" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Update Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="update_rights">
+    <option value="Y" selected>Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+        <td width="17%" valign="top">Email</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="email"  name="email" size="30"></b></td>
+      </tr>
+      <tr>
+	   <td width="13%" valign="top">Customer Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="contacts_rights">
+    <option value="Y" selected>Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	 
+        
+        <td width="17%" valign="top">mobile</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="mobile"  name="mobile" size="30"></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top">Money Transfer rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="office_rights">
+    <option value="Y" selected>Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+        <td width="17%" valign="top">telephone</td>
+        <td width="40%" valign="top">
+    <b>
+    <input class=text  id="telephone" name="telephone" size="30"></b></td>
+      </tr>
+       <tr>
+       
+	 <? 
+	 if($usersrights =='Y')
+ { ?>
+	  <td width="13%" valign="top">Delete Rights</td>
+        <td width="30%" valign="top">
+    <b>
+   <select name="delete_rights">
+    <option value="Y" >Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+       <td width="17%" valign="top">User Office/Corresponding Agent</td>
+        <td width="40%" valign="top"><?  echo getloginofficenames("useroffice","",false);?>
+ </td>
+ <? }
+ else
+ {?>
+<input type=hidden name=useroffice value="<? echo $userofficeid?>">
+ <?
+ }?>
+ 
+    </TR>
+	   <tr>
+        <td width="13%" valign="top">Accounts rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="accounts_rights">
+    <option value="Y" selected>Y</option>
+    <option value="N">N</option>
+    </select></b></td>
+	 <? 
+	 if($usersrights =='Y')
+ { ?>
+	<td width="13%" valign="top">Is Corresponding Agent</td>
+        <td width="30%" valign="top">
+    <b>
+   <select name="is_payingagent">
+    <option value="Y" >Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+	<? } else { ?>
+	<input type=hidden name=is_payingagent value="N">
+	<? } ?>
+    </TR>
+	 <? 
+	 if($usersrights =='Y')
+ { ?>
+<tr>
+      <td width="13%" valign="top">Reports Rights</td>
+        <td width="30%" valign="top">
+    <b>
+     <select name="create_reports">
+    <option value="Y" >Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+	 <td width="17%" valign="top"></td>
+        <td width="40%" valign="top">
+    <b>
+     </td>
+    </TR>
+    
+  
+	 <tr>
+        <td width="13%" valign="top">User Creation Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="usercreation_rights">
+       <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+     <tr>
+        <td width="13%" valign="top">SMS rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	 <tr>
+        <td width="13%" valign="top">SMS to Sender rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_sender_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">SMS to Beneficiary rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="sms_beneficiary_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	  <tr>
+        <td width="13%" valign="top">System rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="users_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	 <tr>
+        <td width="13%" valign="top">Super User rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="superuser_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	 <tr>
+        <td width="13%" valign="top">Alert Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="alert_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	<tr>
+        <td width="13%" valign="top">Confirm Rights</td>
+        <td width="30%" valign="top">
+    <b>
+    <select name="confirm_rights">
+    <option value="Y">Y</option>
+    <option value="N" selected>N</option>
+    </select></b></td>
+    </TR>
+	<? }  else { ?>
+<input type=hidden name=create_reports value="N">
+<input type=hidden name=sms_rights value="N">
+<input type=hidden name=usercreation_rights value="N">
+<input type=hidden name= users_rights value="N">
+<input type=hidden name= delete_rights value="N">
+<input type=hidden name= superuser_rights value="N">
+<input type=hidden name= alert_rights value="N">
+<input type=hidden name= confirm_rights value="N">
+
+	<? } ?>
+    </table>
+    <? if ($addrights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add User" >
+      <?}
+      else {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add User" disabled>
+      <?}?>
+  </td>
+     </tr>
+     </table>
+      </td>
+  </tr>
+  <? include('footer.html');   ?>

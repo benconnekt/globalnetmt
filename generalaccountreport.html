@@ -1,0 +1,248 @@
+<? include('header.html');
+ include('accountssidemenu.html');
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the payment record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.paymentsform.displayPageNo.value=val;
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>&PAGE="+val;
+        document.paymentsform.submit();
+        }
+        function raisereceipt()
+    {
+        document.paymentsform.pageAction.value="raisereceipt";
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>&updateaction=raisereceipt";
+        document.paymentsform.submit();
+        }
+          function generateofficesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>&sortby=office";
+        document.paymentsform.submit();
+        }
+		     function generateaccountsreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>&sortby=account";
+        document.paymentsform.submit();
+        }
+        function submitpage()
+{
+document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>";
+document.paymentsform.submit();
+}
+   function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('generalaccountreport')?>";
+        document.paymentsform.submit();
+        }
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('generalaccountreport')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+  $selagent  = (isset($_POST['selagent'])) ? $_POST['selagent'] : $agentid;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+
+?>
+
+ 
+ 
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">General Account Report</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+						<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdate' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+ 
+  
+ <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Agent Account Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport()" ></td>
+
+
+  </tr>
+    
+  </table>
+ 
+					  </TD>
+					  </TR>
+					  </TABLE>
+			
+
+ <?
+ $startsalesdate = dateConvert($startsalesdate);
+ $endsalesdate = dateConvert($endsalesdate);
+
+ $datediff = getdatediff($startsalesdate,$endsalesdate);
+
+ //echo "the date difference is ".$datediff;
+// exit();
+
+   ?>
+	  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+ <tr>
+            <td width="3%" class="TableHeader"><b>S No</b></td>
+            <td width="7%" class="TableHeader"><b>Date</b></td>
+			<td width="10%" class="TableHeader"><b>Gross Income</b></td>
+			<td width="7%" class="TableHeader"><b>Direct Expenses</b></td>
+			<td width="10%" class="TableHeader"><b>Indirect Expenses</b></td>
+			<td width="12%" class="TableHeader"><b>Net Income</b></td>
+			  
+ </tr>
+  <?
+  $i=0;
+  $no=0;
+  $totalgrossincome=0;
+  $totaldirectexpenses=0;
+  $totalindirectexpenses=0;
+  $totalnetincome=0;
+  
+  for($no=0; $no<=($datediff+1); $no++){
+		$startMonth = date("m", strtotime($startsalesdate));
+		$startDay = date("d", strtotime($startsalesdate));
+		$startYear = date("Y", strtotime($startsalesdate)); 
+        $nextday = date("d/m/Y", mktime(0, 0, 0, $startMonth,($startDay+$no), $startYear));
+        $i++;
+		$querydate = dateConvert($nextday);
+        $agentdirectexpenses =0;
+		$payingagentdirectexpenses =0;
+		$indirectexpenses = 0;
+		$directexpenses=0;
+		$netincome=0;
+		$grossincome=0;
+		
+		
+		
+		$grossincome = totaladmincommission($querydate);		
+		$indirectexpenses = totalindirectexpenses($querydate);
+	  	$agentdirectexpenses = getagentexpensesforadmin($querydate);
+		$payingagentdirectexpenses = getpayingagentexpenseforadmin($querydate);
+	    $directexpenses = $agentdirectexpenses+$payingagentdirectexpenses;
+        $netincome = $grossincome-$directexpenses-$indirectexpenses;
+
+
+		 $totaldirectexpenses+=$directexpenses;
+		 $totalindirectexpenses+=$indirectexpenses;
+		 $totalgrossincome+=$grossincome;
+		 $totalnetincome+=$netincome;
+
+        
+?>
+  
+
+  <tr><td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><?php echo $i?></a></td>
+ <td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><? echo ($nextday)?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>">£<? echo number_format($grossincome,2);?></td>
+<td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>">£<? echo number_format(($directexpenses),2);?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>">£<? echo number_format($indirectexpenses,2);?></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>">£<? echo number_format(($netincome),2);?></td>
+</tr>
+ 
+   <? 
+  } ?>
+
+  <tr><td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"></td>
+ <td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><b>Totals</b></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><b>£<? echo number_format($totalgrossincome,2);?></b></td>
+<td class="Row"  valign=top bgcolor="<?php echo $bgcolor?>"><b>£<? echo number_format(($totaldirectexpenses),2);?></b></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><b>£<? echo number_format($totalindirectexpenses,2);?></b></td>
+<td class="Row"  valign=top  bgcolor="<?php echo $bgcolor?>"><b>£<? echo number_format(($totalnetincome),2);?></b></td>
+</tr>
+
+</table>
+
+   </form>
+  
+<form name="queryform" action="reportprintableview.php" method="post" target=_blank>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="bankquery" value="<?php echo $bankreportquery?>">
+<input type=hidden name="paymentquery" value="<?php echo $paymentreportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="queryagent" value="<?php echo $queryagent?>">
+<input type=hidden name="title" value="General Account Report">
+<input type=hidden name="reporttype" value="generalaccountreport">
+<input align=center type="submit"  name="cmd_Submit3" value="Printable View" class=btn3 >
+
+</form>
+
+<form name="queryform" action="reportprintableview.php?type=excel" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="bankquery" value="<?php echo $bankreportquery?>">
+<input type=hidden name="paymentquery" value="<?php echo $paymentreportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="queryagent" value="<?php echo $queryagent?>">
+<input type=hidden name="reporttype" value="generalaccountreport">
+<input type=hidden name="title" value="General Account Report">
+<input align=center type="submit"  name="cmd_Submit3" value="Export to Excel" class=btn3 >
+
+</form>
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+  
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

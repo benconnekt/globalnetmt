@@ -1,0 +1,296 @@
+<? include('header.html');
+
+ ?>
+
+ <?
+ include('accountssidemenu.html');
+
+  ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+if(isset($_GET['action'])=="addnew")
+   {
+    editpayment();
+    }
+   $Getpaymentid=0;
+if(isset($_GET['paymentid'])!="")
+   {
+   $Getpaymentid=$_GET['paymentid'];
+   }
+   else
+   {
+   $Getpaymentid=$_POST['paymentid'];
+   }
+
+
+   $sql        = "select * from accounts_payments ";
+
+
+  $temp           = "  where paymentid='".$Getpaymentid."'";
+
+
+  $sql            = $sql.$temp;
+
+ $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result);
+ ?>
+   <?   if($noOfRecords==0)
+  { ?>
+
+ <br>
+  <b> No record was found for the payment </b>
+
+ <?php
+ }
+  else
+ {
+
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+
+  $beneficiaryname     = (isset($row['beneficiaryname'])) ? $row['beneficiaryname'] : 0;
+  $beneficiaryaddress     = (isset($row['beneficiaryaddress'])) ? $row['beneficiaryaddress'] : 0;
+  $beneficiarycity     = (isset($row['beneficiarycity'])) ? $row['beneficiarycity'] : 0;
+  $beneficiarycountry     = (isset($row['beneficiarycountry'])) ? $row['beneficiarycountry'] : 0;
+  $beneficiaryswiftcode     = (isset($row['beneficiaryswiftcode'])) ? $row['beneficiaryswiftcode'] : 0;
+  $beneficiaryaccno     = (isset($row['beneficiaryaccno'])) ? $row['beneficiaryaccno'] : 0;
+  $beneficiarybankname     = (isset($row['beneficiarybankname'])) ? $row['beneficiarybankname'] : 0;
+  $beneficiarybankaddress     = (isset($row['beneficiarybankaddress'])) ? $row['beneficiarybankaddress'] : 0;
+   $paymentid     = (isset($row['paymentid'])) ? $row['paymentid'] : 0;
+  $beneficiaryamount      = (isset($row['beneficiaryamount'])) ? $row['beneficiaryamount'] : "";
+  $beneficiarycurrency   = (isset($row['beneficiarycurrency'])) ? $row['beneficiarycurrency'] : "";
+  $paymentdate        = (isset($row['paymentdate'])) ? $row['paymentdate'] : "";
+  $beneficiaryexchangerate = (isset($row['beneficiaryexchangerate'])) ? $row['beneficiaryexchangerate'] :"";
+  $onbehalfname     = (isset($row['onbehalfname'])) ? $row['onbehalfname'] :"";
+  
+  $onbehalfaddress     = (isset($row['onbehalfaddress'])) ? $row['onbehalfaddress'] : "";
+  
+  $onbehalftelephone     = (isset($row['onbehalftelephone'])) ? $row['onbehalftelephone'] : "";
+  
+
+  }
+  $paymentdate = changeddate($paymentdate);
+  ?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentform method=post action=index.php>
+<script language=javascript>
+
+function saveinfo()
+{
+
+if(document.paymentform.beneficiaryname.value=='')
+{
+alert('Please enter the beneficiary name');
+document.paymentform.beneficiaryname.focus();
+return;
+}
+if(document.paymentform.beneficiaryamount.value=='')
+{
+alert('Please enter the amount');
+document.paymentform.beneficiaryamount.focus();
+return;
+}
+if(document.paymentform.beneficiaryexchangerate.value=='')
+{
+alert('Please enter the exchange rate');
+document.paymentform.beneficiaryexchangerate.focus();
+return;
+}
+
+if(isNaN(document.paymentform.beneficiaryamount.value)==true)
+{
+alert('You entered a non-numeric value where numeric is expected.please try again');
+document.paymentform.beneficiaryamount.focus();
+return;
+}
+
+if(isNaN(document.paymentform.beneficiaryexchangerate.value)==true)
+{
+alert('You entered a non-numeric value where numeric is expected.please try again');
+document.paymentform.beneficiaryexchangerate.focus();
+return;
+}
+
+document.paymentform.action="index.php?status=<?php echo base64_encode('editpayment')?>&action=addnew";
+document.paymentform.submit();
+}
+
+        </script>
+		<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('editpayment')?>">
+<input type=hidden name=paymentid value="<? echo $Getpaymentid?>">
+
+
+
+ <?  
+	 $datetoday = date("d/m/Y");
+  
+ ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Enter payment/T/T Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+   <td width="15%" bordercolor="#FFFFFF" >
+    Payment Date</td>
+    <td width="15%" bordercolor="#FFFFFF" >
+	<INPUT TYPE="text" readonly NAME="paymentdate" id="paymentdate" class=text VALUE="<?php echo $paymentdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentform.paymentdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+
+  </td>
+  </tr>
+   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Name</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiaryname size="35" value="<? echo stripslashes($beneficiaryname)?>"></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Address</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <textarea name=beneficiaryaddress rows=3 cols=34><? echo stripslashes($beneficiaryaddress)?></textarea></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary City</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiarycity size="35" value="<? echo stripslashes($beneficiarycity)?>"></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Country</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiarycountry size="35" value="<? echo stripslashes($beneficiarycountry)?>"></td>
+     </tr>
+	  <tr>
+    <td width="100%"  bordercolor="#F2F4F8" colspan=2>
+	<b><font size=2>On behalf of </b></font></td>
+	</tr>
+	   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Name</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=onbehalfname size="35" value="<? echo stripslashes($onbehalfname)?>" ></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Address</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <textarea name=onbehalfaddress rows=3 cols=34><? echo stripslashes($onbehalfaddress)?></textarea></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Telephone</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=onbehalftelephone size="35" value="<? echo stripslashes($onbehalftelephone)?>"></td>
+     </tr>
+	   <tr>
+    <td width="100%"  bordercolor="#F2F4F8" colspan=2>
+	<b><font size=2>Account details </b></font></td>
+	</tr>
+	   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Swiftcode</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiaryswiftcode size="35" value="<? echo stripslashes($beneficiaryswiftcode)?>"></td>
+     </tr>
+   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary A/c No</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiaryaccno size="35" value="<? echo stripslashes($beneficiaryaccno)?>"></td>
+     </tr>
+	   <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Bank Name</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiarybankname size="35" value="<? echo stripslashes($beneficiarybankname)?>"></td>
+     </tr>
+	 <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Bank Address</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <textarea name=beneficiarybankaddress rows=3 cols=34><? echo stripslashes($beneficiarybankaddress)?></textarea></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Currency</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <select name=beneficiarycurrency>
+	<option value=<? echo $beneficiarycurrency?>><? echo $beneficiarycurrency?></option>
+	<option value=USD>USD</option>
+	<option value=EUR>EUR</option>
+	<option value=RUP>RUP</option>
+	</select></td>
+     </tr>
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Beneficiary Amount</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiaryamount size="35" value="<? echo $beneficiaryamount?>"></td>
+    </tr>
+	<tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Exchange rate</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=beneficiaryexchangerate size="35" value="<? echo $beneficiaryexchangerate?>"></td>
+    </tr>
+      <tr>
+      <td colSpan="2">
+
+
+  <? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" disabled>
+      <?}?>
+
+      </td>
+
+    </tr>
+  </table>
+   </td>
+   </tr>
+   </table>
+      <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ </form>
+
+ <? } ?>
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

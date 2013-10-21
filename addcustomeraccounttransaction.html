@@ -1,0 +1,193 @@
+<? include('header.html'); ?>
+ <?
+ include('onlinesidemenu.html');
+
+  ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+
+ <?php
+
+  if (isset($_SESSION["MM_Username1"]))
+{
+$username=$_SESSION["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$_SESSION["MM_Username1"]."</font>";
+}
+
+ if(isset($_GET['type'])!="")
+   {
+   $type=$_GET['type'];
+   }
+   else
+   {
+   $type=$_POST['type'];
+   }
+  ?>
+ <?php if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentform method=post action=index.php>
+<script language=javascript>
+
+function saveinfo()
+{
+
+if(document.paymentform.selaccount.value=='')
+{
+alert('Please select the account name');
+document.paymentform.selaccount.focus();
+return;
+}
+if(document.paymentform.amount.value=='')
+{
+alert('Please enter the amount');
+document.paymentform.amount.focus();
+return;
+}
+
+if(isNaN(document.paymentform.amount.value)==true)
+{
+alert('You entered a non-numeric value where numeric is expected.please try again');
+document.paymentform.amount.focus();
+return;
+}
+
+document.paymentform.action="index.php?status=<?php echo base64_encode('addcustomeraccounttransaction')?>&action=addnew&contactid=<? echo $_GET['contactid']?>";
+document.paymentform.submit();
+}
+
+        </script>
+		<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('addcustomeraccounttransaction')?>">
+<input type=hidden name=type value="<? echo $type?>">
+
+
+
+ <?  
+  $selaccount = ($_POST['selaccount'])?$_POST['selaccount']:$_GET['contactid'];
+ $datetoday = date("d/m/Y");
+  if(isset($_GET['action'])=="addnew")
+   {
+    addaccounttransaction();	
+	exit;
+    }
+ ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Enter Customer Acccount Transaction </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+  <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+ 
+ <tr>
+  <td width="15%" valign="top"><b>Customer Name</b></td>
+ <td width="15%"  valign="top">
+
+<?php echo getaccountcontactnames("selaccount",$selaccount,"")?>
+
+</td>
+
+  </tr>
+	 <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Transaction Type</td>
+    <td width="15%"  bordercolor="#F2F4F8" ><select name=transtype>
+	<option value="Credit">Credit</option>
+	<option value="Debit">Debit</option>
+	</select>
+	</td>
+	</tr>
+	 <tr>
+   <td width="15%" bordercolor="#FFFFFF" >
+    Payment Date</td>
+    <td width="15%" bordercolor="#FFFFFF" >
+	<INPUT TYPE="text" readonly NAME="transdate" id="transdate" class=text VALUE="<?php echo $datetoday?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentform.transdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+
+  </td>
+  </tr>
+  
+	  <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Amount</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=amount size="10"></td>
+    </tr>	
+	 <tr>
+   <td width="50%" valign=top>Payment Type</td>
+    <td width="50%" valign=top>
+	<select name=paymenttype>
+	 <option value='Cash' >Cash</option>
+ <option value='Cheque'>Cheque</option>
+ <option value='BankDeposit'>BankDeposit</option>
+ <option value='CreditCard'>CreditCard</option>
+ <option value='BAC/ONLINE TRANSFER'>BAC/ONLINE TRANSFER</option>
+ <option value='TRANSFER'>TRANSFER</option>
+ <option value='FAST PAYMENT'>FAST PAYMENT</option>
+ <option value='CHAPS'>CHAPS</option>
+ <option value='TELEPHONE TRANSFER'>TELEPHONE TRANSFER</option>
+ </select>
+</td>
+ </tr>
+	 <tr>
+    <td width="15%"  bordercolor="#F2F4F8" >Reference</td>
+    <td width="15%"  bordercolor="#F2F4F8" >
+    <input type=text class=text name=reference size="40" value="<? echo ($reference)?>"></td>
+    </tr>
+	
+      <tr>
+      <td colSpan="2">
+	  <input type=hidden name=userofficeid value="<? echo $agentid?>">
+
+
+  <? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" disabled>
+      <?}?>
+
+      </td>
+
+    </tr>
+  </table>
+   </td>
+   </tr>
+   </table>
+      <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ </form>
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

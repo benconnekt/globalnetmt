@@ -1,0 +1,247 @@
+<? include('header.html');
+ include('reportsidemenu.html');
+ $dataOrder      = isset($dataOrder)?$dataOrder:"a.firstname";
+
+ ?>
+<script language=javascript>
+ function nextPage(val)
+    {
+        document.contactform.displayPageNo.value=val;
+        document.contactform.action="index.php?status=<?php echo base64_encode('idexpirylist')?>";
+        document.contactform.submit();
+        }
+        function pageOrder(val){
+        document.contactform.dataOrder.value=val;
+        document.contactform.submit();
+    }
+    function  formAction(val){
+    var agree=confirm("Do you wish to delete the selected items ?");
+if (agree)
+{
+        document.contactform.pageAction.value=val;
+        document.contactform.submit();
+}
+
+else
+{
+        return;
+        }
+
+    }
+</script>
+
+<form name="contactform" action="index.php" method="post">
+<input type=hidden name=displayPageNo value="<?php echo $displayPageNo?>">
+<input Type="hidden" name="dataOrder" value="<?php echo $dataOrder?>">
+<input Type="hidden" name="pageAction" value="">
+<input Type="hidden" name="searchvalue" value="<?php echo $searchvalue?>">
+<input Type="hidden" name="option" value="<?php echo $option?>">
+<input type=hidden name=status value="<?php echo base64_encode('idexpirylist')?>">
+   <?php
+
+  ?>
+
+
+ <?
+ if($userrole != 'Administrator')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+ ?>
+  
+ <?php
+   if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+  if($_POST['startrow']!='')
+  {
+ $startrow= $_POST['startrow'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $startrow  = (isset($displayPageNo)) ? $displayPageNo : 0;
+ $display = 50; 
+$datetoday= date ("Y-m-d", mktime (0,0,0,date("m"),date("d")+14,  date("Y")));
+
+  $limitstring = " LIMIT $startrow, $display ";
+  $sql = "select a.*, b.documentexpiry,b.documenttype from contact_master a left join proof_images b on a.contactid = b.contactid where a.contactid is not null  and (documentexpiry < '$datetoday' or expirydate < '$datetoday' or documentexpiry is null or expirydate is null or expirydate='0000-00-00' or documentexpiry='0000-00-00' or expirydate='' or documentexpiry='' ) ";
+
+  //echo $sql;
+ // $sql = "select * from contact_master a, proof_images b where a.contactid = b.contactid and a.contactid is not null and contactstatus = 'Active' ";
+  
+  //echo $sql;
+  $countsql = $sql.$temp;
+  $countResult         = safe_query($countsql) ;
+  $countrecords    = @mysql_num_rows($countResult); // Total no of records returned
+
+
+  $temp           = $temp."  order by a.firstname "." ".$limitstring;
+  $sql            = $sql.$temp;
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $TR             = 0;
+  $i              = 0;
+  
+  
+?>
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?></span></td>
+                    </tr>
+                   
+  </table>
+   <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+
+<?
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no expired customer documents in the system .</b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                   <td width="2%" class="TableHeader"><b><font color=white>IDNo</b></td>
+               <td width="14%" class="TableHeader"><b><font color=white>First name</a></b></td>
+			    <td width="14%" class="TableHeader"><b><font color=white>Surname</a></b></td>
+				    <td width="15%" class="TableHeader"><b><font color=white>Id Type</a></b></td>
+						<td width="15%" class="TableHeader"><b><font color=white>Expiry Date</a></b></td>
+						 <td width="15%" class="TableHeader"><b><font color=white>Document Type</a></b></td>
+						<td width="15%" class="TableHeader"><b><font color=white>Document Expiry Date</a></b></td>
+						 </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+   $totalsales=0;
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "Row" : "Row";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+  $contactid      = (isset($row['contactid'])) ? $row['contactid'] : 0;
+   $firstname      = (isset($row['firstname'])) ? $row['firstname'] : "";
+  $surname      = (isset($row['surname'])) ? $row['surname'] : "";
+  $fax        = (isset($row['fax'])) ? $row['fax'] : "";
+  $phone  = (isset($row['phone'])) ? $row['phone'] : "";
+   $email  = (isset($row['email'])) ? $row['email'] :"";
+    $address  = (isset($row['address'])) ? $row['address'] :"";
+	 $postcode  = (isset($row['postcode'])) ? $row['postcode'] :"";
+	 $documenttype  = (isset($row['documenttype'])) ? $row['documenttype'] :"";
+	 $idtype  = (isset($row['idtype'])) ? $row['idtype'] :"";
+	 $expirydate  = (isset($row['expirydate'])) ? $row['expirydate'] :"";
+	 $documentexpiry  = (isset($row['documentexpiry'])) ? $row['documentexpiry'] :"";
+   $mobile  = (isset($row['mobile'])) ? $row['mobile'] :"";
+   
+	
+
+  ?>
+
+ <tr>
+ <td width="2%" class="<?php echo $bgcolor?>"  ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>"><font color=darkblue>CM<?php echo ($contactid)?></font></a></td>
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>"><font color=darkblue><? echo stripslashes($firstname)?></td>
+
+<td width="14%" class="<?php echo $bgcolor?>"   ><a href="index.php?status=<?php echo base64_encode('editcontact')?>&contactid=<?php echo $contactid?>"><font color=darkblue><? echo stripslashes($surname)?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo $idtype?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo changeddate($expirydate)?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo $documenttype?></td>
+<td width="15%" class="<?php echo $bgcolor?>" ><? echo changeddate($documentexpiry)?></td>
+
+<?
+	//$totalsales = getcustomersalestotal($contactid);
+/*	 if($totalsales>=2000) {  echo "<font color=red>Warning: Yearly limit exceeded<br></font>";	}
+	*/
+ //echo "£ ".number_format($totalsales,2);
+ ?>
+
+
+              </tr>
+   <?
+       } }
+ ?>
+          
+   </tr>
+         </table>
+
+		 <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+<?
+if ($startrow != 0) { 
+    $prevrow = $startrow - $display; 
+    print("<td width=10% align=left  valign=top><a href=\"JavaScript:nextPage('".$prevrow."')\"><img src=images/prev.jpg alt=prev border=0></a></td> ");  
+}
+
+// Calculate the total number of pages 
+$pages = intval($countrecords / $display); 
+
+if ($countrecords % $display) { 
+    // has left over from division, so add one page 
+    $pages++; 
+} 
+// Print the next pages, first check if 
+//     there are more pages then 1 
+print("<td width=80% align=center  valign=top>");
+if ($pages > 1) { 
+    for ($i=1; $i <= $pages; $i++) { // Begin loop 
+    $nextrow = $display * ($i - 1); 
+	if($displayPageNo == $nextrow)
+		{
+    print("<font size=1 color=red>$i</font> ");
+		}
+		else
+		{
+	print("<a href=\"JavaScript:nextPage('".$nextrow."')\"><font size=1>$i</font></a> ");
+		}
+    } 
+} 
+print("</td>");
+//End loop 
+// Check if we are at the last page, if 
+//     so, dont print 'Next' 
+if (!(($startrow / $display) == $pages) && $pages != 1) { 
+    // not the last page so print 'Next' 
+    $nextrow = $startrow + $display; 
+    print("<td width=10% align=right valign=top><a href=\"JavaScript:nextPage('".$nextrow."')\"><img src=images/next.jpg alt=next border=0></a></td>"); 
+} 
+// If there are no results at all 
+if ($countrecords < 1) { 
+    print("<table border=0 width=795><tr><td>$XX</td></tr></table>"); 
+} 
+
+?>
+</tr></table>
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>
+

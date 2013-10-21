@@ -1,0 +1,130 @@
+<? include('header.html'); 
+include('reportsidemenu.html');
+?>
+<?
+$title="List of Security Q Waiting List Orders";
+if($userrole != 'Administrator')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+ if(isset($_GET['release'])=="true")
+   {
+ if(is_array($release_orders))
+ {
+for($k=0;$k<count($release_orders);$k++)
+{
+ $releasemessage = $_POST['releasemessage'];
+ $saleid=$release_orders[$k];
+ $sql   = "update sales_master set releaseorder='Y',releasemessage='$releasemessage' where saleid= '$saleid'";
+// echo $sql;
+ $Result1= safe_query($sql) ;
+	 }
+display_message(  "<b><p align=center>The selected orders have been released</font></p>");
+ }
+ }
+ ?>
+
+<form name=setupform method=post action=index.php>
+<script language=javascript>
+ function opensdndetails(surname,firstname)
+{
+window.open("snddetails.php?surname="+surname+"&firstname="+firstname, "sdndetails", "width=700,height=600,location=no, menubar=no, status=no, toolbar=no, scrollbars=yes, resizable=yes");
+}  
+function opencustomerdetails(contactid)
+{
+window.open("index.php?status=<?php echo base64_encode('viewdocuments')?>&contactid="+contactid, "contactdetails", "width=900,height=600,location=no, menubar=no, status=no, toolbar=no, scrollbars=yes, resizable=yes");
+}  
+function checkAll()
+{
+for (var i=0;i<document.setupform.elements.length;i++)
+	{
+		var e=document.setupform.elements[i];
+		if ((e.name != 'allbox') && (e.type=='checkbox'))
+		{
+			e.checked=document.setupform.allbox.checked;
+		}
+	}
+}
+function confirmRelease()
+{
+if(document.setupform.releasemessage.value == "")
+	{
+	alert("Enter release message before releasing the orders");
+	return false;
+	}
+var agree=confirm("Do you wish to release the selected orders ?");
+if (agree)
+	{
+		 document.setupform.action="index.php?status=<?php echo base64_encode('failedmllist')?>&release=true";
+       document.setupform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+
+ </script>
+<input type=hidden name=status value="<?php echo base64_encode('failedmllist')?>">
+
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $title?></span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     Below are the list of orders failed to comply with the rules set in the Anti Money Laundering Setup
+     
+    </td>
+  </tr>
+</table>
+<?
+$dataOrder      = isset($dataOrder)?$dataOrder:"orderdate";
+ 
+// $temp= "  and orderstatus = 'Ordered' ";
+ 
+ $reportquery = getMoneyTransferOrdersQuery($temp,"qlist");
+ 
+ echo getMoneyTransferOrders($temp,"qlist",false,"",$deleterights);
+  ?>
+
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1">
+ 
+
+ <tr>
+  <td colspan=100 align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+	<BR>
+<BR>
+<b>Enter the release message:</b><br><textarea name=releasemessage rows=5 cols=40></textarea>
+	 <input type=button name=c1 class=btn3 onclick="confirmRelease()" value="Release Selected Orders"> 
+	  
+</form>
+ 
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

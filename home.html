@@ -1,0 +1,348 @@
+ <? include('header.html');
+ $today = getdate();
+$month = $today['mon'];
+$mday = $today['mday'];
+$year = $today['year'];
+
+
+
+if($_POST['txt_date']=='')
+{
+$txt_date=date('d/m/Y');
+}
+else
+{
+	$txt_date=$_POST['txt_date'];
+}
+?>
+ 
+ <SCRIPT language=JavaScript>
+var img_folder="images/";
+</SCRIPT>
+ <SCRIPT language="JavaScript">
+
+      function bitwdp_txt_changed(pobj,pDate)
+      {
+        switch (pobj.id)
+        {
+          case "txt_date":
+          {
+       document.calendarform.txt_date.value=pDate;
+      // alert( document.calendarform.txt_date.value);
+        document.calendarform.action="index.php?status=<?php echo base64_encode('')?>";
+        document.calendarform.submit();
+       break;
+          }
+          case "txt_date_2":
+          {
+
+            break;
+          }
+        }
+      }
+    </script>
+<SCRIPT LANGUAGE=javascript SRC="bitwdp.js"></SCRIPT>
+<?  include('sidemenu.html');?>
+<form name=calendarform method=post action=index.php>
+<INPUT id=txt_date type=hidden name=txt_date bitwdp=1>
+<input type=hidden name=userid value="<?php echo $userid?>">
+ <? if($addrights!='Y')
+  {  ?>
+
+  <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%">
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%"><font color="#00008B"><b>You do not have permissions for this module</b></font></td>
+    </tr>
+  </table>
+ <?
+
+ exit; }
+
+
+
+ ?>
+ 
+
+     <table width="100%" border="0" cellpadding="3" cellspacing="1" >
+                    <tr>
+                      <td class="TableHeader">Personal Home Page - <? echo ($txt_date)?></font></span></td>
+                    </tr>
+                    <tr>
+                      <td>
+<table border="0" cellpadding="5" cellspacing="5" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+ <?  $sql   = "select userid,firstname,lastname from user_master where userid='$userid' ";
+
+   $actualdate=dateConvert($txt_date);
+
+$Result         = safe_query($sql) ;
+$i=0;
+while ($row = mysql_fetch_array( $Result))
+  {
+  $usernameid      = (isset($row['userid'])) ? $row['userid'] : 0;
+   $firstname     = (isset($row['firstname'])) ? $row['firstname'] : 0;
+    $lastname     = (isset($row['lastname'])) ? $row['lastname'] : 0;
+
+if($i%2==0)
+{
+?>
+ <tr>
+<?
+}
+?>
+ <td width="50%" valign=top >
+<span>
+<div style="width:300">
+                        <table cellpadding="1" cellspacing="0" class="Menu_Head">
+                                <tr>
+                                        <td width="78%" valign="middle"><img src="images/new.gif" width="16" height="14"> <?echo stripslashes($firstname)?> <?echo stripslashes($lastname)?></td>
+                                        <td width="12%"><td>&nbsp;</td>
+                                </tr>
+                        </table>
+                </div>
+<div class="Menu_Items" style="width:300">
+ <table width="100%"  border="0" cellpadding="0" cellspacing="0" class="tableBorder">
+                    <tr>
+                      <td bgcolor='#7694C8'><font color="#FFFFFF">Your Schedular</font></td>
+                    </tr>
+                    <tr>
+                      <td class="Row" >
+   <?php
+
+ $sql1="";
+ $tempcalls="";
+ $sql1           = "select historyid,toid,date,regarding,minutes,hours,meredian,activity_type,withcontact,status from history_master ";
+
+  $tempcalls           = $tempcalls." where date='$actualdate' and toid='$usernameid' order by date DESC";
+
+  $sql1            = $sql1.$tempcalls;
+// echo $sql;
+
+  $Result1         = safe_query($sql1) ;
+  $noOfRecords    = @mysql_num_rows($Result1); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+
+  ?>
+
+
+
+
+     <table border="0" cellpadding="3" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+                  <?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="100%" colspan=4>
+   No new Customer Appointments
+  </td>
+                   </tr>
+ <?php }
+ else
+ {?>
+ <tr style="HEIGHT: 25px">
+
+
+  <tr>
+                 <td width="10%" bgcolor=#EAEAEA><b>Time</b></td>
+                 <td width="10%" bgcolor=#EAEAEA><b>With</b></td>
+                  <td width="3%" bgcolor=#EAEAEA><b>Type</b></td>
+                 <td width="10%" bgcolor=#EAEAEA><b>Regarding</b></td>
+                  <td width="10%" bgcolor=#EAEAEA><b>Status</b></td>
+                  </tr>
+  <?php
+
+  $ii=0;
+  $no=0;
+  while ($row1 = mysql_fetch_array( $Result1))
+  {
+
+   $ii++;
+    $no=$no+1;
+   $bgcolor       = ($ii % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($ii % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+
+  $historyid      = (isset($row1['historyid'])) ? $row1['historyid'] : 0;
+
+  $regarding      = (isset($row1['regarding'])) ? $row1['regarding'] : "";
+  $withcontact      = (isset($row1['withcontact'])) ? $row1['withcontact'] : "";
+   $activity_type      = (isset($row1['activity_type'])) ? $row1['activity_type'] : "";
+    $toid      = (isset($row1['toid'])) ? $row1['toid'] : "";
+  $date      = (isset($row1['date'])) ? $row1['date'] : "";
+   $status      = (isset($row1['status'])) ? $row1['status'] : "YET TO CONFIRM";
+    $minutes  = (isset($row1['minutes'])) ? $row1['minutes'] : "";
+             $hours  = (isset($row1['hours'])) ? $row1['hours'] : "";
+              $meredian  = (isset($row1['meredian'])) ? $row1['meredian'] : "";
+
+ $output="";
+  ?>
+
+ <tr>
+
+<td width="10%" valign=top class="Row" bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editmeeting')?>&historyid=<?php echo $historyid?>"><font color=darkblue><?php echo $hours?>:<?php echo $minutes?> <?php echo $meredian?>
+</a></td>
+<td width="3%" valign=top class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editmeeting')?>&historyid=<?php echo $historyid?>"><?php echo substr(getcontactname($withcontact),0,10).".."?></td>
+<td width="3%" valign=top class="Row"  bgcolor="<?php echo $bgcolor?>">
+<? if($activity_type=='Call to')
+{
+$output=$output."<img border='0' src='images/phone_to.gif' alt='Call to' >";
+ }
+  if($activity_type=='Todo')
+{
+$output=$output."<img border='0' src='images/TODO.GIF' alt='TO DO' >";
+ }
+ if($activity_type=='Call')
+{
+$output=$output."<img border='0' src='images/phone_to.gif' alt='Call' >";
+ }
+if($activity_type=='Call from')
+{
+$output=$output."<img border='0' src='images/phone_from.gif' alt='Call From'>";
+}
+if($activity_type=='Complaint')
+{
+$output=$output."<img border='0' src='images/complaint.gif' alt=Complaint>";
+ }
+ if($activity_type=='Meeting')
+{
+$output=$output."<img border='0' src='images/MEET.GIF' alt=Meeting>";
+ }
+ if($activity_type=='Follow up')
+{
+$output=$output."<img border='0' src='images/followup.gif' alt='Follow up'>";
+ }
+ if($activity_type=='Email')
+{
+$output=$output."<img border='0' src='images/newmail.gif' alt='Email'>";
+ }
+ echo $output;?> </td>
+ <td width="10%" valign=top class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $regarding?></td>
+
+<td width="10%" valign=top class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editmeeting')?>&historyid=<?php echo $historyid?>"><?php echo $status?></td>
+
+              </tr>
+   <?
+              }  }?>
+         </div>
+         </table>
+
+        </td>
+        </tr>
+        </table>
+
+
+
+        </td>
+        <?
+           $i++;
+        } ?>
+    </tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<br>
+<table width="50%"  border="0" cellpadding="0" cellspacing="0" class="tableBorder" height="50">
+                    <tr>
+                      <td class="tableHeader">Account Balance</td>
+                    </tr>
+                    <tr>
+                      <td class="Row" valign=middle>
+					  <?
+					  $salesamount=getagentsalestotal($agentid);
+					  $creditamount=getagentcreditlimit($agentid);
+                      $paymentamount=getagentpaymentamount($agentid);
+					  $commissionamount=getagentcommissiontotal($agentid);
+					  $openingbalance = getagentopeningbalance($agentid);
+					  ?>
+					  <b><FONT COLOR=RED size=3>£ <? ECHO number_format(($openingbalance+$paymentamount-$salesamount-$commissionamount),2)?></font></b>
+					  </td>
+					  </tr>
+					  </table>
+<br><br>
+<table width="100%"  border="0" cellpadding="0" cellspacing="0" class="tableBorder">
+                    <tr>
+                      <td class="tableHeader">WEEKLY NEWS UPDATES</td>
+                    </tr>
+                    <tr>
+                      <td class="Row" >
+   <?php
+
+ $event_sql        = "select * from event_master where eventtype='General' order by eventid DESC";
+ $Resultevent        = safe_query($event_sql) ;
+ $noOfeventRecords    = @mysql_num_rows($Resultevent); // Total no of records returned
+ $noOfPages      = ceil($noOfeventRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+
+  ?>
+
+
+
+
+     <table border="0" cellpadding="3" cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+                  <?php
+
+  if($noOfeventRecords==0)
+  { ?>
+
+  <tr>
+  <td width="100%" colspan=4>
+   No events found in the system
+  </td>
+                   </tr>
+ <?php }
+ else
+ {
+  $ii=0;
+  $no=0;
+  while ($eventrow = mysql_fetch_array( $Resultevent))
+  {
+
+        $eventname  = (isset($eventrow['eventname'])) ? $eventrow['eventname'] : "";
+        $eventdescription = (isset($eventrow['eventdescription'])) ? $eventrow['eventdescription'] : "";
+		
+  ?>
+
+ <tr><td width="100%" valign=top class="Row" ><b><? echo stripslashes($eventname)?></b></td></tr>
+<tr><td width="100%" valign=top class="Row" ><? echo stripslashes(nl2br($eventdescription))?></td></tr>
+
+   <?
+              }  }?>
+         </table>
+
+        </td>
+        </tr>
+        </table>
+<br><br><b>List of Files Available for Download</b><br>
+<table width="100%" border="0" align="center" cellpadding="2" cellspacing="2">
+ <tr class=headerRow><td class=tableHeader>File Name (Click on the name to view/download the file)</td>
+<? echo IndexDirDisplay(); ?>
+</table>
+
+
+
+
+    </td>
+  <td width="225" HEIGHT="494" valign="top" align=right  >
+   <script language=javascript>
+  bitwdp_buildCalendar("calendar_date");
+ bitwdp_setDate("<?php echo $txt_date?>","calendar_date");
+
+    </script>
+    </td>
+  </tr>
+
+
+    </td>
+  </tr>
+   <? include('footer.html');   ?>

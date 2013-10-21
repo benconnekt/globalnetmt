@@ -1,0 +1,323 @@
+<?php
+
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Update Orders ";
+include('header.html');
+include('reportsidemenu.html');
+
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('updateorders')?>>
+
+<?
+if($_GET['update']=="collection")
+   {
+ if(is_array($update_orders) && strlen($newcollectionpoint))
+ {
+	  for($k=0;$k<count($update_orders);$k++)
+	 {
+	$saleid=$update_orders[$k];
+	$sql            = "select agentcommission from sales_master where saleid='$saleid'";
+	$Result = safe_query($sql) ;
+    while ($row      = mysql_fetch_array( $Result))
+     {	 
+	$agentcommission=$row['agentcommission'];
+	 }
+    $payingagent = getpayingagentforagent($newcollectionpoint);
+	$commpercentage2 = getpayingagentcommissionvalue($payingagent);
+	if(is_numeric($commpercentage2) && $commpercentage2>0)
+		{
+			$commission2 = round((($agentcommission*$commpercentage2)/100),2);
+		}
+	
+
+ $sql   = "update sales_master set collectionofficeid='$newcollectionpoint',payingagent='$payingagent',commpercentage2='$commpercentage2',commission2='$commission2' where saleid= '$saleid'";
+ //echo $sql;
+ $Result1= safe_query($sql) ;
+	}
+	display_message(  "<b><font size=3 color=darkblue><p align=center>The selected orders have been updated with the new Collection Point</font></p>");
+	 }
+
+ }
+
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+
+ function confirmSubmit(val)
+{
+	var message;
+	if(val=='ibbl')
+	{
+	message = "Do you wish to update the selected orders with the new IBBL/SJIBL no?";
+	if (!validRequired(document.mtsalesform.newidno,"IBBL/SJIBL No"))
+    return false;
+	}
+	if(val=='collection')
+	{
+	message = "Do you wish to update the selected orders with the new Collection Point?";
+	if (!validRequired(document.mtsalesform.newcollectionpoint,"Collection Point"))
+	return false;
+	}
+var agree=confirm(message);
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('updateorders')?>&&update="+val;
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('updateorders')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+	function checkAll()
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'allbox') && (e.type=='checkbox'))
+		{
+			e.checked=document.mtsalesform.allbox.checked;
+		}
+	}
+}
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction  value="<?php echo $pageAction ?>">
+<input type=hidden name=status value="<?php echo base64_encode('updateorders')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($userrole!='Administrator')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="orderdate,ordertime";
+ }
+ }
+
+
+ if($_GET['startdate']!='')
+ {
+ $startdate=$_GET['startdate'];
+ }
+ else
+ {
+ if($_POST['startdate']!='')
+ {
+ $startdate=$_POST['startdate'];
+ }
+ else
+ {
+ $startdate=$lastmonth;
+ }
+ }
+
+  if($_GET['enddate']!='')
+ {
+ $enddate=$_GET['enddate'];
+ }
+ else
+ {
+ if($_POST['enddate']!='')
+ {
+ $enddate=$_POST['enddate'];
+ }
+ else
+ {
+ $enddate=$datetoday;
+ }
+ }
+ 
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $title?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" width="100%" id="AutoNumber2" >
+
+   <tr>
+  <td width="20%" valign="top"><b>Select the start date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="startdate" VALUE="<?php echo $startdate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.startdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="20%" valign="top"><b>Select the end date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="enddate" VALUE="<?php echo $enddate?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.enddate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="20%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Orders" class=btn3 onclick="javascript:generatesalesreport('dailysales')" ></td>
+
+  </tr>
+ 
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+
+      <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+//	 echo "the report type is ".$pageAction;
+ $startdate = dateConvert($startdate);
+ $enddate = dateConvert($enddate);
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"orderdate,ordertime";
+ $sql            = "select a.officeid,a.orderdate,a.orderid,a.orderamount,a.agentcommission,a.orderby,a.currency,a.exchangerate,a.benamount,b.surname as customersurname,b.firstname as customerfirstname,c.surname as bensurname,c.firstname as benfirstname,a.orderstatus,a.saleid,a.benid,a.contactid,a.bankname,a.branchname,a.accountno,a.idno,a.collectionofficeid,a.ordertime from sales_master a,contact_master b,ben_master c where a.contactid=b.contactid and a.benid=c.benid AND a.orderstatus='Ordered' ";
+ $temp        = " and orderdate >='$startdate' and orderdate <='$enddate'  and collectiontype='CollectionPoint'  and a.releaseorder = 'Y' ";
+  if($_POST['searchvalue']!='')
+  {
+  $searchvalue=strtolower($_POST['searchvalue']);
+  $temp           = $temp." and ( lower(orderid)='$searchvalue' or lower(b.surname) like '%$searchvalue%' or lower(b.firstname) like '%$searchvalue%' or lower(c.surname) like '%$searchvalue%' or lower(c.firstname) like '%$searchvalue%') ";
+  }
+ $reportquery = getMoneyTransferOrdersQuery($temp,"updateorders");
+  echo getMoneyTransferOrders($temp,"updateorders",false,"",$deleterights);
+?>
+<table width=100%>
+  
+  <tr>
+  <td colspan=100 align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+	<BR>
+<BR>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    
+    
+	   <tr>
+	   <td width="33%" height="1"  class="Row" valign="top">Choose new Collection point</td>
+	   </tr>
+	   <tr>
+	   <td width="33%" height="1" class="Row" valign="top"><? echo getupdateordercollectionpoints("newcollectionpoint",$newcollectionpoint)?></td>
+	    </tr>
+	   <tr>
+	   <td width="33%" valign="top" class="Row"><input type=button name=c2 class=btn3 onclick="confirmSubmit('collection')" value="Update Collection point for Selected Orders"></td>
+	  </tr>
+	  </table>
+	
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

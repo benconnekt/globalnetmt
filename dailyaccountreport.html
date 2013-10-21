@@ -1,0 +1,211 @@
+<? include('header.html');
+ include('accountssidemenu.html');
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($accountsrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('dailyaccountreport')?>";
+        document.paymentsform.submit();
+        }
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('dailyaccountreport')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+ <?
+ $today = date("d/m/Y");
+ 
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $today;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+   $selagent  = (isset($_POST['selagent'])) ? $_POST['selagent'] : $agentid;
+
+?>
+
+ 
+  <?
+     $DISP_REC_COUNT = 50;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ 
+ $dataOrder      = isset($dataOrder)?$dataOrder:"agentname";
+ 
+ if($userrole=='Administrator')
+ {
+	  $sql            = "select * from agent_master where agenttype!='collectionpoint'";
+	    if($selagent !='' && $selagent !='ALL')
+	 {
+		  $sql = $sql." and agentid='$selagent'";
+	 }
+ }
+ else
+ {
+	   $sql            = "select * from agent_master where  agenttype!='collectionpoint' and agentid='$agentid'";
+ }
+ $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+   
+ ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Daily Report</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+					   <table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+<? if($userrole=='Administrator')
+ {?>
+				
+ <tr>
+  <td width="25%" valign="top"><b>Select the agent</b></td>
+ <td width="25%"  valign="top">
+
+<?php echo getagentonlynames("selagent",$selagent,true)?>
+
+</td>
+
+  </tr>
+   <? } ?>
+  <tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdate' VALUE="<?php echo $startsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.paymentsform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+  <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Sales Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport()" ></td>
+
+  </tr>
+  </table>
+					  </TD>
+					  </TR>
+					  </TABLE>
+					  <BR>
+      <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no agents in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  
+	 $startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+
+	 
+	?>
+ <tr>
+                 <td width="12%" class="TableHeader"><b>Office</b></td>
+               <td width="12%" class="TableHeader"><b>Total Cash </b></td>
+			   <td width="12%" class="TableHeader"><b>Total Cheque</b></td>
+			   <td width="12%" class="TableHeader"><b>Total Bank Deposit</b></td>
+			   <td width="20%" class="TableHeader"><b>Total Beneficiary Amount</b></td>
+			   <td width="12%" class="TableHeader"><b>Total Commission</b></td>
+			    <td width="12%" class="TableHeader"><b>Grand Total</b></td>
+               
+              </tr>
+
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalallsales=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+$agentid     = (isset($row['agentid'])) ? $row['agentid'] : 0;
+$agentname     = (isset($row['agentname'])) ? $row['agentname'] : 0;
+$cashamount=totalsalesbypaymenttype("Cash",$agentid,$startsalesdate,$endsalesdate);
+$chequeamount=totalsalesbypaymenttype("Cheque",$agentid,$startsalesdate,$endsalesdate);
+$commissionamount=getagentcommissiontotalbydate($agentid,$startsalesdate,$endsalesdate);
+$benamount=totalbenamount($agentid,$startsalesdate,$endsalesdate);
+$bankdepositamount=totalsalesbypaymenttype("BankDeposit",$agentid,$startsalesdate,$endsalesdate);
+
+
+  ?>
+  
+
+  <tr><td class="Row" width="10%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentname?></a></td>
+ <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format($cashamount,2)?></td>
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format($chequeamount,2)?></td>
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format($bankdepositamount,2)?></td>
+<td class="Row" width="20%" bgcolor="<?php echo $bgcolor?>"><? echo number_format(($benamount),2)?></td>
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format($commissionamount,2)?></td>
+<td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format(($cashamount+$chequeamount+$bankdepositamount+$commissionamount),2)?></td>
+
+  </tr>
+ 
+   <? 
+  }
+ }?>
+
+
+</table>
+
+   </form>
+ 
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

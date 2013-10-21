@@ -1,0 +1,114 @@
+<? include('header.html');   ?>
+
+ <?
+ include('reportsidemenu.html');
+
+?>
+<?
+if($userrole!='Administrator')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<form name=addreportform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.reportname,"Report Name"))
+                return false;
+	
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.addreportform))
+{
+document.addreportform.action="index.php?status=<?php echo base64_encode('addreport')?>&action=addnew";
+document.addreportform.submit();
+}
+}
+
+</script>
+<input type=hidden name=status value="<?php echo base64_encode('addreport')?>">
+
+ <?
+  if(isset($_GET['action'])=="addnew")
+   {
+    addreport();
+    }
+   
+   ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Report Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table width="60%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+      <tr>
+        <td height="1"  valign=top >
+        Report Name<td height="1" colspan=2>
+        <input maxLength="1000"  name="reportname" value="<? echo $reportname?>"  size="30"></td>
+      </tr>
+	  
+   <tr>
+        <td height="1"   valign=top >
+        Replace Empty with None<td height="1"  colspan=2>
+       <select name=is_empty_allowed><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+	  <tr>
+        <td height="1"   valign=top >
+        Apply ID document rule<td height="1" colspan=2>
+       <select name=apply_id_document_rule><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+   
+	   <tr>
+        <td height="1"   valign=top >
+        Export Headers<td height="1" colspan=2>
+       <select name=export_headers><option value='Y'>Y</option><option value='N'>N</option></select></td>
+      </tr>
+	    <tr>
+   <td width="50%" valign="top">Paying Agent</td>
+    <td width="50%" valign="top"><? echo getpayingagents("payingagent",$payingagent,$bencountry,$payingagent_disabled)?></td>
+  </tr>
+
+   
+      </table>
+	  	  <INPUT type=hidden value=2 name=SelectedItems>
+      </center>
+</div>
+<? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Add Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Add Information" disabled>
+      <?}?>
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

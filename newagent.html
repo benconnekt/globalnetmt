@@ -1,0 +1,244 @@
+<? include('header.html');   ?>
+ <?
+ include('usersidemenu.html');
+
+ ?>
+  <?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=newofficeform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.agentname,"Name"))
+                return false;
+     if (!validRequired(theForm.agentref,"Transaction Prefix"))
+      return false;
+	  if (!validRequired(theForm.agentsuffix,"Transaction Suffix"))
+      return false;
+	  if (!validRequired(theForm.country,"Country"))
+      return false;
+	 // if (!validInt(theForm.agentcommission,"Commission",true))
+     // return false;
+	   //if (!validInt(theForm.agentcommission1,"Special Commission",true))
+      //return false;
+	    if (!validInt(theForm.agentopeningbalance,"Opening Balance",true))
+      return false;
+	   if (!validInt(theForm.agentcreditlimit,"Agent Credit Limit",true))
+      return false;
+	 
+
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.newofficeform))
+{
+document.newofficeform.action="index.php?status=<?php echo base64_encode('newagent')?>&action=addnew";
+document.newofficeform.submit();
+}
+}
+        </script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('newagent')?>">
+     
+ <?  if(isset($_GET['action'])=="addnew")
+   {
+   $querystatus= addagentinfo();
+   exit;
+   }
+   ?>
+   
+
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Office Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+    <table height="161" width="50%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0">
+      <tr>
+        <td height="50%" width="156">
+       Name:</td><td height="23" width="50%">
+     <input class=text   maxLength="1000"  name="agentname" size="30">
+     </td>
+      </tr>
+	    <tr>
+        <td align="left"  height="1" width="100%">
+       Transaction Prefix:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentref" size="4" maxlength="4"><br>(Used for the transaction code)
+        </td>
+      </tr>
+	   <tr>
+        <td align="left"  height="1" width="100%">
+       Transaction Suffix:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentsuffix" size="4" maxlength="4"><br>(Used for the transaction code)
+        </td>
+      </tr>
+	  <tr>
+	  <td width="50%" valign="top">Status</td>
+        <td width="50%" valign="top">
+    <b>
+    <select name="agentstatus">
+    <option value="Active" >Active</option>
+    <option value="Inactive">Inactive</option>
+    </select></b></td>
+	</tr>
+      <tr>
+        <td height="23" width="50%">
+      Address:</td><td height="23" width="50%">
+        <textarea  name="agentaddress" rows=5 cols=30></textarea></td>
+      </tr>
+	    <tr>
+        <td height="23" width="50%">
+      Country:</td><td height="23" width="50%">
+       <? echo getcountries("country",$country)?></td>
+      </tr>
+      <tr>
+        <td align="left"  height="1" width="100%">
+       Telephone:</td>
+
+        <td  height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agenttelephone" size="30">
+        </td>
+      </tr>
+       <tr>
+        <td align="left"  height="1" width="100%">
+       Fax:</td>
+
+        <td  height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentfax" size="30">
+        </td>
+      </tr>
+        <tr>
+        <td align="left"  height="1" width="100%">
+       Mobile:</td>
+
+        <td  height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentmobile" size="30">
+        </td>
+      </tr>
+        <tr>
+        <td align="left"  height="1" width="100%">
+       Email:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentemail" size="30">
+        </td>
+      </tr>
+	  <!--
+    <tr>
+        <td height="23" width="50%">
+      Special Commission Country:</td><td height="23" width="50%">
+       <? echo getbencountries("commcountry",$commcountry)?></td>
+      </tr>
+	   <tr>
+        <td align="left"  height="1" width="100%">
+       Special Commission:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentcommission1" size="5" value="0" > %
+        </td>
+      </tr>
+	 <tr>
+        <td align="left"  height="1" width="100%">
+       Others Commission:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentcommission" size="5" value="0"> %
+        </td>
+      </tr>
+	  -->
+	   <tr>
+        <td align="left"  height="1" width="100%">
+       Credit Limit:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentcreditlimit" size="10" value="0"> 
+        </td>
+      </tr>
+	    <tr>
+        <td align="left"  height="1" width="100%">
+       Opening Balance:</td>
+
+        <td height="1" width="50%" valign="top">
+        <input class=text   maxLength="1000"  name="agentopeningbalance" size="10" value="0"> 
+        </td>
+      </tr>
+	   <tr>
+        <td align="left"  height="1" width="100%">
+       Type:</td>
+
+        <td height="1" width="50%" valign="top">
+        <select name=agenttype>
+      <option value="office">office</option>
+	   <option value="agent">agent</option>
+	  </select>
+        </td>
+      </tr>
+	   <tr>
+        <td align="left"  height="1" width="100%">
+       Agent Payment Type:</td>
+
+        <td height="1" width="50%" valign="top">
+        <select name=agentpaymenttype>
+      <option value="DIRECT">DIRECT</option>
+	   <option value="PAYASYOUGO">PAYASYOUGO</option>
+	  </select>
+        </td>
+      </tr>
+	  <tr>
+        <td align="left"  height="1" width="100%">
+       Visible Online:</td>
+
+        <td height="1" width="50%" valign="top">
+        <select name=is_online>
+      <option value="Y">Y</option>
+	   <option value="N">N</option>
+	  </select>
+        </td>
+      </tr>
+	
+	  </table>
+     <? if ($addrights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" >
+      <?}
+      else {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Submit Information" disabled>
+      <?}?>
+
+
+    </td>
+  </tr>
+</table>
+
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

@@ -1,0 +1,232 @@
+<?
+include("header.html");
+if($_GET['type'] == "online")
+{
+	include("onlinesidemenu.html");
+}
+else
+{
+include("customersidemenu.html");
+}
+$Getcontactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $Getcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $Getcontactid=$_POST['contactid'];
+   }
+   
+?>
+<form name=newbeneficiaryform action=index.php method="post" >
+<script language=javascript>
+
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.firstname,"Full Name"))
+                return false;
+	 if (!validRequired(theForm.country,"Country"))
+                return false;
+	
+	 if (!validRequired(theForm.state,"State"))
+                return false;
+	  if (!validRequired(theForm.city,"City"))
+                return false;
+	 if (!validInt(theForm.phone,"Telephone"))
+      return false;
+if (!validInt(theForm.mobile,"Mobile"))
+      return false;
+
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.newbeneficiaryform))
+{
+document.newbeneficiaryform.action="index.php?status=<?php echo base64_encode('newbeneficiary')?>&action=addbeneficiary&contactid=<? echo $Getcontactid?> ";
+document.newbeneficiaryform.submit();
+}
+}
+
+function submitform()
+{
+document.newbeneficiaryform.action="index.php?status=<?php echo base64_encode('newbeneficiary')?>contactid=<? echo $Getcontactid?>";
+document.newbeneficiaryform.submit();
+}
+
+</script>
+ <?
+ if($contactsrights!='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+ 
+if($Getcontactid!='' && is_numeric($Getcontactid))
+{
+  if($_GET['action']=="addbeneficiary")
+   {
+  $beneficiaryid = addbeneficiary();
+
+  if(is_numeric($beneficiaryid))
+	   {?>
+	  &nbsp;&nbsp;<input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:location.href='index.php?status=<?php echo base64_encode('office')?>&benid=<? echo $beneficiaryid?>&contactid=<? echo $Getcontactid?>'" name=s1 value=" New Money Transfer Order" > 
+		 <? exit;
+        } 
+
+   }
+
+  ?>
+<input type=hidden name=status value="<?php echo base64_encode('addbeneficiary')?>">
+<input type=hidden name=contactid value="<?php echo $Getcontactid ?>">
+
+<input type=hidden name=pageAction>
+
+    <table width="100%"  border="0" cellpadding="0" cellspacing="0" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Beneficiary Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+     <tr>
+        <td width="25%" valign="top">Full name</td>
+        <td width="25%" valign="top">
+    <b><input id="firstname" name="firstname" size="30" type="text" class="text"  value="<? echo stripslashes($firstname)?>">
+   </b></td>
+      </tr>
+      <tr>
+       <td width="25%" valign="top">Address</td>
+        <td width="25%" valign="top">
+    <b>
+    <textarea id="address" name="address" size="30" type="text" class="text" rows="3" cols="30"><? echo stripslashes($address)?></textarea></b></td>
+      
+        <td width="25%" valign="top">Postcode</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="postcode" name="postcode" size="30" type="text" class="text"  value="<? echo stripslashes($postcode)?>"></b></td>
+      </tr>
+	   <tr>
+     
+	  <td width="25%" valign="top">Country</td>
+        <td width="25%" valign="top">
+    <b>
+    <? echo getbencountries("country",$country,"onchange=javascript:submitform()")?></b></td>
+     
+      </tr>
+      <tr>
+     
+        <td width="25%" valign="top">State</td>
+        <td width="25%" valign="top">
+    <b>
+    <? echo getstates("state",$state,$country,"onchange=javascript:submitform()")?></td>
+	  <td width="25%" valign="top">City</td>
+        <td width="25%" valign="top">
+    <b>
+    <? echo getcities("city",$city,$state)?></b></td>
+     
+      </tr>
+     
+      <tr>
+        <td width="25%" valign="top">Phone</td>
+        <td width="25%" valign="top"> <input id="phone" name="phone" size="30" type="text" class="text"  value="<? echo stripslashes($phone)?>"></td>
+            <td width="25%" valign="top">Mobile</td>
+        <td width="25%" valign="top">
+    <b>  <input id="mobile" name="mobile" size="30" type="text" class="text"  value="<? echo stripslashes($mobile)?>"></b></td>
+       
+		<tr>
+		<td width="25%" valign="top">Email</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="email" name="email" size="30" type="text" class="text" value="<? echo stripslashes($email)?>"></b></td>
+      <td width="25%" valign="top">ID No</td>
+        <td width="25%" valign="top">
+    <b>
+   
+    <input id="idno"  name="idno" size="30" type="text" value="<? echo stripslashes($idno)?>" class="text"></b></td>
+      </tr>
+	  <tr>
+		<td width="25%" valign="top">Bank Name</td>
+      <td width="25%" valign="top"><b>
+   <input id="bankname"  name="bankname" size="30" type="text" value="<? echo stripslashes($bankname)?>" class="text"></td>
+	<td width="25%" valign="top">Branch Name</td>
+        <td width="25%" valign="top">
+    <b>
+   
+    <input id="branchname"  name="branchname" size="30" type="text" value="<? echo stripslashes($branchname)?>" class="text"></b></td>
+      </tr>
+	  <tr>
+	   <td width="25%" valign="top">Sort Code</td>
+        <td width="25%" valign="top">
+    <b>
+   
+    <input id="sortcode"  name="sortcode" size="30" type="text" value="<? echo stripslashes($sortcode)?>" class="text"></b></td>
+   
+		<td width="25%" valign="top">Account No</td>
+        <td width="25%" valign="top">
+    <b>
+    <input id="accountno" name="accountno" size="30" type="text" class="text" value="<? echo stripslashes($accountno)?>"></b></td>
+        </tr>
+		 <tr>
+   <td width="25%" valign="top">Account Type</td>
+    <td width="25%" valign="top"><input  class=text name=accounttype value="<? echo $accounttype?>" size="30" ></td>
+	</tr>
+		 <tr>
+   <td width="25%" valign="top">Swift Code</td>
+    <td width="25%" valign="top"><input  class=text name=swiftcode value="<? echo $swiftcode?>" size="30" ></td>
+ 
+   <td width="25%" valign="top">IBAN No</td>
+    <td width="25%" valign="top"><input  class=text name=ibanno value="<? echo $ibanno?>" size="30" ></td>
+  </tr>
+  <tr>
+   <td width="25%" valign="top">Branch Address</td>
+    <td width="25%" valign="top"><input  class=text name=branchaddress value="<? echo $branchaddress?>" size="30" ></td>
+<td width="25%" valign="top">Other</td>
+        <td width="25%" colspan="3" valign="top">
+    <b> <input id="surname"  name="surname" size="30" type="text" class="text"  value="<? echo stripslashes($surname)?>">
+    </b></td>
+      
+  </tr>
+     
+    </table>
+     <? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Submit Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Submit Information" disabled>
+      <?}?>
+	    <br><br>
+   
+     </td>
+     </tr>
+     </table>
+
+			<? } else
+{
+	display_message("Please choose the customer from the list");
+} ?>		
+					  </form>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

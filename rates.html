@@ -1,0 +1,189 @@
+ <? include('header.html');
+ include('usersidemenu.html');
+
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the rate record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.currenciesform.displayPageNo.value=val;
+        document.currenciesform.action="index.php?status=<?php echo base64_encode('rates')?>&PAGE="+val;
+        document.currenciesform.submit();
+        }
+</script>
+
+<form name="currenciesform" action="index.php" method="get">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=status value="<?php echo base64_encode('rates')?>">
+<?php if($usersrights!='Y' && $superuserrights!='Y')
+	  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+ <?
+ if(isset($_GET['deleteaction'])=="ratedelete")
+   {
+	   	   $deleterateid=$_GET['deleterateid'];
+  if($deleterateid!="")
+ {
+ $sql   = "delete from rate_master where rateid= '$deleterateid'";
+//echo $sql;
+ $Result1= safe_query($sql) ;
+  display_message(  "<font color=darkblue><b><p align=center>Rate Information has been successfully deleted</font></p></b>");
+ }
+   }
+
+?>
+  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+  $DISP_REC_COUNT = 40;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"currency";
+ $sql            = "select * from rate_master left join currency_master on rate_master.currency=currency_master.currencyid ";
+   
+      if($_POST['searchvalue']!='')
+  {
+	  $searchvalue=$_POST['searchvalue'];
+	  $temp           = $temp." and (lower(currency_master.currencyname) like '$searchvalue%' or  lower(currency_master.currencycode) like '$searchvalue%')";
+  }
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no rates&nbsp; in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="10%" class="TableHeader"><b>Range From</b></td>
+                <td width="10%" class="TableHeader"><b>Range To</b></td>
+                <td width="20%" class="TableHeader"><b>Currency</b></td>
+                <td width="10%" class="TableHeader"><b>Exchange Rate</b></td>
+				<td width="25%" class="TableHeader"><b>Agent</b></td>
+				<td width="25%" class="TableHeader"><b>Corresponding Agent</b></td>
+                           
+				   <td width="2%" class="TableHeader"><b>Action</b></td>
+
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+$rateid      = (isset($row['rateid'])) ? $row['rateid'] : 0;
+  $currency      = (isset($row['currency'])) ? $row['currency'] : 0;
+    $rangefrom  = (isset($row['rangefrom'])) ? $row['rangefrom'] : "";
+        $rangeto = (isset($row['rangeto'])) ? $row['rangeto'] : "";
+		     $rate= (isset($row['rate'])) ? $row['rate'] : "";
+			 $agent= (isset($row['agent'])) ? $row['agent'] : "";
+			 $payingagent= (isset($row['payingagent'])) ? $row['payingagent'] : "";
+			 
+      
+  ?>
+
+ <tr><td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editrate')?>&rateid=<?php echo $rateid?>"><font color=darkblue><?php echo $rangefrom?>
+</a></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $rangeto?></td>
+<td width="20%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo getcurrencyname($currency)?></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo $rate?></td>
+<td width="25%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo getofficename($agent)?></td>
+<td width="25%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo getpayingagentname($payingagent)?></td>
+<?php  if($deleterights=='Y')
+    {    ?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('rates')?>&deleteaction=ratedelete&deleterateid=<?php echo $rateid?>"><img border="0" src="images/del_contact.gif" alt="delete record">
+</a></td>
+<? }
+else
+{?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"></td>
+<?
+}
+?>
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td class="Row" align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td class="Row" align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+
+         </table>
+         
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

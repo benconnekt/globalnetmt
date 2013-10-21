@@ -1,0 +1,168 @@
+<?
+include("header.html");
+if($_GET['type'] == "online")
+{
+	include("onlinesidemenu.html");
+}
+else
+{
+include("customersidemenu.html");
+}?>
+<form name=viewdocumentsform action=index.php enctype="multipart/form-data" method="post" >
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the document record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+</script>
+<?  if($userrole!='Administrator' && $superuserrights !='Y')
+   { ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for contact rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+ 
+   $Getcontactid=0;
+if(isset($_GET['contactid'])!="")
+   {
+   $Getcontactid=$_GET['contactid'];
+   }
+   else
+   {
+   $Getcontactid=$_POST['contactid'];
+   }
+
+
+if(isset($_GET['deleteaction'])=="delete")
+   {
+  if($_GET['imageid']!="")
+ {
+ deleteImage($_GET['imageid']);
+  display_message("<b><p align=center>Proof of Address/ID document information has been successfully deleted</font></p>");
+ }
+ }
+
+if($Getcontactid!='' && is_numeric($Getcontactid))
+{
+?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">List of Address/ID Documents</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row" valign=top>
+ <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<?php
+ $sql            = "select * from proof_images where contactid='$Getcontactid' ";
+ echo $sql;
+ $Result         = safe_query($sql) ;
+ $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $i=0;
+  $no=0;
+  if($noOfRecords==0)
+  {
+  print "<tr><td class=orange align=center colspan=6><i>Currently there are no Address/ID documents</td></tr>";
+  }
+  else
+  {
+  ?>
+     <tr style="HEIGHT: 25px" >  
+	  <td width="33%" class="TableHeader"><b><font color=white><b>Image</b></td>
+				<td width="20%" class="TableHeader"><b><font color=white><b>Document Type</b></td>
+				<td width="20%" class="TableHeader"><b><font color=white><b>Document No</b></td>
+				<td width="20%" class="TableHeader"><b><font color=white><b>Expiry</b></td>
+				<td width="20%" class="TableHeader"><b><font color=white><b>Verified By</b></td>
+				<td width="20%" class="TableHeader"><b><font color=white><b>Description</b></td>
+                <td width="5%" class="TableHeader"><b><font color=white><b>Action</a></b></td>
+
+                  </tr>
+<?  
+	while ($row = mysql_fetch_array($Result))
+	  {
+	$is_image = false;
+	$is_pdf = false;
+	$imagename      = (isset($row['imagename'])) ? $row['imagename'] : 0;
+    $imageid      = (isset($row['imageid'])) ? $row['imageid'] : 0;
+	 $documenttype      = (isset($row['documenttype'])) ? $row['documenttype'] : 0;
+	 $documentno      = (isset($row['documentno'])) ? $row['documentno'] : "";
+	 $documentexpiry      = (isset($row['documentexpiry'])) ? $row['documentexpiry'] : "";
+	 $verifiedby      = (isset($row['verifiedby'])) ? $row['verifiedby'] : "";
+	 $description      = (isset($row['description'])) ? $row['description'] : "";
+	 $actual_file = "proofimages/".$imagename;
+	 if($imagename=="")
+	  {
+	$imagename="noimage.gif";
+	  }
+	   $file="proofimages/".$imagename;
+    if(!file_exists($actual_file))
+		  {
+		$imagename="noimage.gif";
+		$imgstr = "<img src=\"proofimages/".$imagename."\" border=0 >";
+		  }
+		  else
+		  {
+		   $file_type = strrchr( $imagename, "." ); 
+           $is_image = eregi( "jpg|gif",$file_type ); 
+		   $is_pdf = eregi( "pdf",$file_type ); 
+		   if($is_image)
+			  {
+			   $imgstr = "<img src=\"proofimages/".$imagename."\" border=0 width=900>";
+			  }
+			  else
+			  {
+			$imgstr = "<a href=\"proofimages/".$imagename."\" target=\"_blank\">".$imagename."</a>";
+			  }
+
+		  }
+	 ?>
+     <tr> <td width="33%" class=Row valign=top >
+	 <? echo $imgstr; ?></td>
+	 <td width="20%"  class=Row valign=top ><? echo $documenttype?></td>
+	 <td width="20%"  class=Row valign=top ><? echo $documentno?></td>
+	 <td width="20%"  class=Row valign=top ><? echo changeddate($documentexpiry)?></td>
+	 <td width="20%"  class=Row valign=top ><? echo $verifiedby?></td>
+	 <td width="20%"  class=Row valign=top ><? echo $description?></td>
+	  <td valign=top width="5%"  class=Row >
+	  <?php if($deleterights=='Y')
+{ ?>
+	  <a onclick="return confirmSubmit()"  href="index.php?status=<?php echo base64_encode('viewdocuments')?>&contactid=<? echo $Getcontactid?>&imageid=<?echo $imageid?>&deleteaction=delete&type=<? echo $_GET['type']?>"><img src="images/del_contact.gif" border=0></a>
+	  <? } ?>
+   </td></tr>
+ <?
+  }// End of WHile
+  }
+  ?>
+  </table>
+ 
+  
+</td></tr></table>
+
+<? } else
+{
+	display_message("Please choose the customer from the list");
+} ?>
+					  </form>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

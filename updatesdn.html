@@ -1,0 +1,103 @@
+<? 
+include('header.html');
+ include('reportsidemenu.html');
+ ?>
+<form name=searchresultsform method=get action=index.php>
+<input type=hidden name=status value="<?php echo base64_encode('updatesdn')?>">
+
+<?
+if($userrole != 'Administrator')
+  { ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update SDN And Blocked Persons List</td>
+                    </tr>
+                   
+  </table>
+
+<?
+
+$sdn_csv = "http://www.treas.gov/offices/enforcement/ofac/sdn/delimit/sdn.csv";
+$add_csv = "http://www.treas.gov/offices/enforcement/ofac/sdn/delimit/add.csv";
+$alt_csv = "http://www.treas.gov/offices/enforcement/ofac/sdn/delimit/alt.csv";
+$sql   = "delete from ml_sdnlist";
+$Result1= safe_query($sql) ;
+$sql   = "delete from ml_addlist";
+$Result1= safe_query($sql) ;
+$sql   = "delete from ml_altlist";
+$Result1= safe_query($sql) ;
+$importsdn_array = importcsv($sdn_csv);
+for($i=0;$i<sizeof($importsdn_array);$i++) {
+	$data=$importsdn_array[$i];	
+	$entnum = trim(preg_replace ("/\'/", "\'", $data[0]));
+	$sdnname = trim(preg_replace ("/\'/", "\'", $data[1]));
+	$sdntype = trim(preg_replace ("/\'/", "\'", $data[2]));
+	$program = trim(preg_replace ("/\'/", "\'", $data[3]));
+	$title = trim(preg_replace ("/\'/", "\'", $data[4]));
+	$callsign = trim(preg_replace ("/\'/", "\'", $data[5]));
+	$vesstype = trim(preg_replace ("/\'/", "\'", $data[6]));
+	$tonnage = trim(preg_replace ("/\'/", "\'", $data[7]));
+	$grt = trim(preg_replace ("/\'/", "\'", $data[8]));
+	$vessflag = trim(preg_replace ("/\'/", "\'", $data[9]));
+	$vessowner = trim(preg_replace ("/\'/", "\'", $data[10]));
+	$remarks = trim(preg_replace ("/\'/", "\'", $data[11]));
+	addsdnentry($entnum,$sdnname,$sdntype,$program,$title,$callsign,$vesstype,$tonnage,$grt,$vessflag,$vessowner,$remarks);
+}
+
+$importadd_array = importcsv($add_csv);
+for($i=0;$i<sizeof($importadd_array);$i++) {
+	$data=$importadd_array[$i];	
+	$entnum = trim(preg_replace ("/\'/", "\'", $data[0]));
+	$addnum = trim(preg_replace ("/\'/", "\'", $data[1]));
+	$address = trim(preg_replace ("/\'/", "\'", $data[2]));
+	$city = trim(preg_replace ("/\'/", "\'", $data[3]));
+	$country = trim(preg_replace ("/\'/", "\'", $data[4]));
+	$addremarks = trim(preg_replace ("/\'/", "\'", $data[5]));
+	addaddentry($entnum,$addnum,$address,$city,$country,$addremarks);
+}
+
+$importalt_array = importcsv($alt_csv);
+for($i=0;$i<sizeof($importalt_array);$i++) {
+	$data=$importalt_array[$i];	
+	$entnum = trim(preg_replace ("/\'/", "\'", $data[0]));
+	$altnum = trim(preg_replace ("/\'/", "\'", $data[1]));
+	$alttype = trim(preg_replace ("/\'/", "\'", $data[2]));
+	$altname = trim(preg_replace ("/\'/", "\'", $data[3]));
+	$remarks = trim(preg_replace ("/\'/", "\'", $data[4]));
+	addaltentry($entnum,$altnum,$alttype,$altname,$remarks);
+}
+
+display_message("SDN Names, Addresses and Alternate Names list has been updated");
+?> 
+
+ <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

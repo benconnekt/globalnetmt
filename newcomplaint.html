@@ -1,0 +1,66 @@
+<? include('header.html');   ?>
+ <? include('complaintsidemenu.html'); ?>
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+<?php  if($officerights!='Y' || $addrights!='Y')
+  {  ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office and add rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+<? if($_POST['saletype']!= "" && $_POST['orderid']!= "" && $_POST['question']!= "" && $_POST['lastupdated'])
+   {
+ $complaintdate = date('Y-m-d');  
+ $complainttime = date("H:i:s"); 
+  $insertSQL = "INSERT INTO complaints
+  (orderid,saletype,question,answer,lastupdated,complaintdate,complainttime,readstatus)
+  VALUES ('$orderid','$saletype','$question','$answer','$lastupdated','$complaintdate','$complainttime','N')";
+
+ //echo $insertSQL;
+  $Result1 = mysql_query($insertSQL) or die(mysql_error());
+  display_message( "<b><p align=center>Complaint information has been successfully added</p>");
+ }
+else
+   {
+   display_message( "<b><p align=center>Error: There is a problem. Some fields are missing</p>");
+   }
+
+   
+   ?>
+   
+   
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

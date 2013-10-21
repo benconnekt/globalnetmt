@@ -1,0 +1,142 @@
+<? include('header.html');
+ include('sidemenu.html');
+
+ ?>
+<form name=editgroupform method=post action=index.php>
+<script language=javascript>
+function validateForm(theForm)
+{
+     if (!validRequired(theForm.name,"Group Name"))
+                return false;
+    
+        return true;
+}
+function saveinfo()
+{
+	if(validateForm(document.editgroupform))
+{
+document.editgroupform.action="index.php?status=<?php echo base64_encode('editgroup')?>&action=editgroup";
+document.editgroupform.submit();
+}
+}
+</script>
+ <?php  if($customerrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for customer rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+ <?
+
+ if(isset($_GET['action'])=="editgroup")
+   {
+  editgroup();
+
+   }
+   $Getgroupid=0;
+if(isset($_GET['groupid'])!="")
+   {
+   $Getgroupid=$_GET['groupid'];
+   }
+  if(isset($_POST['groupid'])!="")
+   {
+   $Getgroupid=$_POST['groupid'];
+   }
+   $sql            = "select groupid,name,description,division,region,siccode,industry,revenue
+  from group_master ";
+
+
+  $temp           = "  where groupid='".$Getgroupid."'";
+
+
+  $sql            = $sql.$temp;
+
+ $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result);
+  ?>
+
+  <?   if($noOfRecords==0)
+  { ?>
+
+ <br>
+  <b> No record was found for the group </b>
+
+ <?php
+ }
+  else
+ {
+
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+
+  $groupid      = (isset($row['groupid'])) ? $row['groupid'] : 0;
+   $name      = (isset($row['name'])) ? $row['name'] : "";
+  $description      = (isset($row['description'])) ? $row['description'] : "";
+  $division      = (isset($row['division'])) ? $row['division'] : "";
+  $region        = (isset($row['region'])) ? $row['region'] : "";
+  $siccode  = (isset($row['siccode'])) ? $row['siccode'] : "";
+   $revenue  = (isset($row['revenue'])) ? $row['revenue'] :"";
+    $industry  = (isset($row['industry'])) ? $row['industry'] :"";
+
+  }
+  ?>
+
+     <input class=text  class=text  type=hidden name=status value="<?php echo base64_encode('editgroup')?>">
+<input class=text  class=text  type=hidden name=groupid value="<?php echo $Getgroupid ?>">
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Update Group Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+    <table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+      <tr>
+        <td width="13%" valign="top">Name</td>
+        <td width="30%" valign="top">
+    <b>
+    <input class=text  class=text  id="name"  value="<?php echo stripslashes($name)?>" name="name" size="30"></b></td>
+        <td width="17%" valign="top">Description</td>
+        <td width="40%" valign="top">
+    <b>
+    <textarea id="description" name="description" size="30" rows="3" cols="26"><?php echo stripslashes($description)?></textarea></b></td>
+      </tr>
+     
+    </table>
+     <? if ($updaterights=='Y')
+    {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Group" >
+      <?}
+      else {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Update Group" disabled>
+      <?}?>
+    </form>
+    
+
+    <? }?>
+    </td>
+    </tr>
+    </table>
+      </td>
+  </tr>
+ <? include('footer.html');   ?>

@@ -1,0 +1,196 @@
+ <? include('header.html');
+
+ if($type=="customer")
+ {
+ include('onlinesidemenu.html');
+ }
+ else
+ {
+ include('usersidemenu.html');
+ }
+
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the event record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.eventsform.displayPageNo.value=val;
+        document.eventsform.action="index.php?status=<?php echo base64_encode('viewevents')?>&PAGE="+val;
+        document.eventsform.submit();
+        }
+</script>
+
+<form name="eventsform" action="index.php" method="get">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=status value="<?php echo base64_encode('viewevents')?>">
+<?php  if($usersrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for system rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+ <?
+ if(isset($_GET['deleteaction'])=="eventdelete")
+   {
+	   $deleteeventid=$_GET['deleteeventid'];
+  if($deleteeventid!="")
+ {
+	  
+ $sql   = "delete from event_master where eventid= '$deleteeventid'";
+//echo $sql;
+ $Result1= safe_query($sql) ;
+  display_message(  "<font color=darkblue><b><p align=center>Event Information has been successfully deleted</font></p></b>");
+ }
+   }
+
+?>
+  <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+  $DISP_REC_COUNT = 1000;  // No of rows appearing per page
+  if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"eventname";
+ $sql            = "select * from event_master where eventid is not null ";
+  if($_REQUEST['contactid']!='')
+  {
+  $temp           = $temp." and (eventcustomerid = '".$_REQUEST['contactid']."')";
+  }
+    if($_POST['searchvalue']!='')
+  {
+	  $searchvalue=$_POST['searchvalue'];
+	  $temp           = $temp." and (lower(eventname) like '$searchvalue%' or  lower(eventdescription) like '$searchvalue%')";
+  }
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+//echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no events&nbsp; in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="10%" class="TableHeader"><b>Event name</b></td>
+                <td width="50%" class="TableHeader"><b>Event Description</b></td>
+				<td width="10%" class="TableHeader"><b>Event Type</b></td>
+				  <td width="2%" class="TableHeader"><b>Action</b></td>
+
+              </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+
+  $eventid      = (isset($row['eventid'])) ? $row['eventid'] : 0;
+    $eventname  = (isset($row['eventname'])) ? $row['eventname'] : "";
+        $eventdescription = (isset($row['eventdescription'])) ? $row['eventdescription'] : "";
+		$eventtype = (isset($row['eventtype'])) ? $row['eventtype'] : "";
+	  
+  ?>
+
+ <tr><td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editevent')?>&eventid=<?php echo $eventid?>"><font color=darkblue><?php echo stripslashes($eventname)?>
+</a></td>
+<td width="50%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes(nl2br($eventdescription))?></td>
+<td width="10%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes(nl2br($eventtype))?></td>
+
+<?php  if($deleterights=='Y')
+    {    ?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('viewevents')?>&deleteaction=eventdelete&deleteeventid=<?php echo $eventid?>"><img border="0" src="images/del_contact.gif" alt="delete record">
+</a></td>
+<? }
+else
+{?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"></td>
+<?
+}
+?>
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td class="Row" align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td class="Row" align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+
+         </table>
+         
+
+         </form>
+
+     </td>
+  </tr>
+ <? include('footer.html');   ?>

@@ -1,0 +1,222 @@
+<? include('header.html');
+ include('accountssidemenu.html');
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+
+?>
+ <?php  if($superuserrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for super user rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+<form name=paymentsform method=post action=index.php>
+ <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+ function generatesalesreport()
+    {
+        document.paymentsform.action="index.php?status=<?php echo base64_encode('allagentcommissionsummary')?>";
+        document.paymentsform.submit();
+        }
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('allagentcommissionsummary')?>">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=pageAction >
+ <?
+ $today = date("d/m/Y");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+ $startsalesdate  = (isset($_POST['startsalesdate'])) ? $_POST['startsalesdate'] : $lastmonth;
+  $selagent  = (isset($_POST['selagent'])) ? $_POST['selagent'] : $agentid;
+ $endsalesdate  = (isset($_POST['endsalesdate'])) ? $_POST['endsalesdate'] : $today;
+
+
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">All Agent Commission Report</span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+
+						<table border="0" cellpadding="2" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+
+  
+  <tr>
+    <td width="25%"  valign="top"><b>Choose start and end date  </td>
+ <td width="25%"   valign="top">
+<INPUT TYPE="text" readonly NAME="startsalesdate" id='startsalesdate' VALUE="<?php echo $startsalesdate?>" size=10>
+<A HREF="#" onClick="calobject.select(document.paymentsform.startsalesdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="25%"   valign="top"><INPUT TYPE="text" readonly NAME="endsalesdate" id='endsalesdate'  VALUE="<?php echo $endsalesdate?>" size=10>
+<A HREF="#" onClick="calobject.select(document.paymentsform.endsalesdate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+ <td width="25%"    valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get All Agent Commission Report" class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:generatesalesreport()" ></td>
+
+ 
+  </tr>
+    
+  </table>
+ 
+					  </TD>
+					  </TR>
+					  </TABLE>
+					  <BR>
+ 
+  <?
+  if($userrole=='Administrator')
+ {
+ $queryagent = $selagent;
+ }
+ else
+ {
+ $queryagent = $agentid;
+ }
+     $DISP_REC_COUNT = 50;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+  $startsalesdate = dateConvert($startsalesdate);
+$endsalesdate = dateConvert($endsalesdate);
+
+ $dataOrder      = isset($dataOrder)?$dataOrder:"agentname";
+ 
+$sql            = "select * from agent_master where  agenttype!='collectionpoint'";
+ 
+ $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+  
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+   
+ ?>
+      <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no agents in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+ <tr>
+                 <td width="12%" class="TableHeader"><b>Agent Name</b></td>
+               <td width="12%" class="TableHeader"><b>Total Transfer Amount</b></td>
+			    <td width="12%" class="TableHeader"><b>Total Agent Commission Amount</b></td>
+			  <td width="12%" class="TableHeader"><b>Total Company Commission Amount</b></td>
+			 </tr>
+
+  <?php
+
+  $i=0;
+  $no=0;
+  $totalallsales=0;
+    while ($row = mysql_fetch_array( $Result))
+  {
+
+$agentid     = (isset($row['agentid'])) ? $row['agentid'] : 0;
+$agentpaymenttype     = (isset($row['agentpaymenttype'])) ? $row['agentpaymenttype'] : "";
+$agentname     = (isset($row['agentname'])) ? $row['agentname'] : "";
+$agentmobile     = (isset($row['agentmobile'])) ? $row['agentmobile'] : "";
+$agenttelephone     = (isset($row['agenttelephone'])) ? $row['agenttelephone'] : "";
+$lockstatus     = (isset($row['lockstatus'])) ? $row['lockstatus'] : "";
+
+$agentopeningbalance     = (isset($row['agentopeningbalance'])) ? $row['agentopeningbalance'] : 0;
+  $agentcommission = (isset($row['commission'])) ? $row['commission'] : "";
+		   $agentcommission1 = (isset($row['commission1'])) ? $row['commission1'] : "";
+		    $commcountry = (isset($row['commcountry'])) ? $row['commcountry'] : "";
+$salesamount=getagentsalestotal($agentid,$startsalesdate,$endsalesdate);
+$commissionamount=getagentcommissiontotal($agentid,$startsalesdate,$endsalesdate);
+$earnedcommission=getagentearnedcommissiontotal($agentid,$commcountry,$agentcommission1,$agentcommission,$startsalesdate,$endsalesdate);
+
+  ?>
+  
+
+  <tr><td class="Row" width="10%" bgcolor="<?php echo $bgcolor?>">
+ <?php echo $agentname?></a></td>
+ <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format(($salesamount),2)?></td>
+ <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format(($earnedcommission),2)?></td>
+ <td class="Row" width="12%" bgcolor="<?php echo $bgcolor?>">£ <? echo number_format((($commissionamount-$earnedcommission)),2)?></td>
+ 
+ </tr>
+ 
+   <? 
+  }
+ }?>
+
+
+</table>
+
+   </form>
+   <form name="queryform" action="reportprintableview.php" method="post" target=_blank>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="queryagent" value="<?php echo $queryagent?>">
+<input type=hidden name="title" value="All Agent Commission Report">
+<input type=hidden name="reporttype" value="allagentcommissionsummary">
+<input align=center type="submit"  name="cmd_Submit3" value="Printable View" class=btn3 >
+
+</form>
+
+<form name="queryform" action="reportprintableview.php?type=excel" method="post" target=exportframe>
+<input type=hidden name="query" value="<?php echo $reportquery?>">
+<input type=hidden name="startsalesdate" value="<?php echo $startsalesdate?>">
+<input type=hidden name="endsalesdate" value="<?php echo $endsalesdate?>">
+<input type=hidden name="queryagent" value="<?php echo $queryagent?>">
+<input type=hidden name="reporttype" value="allagentcommissionsummary">
+<input type=hidden name="title" value="All Agent Commission Report">
+<input align=center type="submit"  name="cmd_Submit3" value="Export to Excel" class=btn3 >
+
+</form>
+<iframe src="" width=0 height=0 name=exportframe></iframe>
+
+
+  
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>

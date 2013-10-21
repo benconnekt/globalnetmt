@@ -1,0 +1,183 @@
+<? include('header.html');
+ include('sidemenu.html');
+
+ ?>
+  <?
+ if(isset($HTTP_GET_VARS['deleteaction'])=="groupdelete")
+   {
+  if($groupid!="")
+ {
+ $sql   = "delete from group_master where groupid= '$groupid'";
+ $Result1= safe_query($sql) ;
+  display_message( "<font color=darkblue><b><p align=center>Group information has been successfully deleted</font></p></b>");
+ }
+   }
+ ?>
+<script language=javascript>
+function confirmSubmit()
+{
+var agree=confirm("Do you wish to delete the group record ?");
+if (agree)
+        return true ;
+else
+        return false ;
+}
+function nextPage(val)
+    {
+        document.groupform.displayPageNo.value=val;
+        document.groupform.action="index.php?status=<?php echo base64_encode('groups')?>&PAGE="+val;
+        document.groupform.submit();
+        }
+</script>
+
+<form name="groupform" action="index.php" method="get">
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=status value="<?php echo base64_encode('groups')?>">
+   <?php
+ $DISP_REC_COUNT = 20;  // No of rows appearing per page
+ if($_POST['displayPageNo']!='')
+  {
+ $displayPageNo= $_POST['displayPageNo'];
+  }
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"name";
+ $sql            = "select groupid,name,description,division,region,siccode,industry,revenue
+  from group_master where userofficeid='$agentid'";
+
+  if($HTTP_GET_VARS['txt_search']!='' && $HTTP_GET_VARS['option']!='')
+  {
+  $parameter=$HTTP_GET_VARS['option'];
+  $value=$HTTP_GET_VARS['txt_search'];
+  $temp           = $temp." where ".$parameter ." like  '%".$value."%'";
+  }
+  $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+
+  ?>
+
+ <?php  if($customerrights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td background="images/table_header_bkg.gif"><span class="tableHeaderText style5">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for customer rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+
+   <table border="0" cellpadding="3" cellspacing="1" class="tableBorder" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1">
+<tr style="HEIGHT: 25px">
+
+<?php
+
+  if($noOfRecords==0)
+  { ?>
+
+  <tr>
+  <td width="14%">
+  <b> Currently there are no groups in the system </b>
+  </td>
+                   </tr>
+ <?php }
+  else
+ {  ?>
+  <tr>
+                 <td width="14%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Group Name</b></td>
+                <td width="14%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Description</b></td>
+				 <td width="2%" background="images/table_header_bkg.gif" class="tableHeaderText style5"><b>Action</b></td>
+               
+                  </tr>
+  <?php
+
+  $i=0;
+  $no=0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+
+   $i++;
+    $no=$no+1;
+   $bgcolor       = ($i % 2) ? "#EAEAEA" : "#eeeeee";
+   $fontcolor       = ($i % 2) ? "#EAEAEA" : "#EAEAEA";
+
+
+      if(($no>($displayPageNo-1)*$DISP_REC_COUNT) and ($no<=$displayPageNo*$DISP_REC_COUNT ))
+       {
+
+
+  $groupid      = (isset($row['groupid'])) ? $row['groupid'] : 0;
+   $name      = (isset($row['name'])) ? $row['name'] : "";
+  $description      = (isset($row['description'])) ? $row['description'] : "";
+  $division      = (isset($row['division'])) ? $row['division'] : "";
+  $region        = (isset($row['region'])) ? $row['region'] : "";
+  $siccode  = (isset($row['siccode'])) ? $row['siccode'] : "";
+   $revenue  = (isset($row['revenue'])) ? $row['revenue'] :"";
+    $industry  = (isset($row['industry'])) ? $row['industry'] :"";
+
+  ?>
+
+ <tr><td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a href="index.php?status=<?php echo base64_encode('editgroup')?>&groupid=<?php echo $groupid?>"><font color=darkblue><?php echo stripslashes($name)?>
+</a></td>
+<td width="14%" class="Row"  bgcolor="<?php echo $bgcolor?>"><? echo stripslashes($description)?></td>
+<?php if($deleterights=='Y')
+{ ?>
+<td width="2%" class="Row"  bgcolor="<?php echo $bgcolor?>"><a onclick="return confirmSubmit()" href="index.php?status=<?php echo base64_encode('groups')?>&deleteaction=groupdelete&groupid=<?php echo $groupid?>"><img border="0" src="images/del_contact.gif" alt="delete record" >
+</a></td>
+<? }
+else
+{?>
+ <td width="2%"  valign=top class="Row"  bgcolor="<?php echo $bgcolor?>"> &nbsp;
+</td>
+<? }?>
+              </tr>
+   <?
+              }
+         }
+         if ((int)($displayPageNo)>1)
+          {?>
+
+          <td class="Row" width=100% colspan=6 align=left><b><a href="JavaScript:nextPage(<?echo($displayPageNo-1);?>)" target=_self>
+
+          <font color="#003399" size="2"><img src=images/prev.jpg alt=prev border=0></font></a></b></td>
+        <?}
+        // -- Last page has no next
+        if ((int)($displayPageNo)!=(int)($noOfPages))
+         {
+         if(($noOfRecords)!=0)
+         {?>
+
+           <td class="Row" width=100% colspan=6 align=right><b><a href="JavaScript:nextPage(<?echo($displayPageNo+1);?>)" target="_self">
+           <font color="#003399" size="2"><img src=images/next.jpg alt=next border=0></font></a></b></td>
+        <?php }}
+
+      }
+         ?>
+         </table>
+         </form>
+
+ <? include('footer.html');   ?>

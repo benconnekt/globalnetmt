@@ -1,0 +1,430 @@
+<?php
+
+if($_GET['agentid']!="")
+{
+	$agentid=$_GET['agentid'];
+}
+ $selcontactid="";
+if(isset($_GET['selcontactid'])!="")
+   {
+   $selcontactid=$_GET['selcontactid'];
+   }
+   else
+   {
+   $selcontactid=$_POST['selcontactid'];
+   }
+  
+$title = "Update Orders ";
+include('header.html');
+include('reportsidemenu.html');
+
+ ?>
+<form name=mtsalesform method=post action=index.php?status=<?php echo base64_encode('updateforex')?>>
+
+<?
+ if($_GET['update']=="collection")
+   {
+ if(is_array($update_orders) && strlen($forexid))
+ {
+ 
+ for($k=0;$k<count($update_orders);$k++)
+	 {
+ $saleid=$update_orders[$k];
+
+  $sql1            = "select saleid,benamount,orderamount,exchangerate from sales_master where saleid='$saleid'";
+	//echo $sql1;
+	$Result1 = safe_query($sql1) ;
+    while ($row1      = mysql_fetch_array( $Result1))
+     {
+	$benamount=$row1['benamount'];
+	$orderamount=$row1['orderamount'];
+	$exchangerate=$row1['exchangerate'];
+	 }
+	$forexbalanceamount = getbalanceamountbyforexid($forexid);
+	if(round($benamount,2)>round($forexbalanceamount,2) && round($forexbalanceamount,2)>0)
+	{
+		$firstbenamount = $forexbalanceamount;
+		$firstforexid = $forexid;
+		$firstorderamount = $firstbenamount/$exchangerate;
+		
+		$firstprofit = getforexprofitfororderbypaymentid($firstforexid,$firstorderamount,$exchangerate);
+		$firstlocalprofit = getlocalforexprofitfororderbypaymentid($firstforexid,$firstorderamount,$exchangerate);
+
+		$firstbrokerprofit = getbrokerforexprofitfororderbypaymentid($firstforexid,$firstorderamount,$exchangerate);
+		$firstbrokerlocalprofit = getbrokerlocalforexprofitfororderbypaymentid($firstforexid,$firstorderamount,$exchangerate);
+		
+		$secondbenamount = $benamount - $forexbalanceamount;
+		$secondforexid = getalternativefoxedid($forexid,$selpayingagent,$secondbenamount);
+		
+		$secondorderamount = $secondbenamount/$exchangerate;
+		$secondprofit = getforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondlocalprofit = getlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+
+		$secondbrokerprofit = getbrokerforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondbrokerlocalprofit = getbrokerlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+	
+	}
+	elseif(round($benamount,2)>round($forexbalanceamount,2))
+		{
+			$secondforexid = getalternativefoxedid($forexid,$selpayingagent,$benamount);
+			$secondorderamount = $orderamount;
+			$secondbenamount = $benamount;
+			$secondprofit = getforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondlocalprofit = getlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+
+		$secondbrokerprofit = getbrokerforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondbrokerlocalprofit = getbrokerlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		}
+	else
+	{
+	$secondorderamount = $orderamount;
+	$secondbenamount = $benamount;
+    $secondforexid = $forexid;
+	
+	   $secondprofit = getforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondlocalprofit = getlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+
+		$secondbrokerprofit = getbrokerforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+		$secondbrokerlocalprofit = getbrokerlocalforexprofitfororderbypaymentid($secondforexid,$secondorderamount,$exchangerate);
+	}
+		
+		$delete_order_id_sql = "delete from forex_orders where saleid='$saleid';";
+	   mysql_query($delete_order_id_sql) ;
+
+	 if(is_numeric($firstforexid))
+		{
+		
+       $update_order_id_sql = "insert into forex_orders(forexid,benamount,forexprofit,saleid,localforexprofit,brokerprofit,brokerlocalprofit) values ('".$firstforexid."','$firstbenamount','$firstprofit','".$saleid."','$firstlocalprofit','$firstbrokerprofit','$firstbrokerlocalprofit')";
+	   mysql_query($update_order_id_sql) ;
+		}  
+	if(is_numeric($secondforexid))
+		{
+	   $update_order_id_sql = "insert into forex_orders(forexid,benamount,forexprofit,saleid,localforexprofit,brokerprofit,brokerlocalprofit) values ('".$secondforexid."','$secondbenamount','$secondprofit','".$saleid."','$secondlocalprofit','$secondbrokerprofit','$secondbrokerlocalprofit')";
+	 mysql_query($update_order_id_sql) ;
+		}
+
+	
+  }
+display_message(  "<b><p align=center>The selected orders have been updated with the new Corresponding Agent Payment Record</font></p>");
+ }
+ }
+
+   $today = date("Y-m-d");
+ $lastmonth= date ("d/m/Y", mktime (0,0,0,date("m")-1,date("d"),  date("Y")));
+
+ $startsalesdate  = (isset($startsalesdate)) ? $startsalesdate : $lastmonth;
+ $endsalesdate  = (isset($endsalesdate)) ? $endsalesdate : $today;
+$constartsalesdate  = (isset($constartsalesdate)) ? $constartsalesdate : $lastmonth;
+ $conendsalesdate  = (isset($conendsalesdate)) ? $conendsalesdate : $today;
+ $supstartsalesdate  = (isset($supstartsalesdate)) ? $supstartsalesdate : $lastmonth;
+ $supendsalesdate  = (isset($supendsalesdate)) ? $supendsalesdate : $today;
+  $txt_search  = (isset($txt_search)) ? $txt_search : "Search Criteria";
+if($_GET['pageAction']!='')
+ {
+ $pageAction=$_GET['pageAction'];
+ }
+ else
+ {
+ if($_POST['pageAction']!='')
+ {
+ $pageAction=$_POST['pageAction'];
+ }
+ }
+if($_POST['agentid'])
+  {
+	   $agentid=$_POST['agentid'];
+  }
+   ?>
+   <SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language="javascript">
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+
+ function confirmSubmit(val)
+{
+	var message;
+	if(val=='ibbl')
+	{
+	message = "Do you wish to update the selected orders with the new IBBL/SJIBL no?";
+	if (!validRequired(document.mtsalesform.newidno,"IBBL/SJIBL No"))
+    return false;
+	}
+	if(val=='collection')
+	{
+	message = "Do you wish to update the selected orders with the new Corresponding Agent Payment Record?";
+	if (!validRequired(document.mtsalesform.forexid,"Corresponding Agent Payment Record"))
+	return false;
+	}
+var agree=confirm(message);
+if (agree)
+	{
+		 document.mtsalesform.action="index.php?status=<?php echo base64_encode('updateforex')?>&&update="+val;
+       document.mtsalesform.submit();
+        //return true ;
+	}
+else
+	{
+        return false ;
+	}
+}
+    function nextPage(val)
+    {
+        document.mtsalesform.displayPageNo.value=val;
+        document.mtsalesform.action="index.php?status=<?php echo base64_encode('updateforex')?>&PAGE="+val;
+        document.mtsalesform.submit();
+        }
+        function generatesalesreport(val){
+        document.mtsalesform.pageAction.value=val;
+        document.mtsalesform.submit();
+    }
+     
+
+     function pageOrder(val){
+        document.mtsalesform.dataOrder.value=val;
+        document.mtsalesform.submit();
+    }
+	function checkAll()
+{
+for (var i=0;i<document.mtsalesform.elements.length;i++)
+	{
+		var e=document.mtsalesform.elements[i];
+		if ((e.name != 'allbox') && (e.type=='checkbox'))
+		{
+			e.checked=document.mtsalesform.allbox.checked;
+		}
+	}
+}
+        </script>
+
+<input type=hidden name=displayPageNo value="1">
+<input type=hidden name=dataOrder value="<?php echo $dataOrder?>">
+<input type=hidden name=pageAction  value="<?php echo $pageAction ?>">
+<input type=hidden name=status value="<?php echo base64_encode('updateforex')?>">
+<input type=hidden name=reporttype value="<?php echo $reporttype ?>">
+
+
+<?
+if($updateorders_rights != 'Y'  && $superuserrights != 'Y')
+  {  ?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+
+?>
+
+      
+        <?
+$today = getdate();
+$datetoday=date('d/m/Y');
+
+
+if($_GET['dataOrder']!='')
+ {
+ $dataOrder=$_GET['dataOrder'];
+ }
+ else
+ {
+ if($_POST['dataOrder']!='')
+ {
+ $dataOrder=$_POST['dataOrder'];
+ }
+ else
+ {
+ $dataOrder="orderdate,ordertime";
+ }
+ }
+
+
+ if($_GET['startdate']!='')
+ {
+ $startdate=$_GET['startdate'];
+ }
+ else
+ {
+ if($_POST['startdate']!='')
+ {
+ $startdate=$_POST['startdate'];
+ }
+ else
+ {
+ $startdate=$lastmonth;
+ }
+ }
+
+  if($_GET['enddate']!='')
+ {
+ $enddate=$_GET['enddate'];
+ }
+ else
+ {
+ if($_POST['enddate']!='')
+ {
+ $enddate=$_POST['enddate'];
+ }
+ else
+ {
+ $enddate=$datetoday;
+ }
+ }
+ 
+?>
+ <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader"><? echo $pagetitle?> </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+ <table border="0" cellspacing="1" cellpadding="1" style="border-collapse: collapse" bordercolor="#808080" id="AutoNumber2" >
+
+
+<tr>
+<td width="20%" valign=top><b>Select the Corresponding Agent</b></td>
+<td width="20%" valign=top><? echo getpayingagents("selpayingagent",$selpayingagent,"","")?></td>
+</tr>
+<tr>
+  <td width="25%" valign="top"><b>Filter by Status</b></td>
+ <td width="25%"  valign="top"><select name=selstatus>
+ <option value="Confirmed" <? echo ($selstatus=='Confirmed')?"selected":""?>>Confirmed</option>
+ <option value="Ordered" <? echo ($selstatus=='Ordered')?"selected":""?>>Ordered</option>
+ <option value="Hold" <? echo ($selstatus=='Hold')?"selected":""?>>Hold</option>
+ <option value="Processed" <? echo ($selstatus=='Processed')?"selected":""?>>Processed</option>
+ <option value='' <? echo ($selstatus=='')?"selected":""?>>All</option></select></td>
+</tr>
+
+<?
+//	 echo "the report type is ".$pageAction;
+ $startdate = dateConvert($startdate);
+ $enddate = dateConvert($enddate);
+ ?>
+<tr>
+<td width="20%" valign=top><b>Select the Payment Record</b></td>
+<td width="20%" valign=top><? echo getcorrespondingagentpayments("selforexid",$selforexid,"",$startdate,$enddate)?></td>
+ <td width="20%" valign="top">
+  <td width="20%"   valign="top">
+    <input type="button"  name="cmd_Submit1" value="Get Orders" class=btn3 onclick="javascript:generatesalesreport('dailysales')" ></td>
+
+  </tr>
+ <?
+//	 echo "the report type is ".$pageAction;
+ $startdate1 = changeddate($startdate);
+ $enddate1 = changeddate($enddate);
+ ?>
+   <tr>
+  <td width="20%" valign="top"><b>Select the start date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="startdate" VALUE="<?php echo $startdate1?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.startdate,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+<td width="20%" valign="top"><b>Select the end date</b></td>
+ <td width="20%"  valign="top">
+<INPUT TYPE="text" readonly NAME="enddate" VALUE="<?php echo $enddate1?>" SIZE=10>
+<A HREF="#" onClick="calobject.select(document.mtsalesform.enddate,'anchor2','dd/MM/yyyy'); return false;" NAME="anchor2" ID="anchor2"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</td>
+</tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+<? if($selpayingagent == "")
+  {
+	  display_message("<b> Choose the corresponding agent to get the orders.</b>");
+	  include("footer.html");
+	  exit();
+  }?>
+ <table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="100%" id="AutoNumber1" height="1">
+    <tr>
+      <td width="100%" height="1"  valign="top">
+     <?php
+
+ $DISP_REC_COUNT =200;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"orderdate";
+
+ 
+ $temp        = " and a.orderstatus in ('Ordered','Confirmed','Processed')  and a.payingagent='$selpayingagent' ";
+
+ 
+ if(strlen($selforexid))
+ {
+	 $temp = $temp. " and fo.forexid='$selforexid'  ";
+ }
+ else
+ {
+	 $temp = $temp. " and fo.forexid is null and orderdate >='$startdate' and orderdate <='$enddate'  ";
+ }
+
+ if(strlen($selstatus))
+ {
+	 $temp = $temp." and a.orderstatus='$selstatus' ";
+ }
+ if($_POST['searchvalue']!='')
+  {
+  $searchvalue=strtolower($_POST['searchvalue']);
+  $temp           = $temp." and ( lower(orderid)='$searchvalue' or lower(b.surname) like '%$searchvalue%' or lower(b.firstname) like '%$searchvalue%' or lower(c.surname) like '%$searchvalue%' or lower(c.firstname) like '%$searchvalue%') ";
+  }
+
+  $reportquery = getMoneyTransferOrdersQuery($temp,"updateorders");
+ //echo $reportquery;
+  echo getMoneyTransferOrders($temp,"updateorders",false,"",$deleterights);
+ 
+  ?>
+
+<table width="100%"  border="0" cellpadding="0" cellspacing="0">
+  
+  <tr>
+  <td align=right>
+  <input type="checkbox" value="on" name="allbox" onclick="checkAll();"/> Check all
+
+</td></tr>
+     </table>
+	<BR>
+<BR>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    
+    
+	   <tr>
+	   <td width="50%" height="1"  class="Row" valign="top">Choose new Corresponding Agent Payment Record</td>
+	   <td width="50%" height="1" class="Row" valign="top"><? 
+	   echo getcorrespondingagentpayments("forexid",$forexid,$selpayingagent,$startdate,$enddate);
+	   ?></td>
+	   </tr>
+	   <tr>
+	   <td width="100%" colspan=2 valign="top" class="Row"><input type=button name=c2 class=btn3 onclick="confirmSubmit('collection')" value="Update Corresponding Agent Payment Record for Selected Orders"></td>
+	  </tr>
+	  </table>
+	
+      </td>
+    </tr>
+    </table>
+        </center>
+      </div>
+    
+   <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+ 
+</form>
+
+  </td>
+ </tr>
+ <? include('footer.html');   ?>

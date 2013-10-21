@@ -1,0 +1,232 @@
+<? include('header.html');
+ include('sidemenu.html');
+ $datetoday = date("d/m/Y");
+ ?>
+
+<form name=newnoteform method=post action=index.php>
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+
+
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+function saveinfo()
+{
+document.newnoteform.action="index.php?status=<?php echo base64_encode('newmeeting')?>&action=addnew";
+document.newnoteform.submit();
+}
+function getinfo()
+{
+document.newnoteform.withcontact.value=document.newnoteform.selectwith.options[document.newnoteform.elements['selectwith'].options.selectedIndex].value;
+}
+</script>
+<input class=text  type=hidden name=status value="<?php echo base64_encode('newmeeting')?>">
+  <?php  if($officerights!='Y')
+  { ?>
+    <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for office rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+
+  <? exit;
+}
+ ?>
+ <?
+ if(isset($_GET['action'])=="addnew")
+   {
+  addschedule();
+ // include("notesmanager.html");
+  exit;
+   }
+  ?>
+
+
+<table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Add Appointment Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+<table border="0" cellpadding="3" cellspacing="3" style="border-collapse: collapse" bordercolor="#111111" width="90%" id="AutoNumber2">
+      <tr>
+        <td width="13%" valign="top" height="40">Activity Type</td>
+        <td width="30%" valign="top" height="40">
+    <b>
+    <select id="activity_type" tabIndex="3" name="activity_type">
+   <? if($activity_type!='')
+    {?>
+    <option value="<?php echo $activity_type?>" selected><?php echo $activity_type?></option>
+    <?
+    } ?>
+    <option value="Meeting">Meeting</option>
+    <option value="Call">Call</option>
+    <option value="Todo">Todo</option>
+    </select></b></td>
+        <td width="17%" valign="top" height="40">Regarding</td>
+        <td width="40%" valign="top" height="40">
+    <b>
+    <textarea id="regarding" tabIndex="14" name="regarding" size="30" rows="3" cols="26"></textarea></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top" height="40">Date</td>
+        <td width="30%" valign="top" height="40">
+    <b>
+   <input class=text  TYPE="text" readonly NAME="date" VALUE="<?php echo $datetoday?>" SIZE=25>
+<A HREF="#" onClick="calobject.select(document.newnoteform.date,'anchor1','dd/MM/yyyy'); return false;" NAME="anchor1" ID="anchor1"><img border="0" src="images/calendar.gif" width="24" height="24"></A>
+</b></td>
+        <td width="17%" valign="top" height="40">Details</td>
+        <td width="40%" valign="top" height="40">
+    <b>
+    <textarea id="details" tabIndex="14" name="details" size="30" rows="10" cols="40"></textarea></b></td>
+      </tr>
+     <tr>
+        <td width="13%" valign="top" height="13">Time</td>
+        <td width="30%" valign="top" height="13">
+    <select language="javascript" class="cbotime" id="hours"  name="hours">
+    <? if($_GET['hours']!='')
+    { ?>
+     <option value="<?php echo $_GET['hours']?>" selected><?php echo $_GET['hours']?></option>
+   <? }  ?>
+    <option value="01">01</option>
+    <option value="02">02</option>
+    <option value="03">03</option>
+    <option value="04">04</option>
+    <option value="05">05</option>
+    <option value="06">06</option>
+    <option value="07">07</option>
+    <option value="08">08</option>
+    <option value="09">09</option>
+    <option value="10">10</option>
+    <option value="11">11</option>
+    <option value="12">12</option>
+    </select>
+    <select language="javascript" class="cbotime" id="minutes" name="minutes">
+     <? if($_GET['minutes']!='')
+    { ?>
+     <option value="<?php echo $_GET['minutes']?>" selected><?php echo $_GET['minutes']?></option>
+   <? }  ?>
+      <option value="00">00</option>
+    <option value="30">30</option>
+    </select>
+    <select language="javascript" class="cbotime" id="meredian"  name="meredian">
+     <? if($_GET['meredian']!='')
+    { ?>
+     <option value="<?php echo $_GET['meredian']?>" selected><?php echo $_GET['meredian']?></option>
+   <? }  ?>
+    <option value="AM">AM</option>
+    <option value="PM" >PM</option>
+    </select></td>
+        <td width="17%" valign="top" height="13">
+        <font style="FONT-SIZE: 8pt; FONT-FAMILY: 'MS Sans Serif',Verdana,sans-serif">
+        Priority: </font></td>
+        <td width="40%" valign="top" height="13">
+    <select language="javascript" id="priority" style="font-size: 8pt; width: 150; font-family: 'MS Sans Serif',Verdana,sans-serif; height: 150; background-color: white" name="priority">
+    <option value="High">High</option>
+    <option value="Medium" selected>Medium</option>
+    <option value="Low">Low</option>
+    </select></td>
+      </tr>
+       <tr>
+        <td width="13%" valign="top" height="1">Duration</td>
+        <td width="30%" valign="top" height="1">
+    <select language="javascript" id="duration" style="font-size: 8pt; width: 129; font-family: 'MS Sans Serif',Verdana,sans-serif; height: 129; background-color: white" name="duration">
+    <option value="0">0 minutes</option>
+    <option value="5">5 minutes</option>
+    <option value="10">10 minutes</option>
+    <option value="15" selected>15 minutes</option>
+    <option value="30">30 minutes</option>
+    <option value="45">45 minutes</option>
+    <option value="60">1 hour</option>
+    <option value="120">2 hours</option>
+    <option value="180">3 hours</option>
+    <option value="480">8 hours</option>
+    <option value="1440">1 day</option>
+    <option value="7200">5 days</option>
+    <option value="43200">30 days</option>
+    </select><p>&nbsp;</td>
+
+    <b>
+   </b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top" height="18"><b>Select from List</b> </td>
+        <td width="30%" valign="top" height="18">
+       <? echo getcontactnames("selectwith",$contactid,$agentid) ?>
+
+
+
+    </td>
+        <td width="17%" valign="top" height="18">  </td>
+        <td width="40%" valign="top" height="18"> <b> </b>
+    <b>
+   </b></td>
+      </tr>
+      <tr>
+      
+       <td width="17%" valign="top" height="18">  </td>
+        <td width="40%" valign="top" height="18"> <b>OR </b>
+        <td width="17%" valign="top" height="18">  </td>
+        <td width="40%" valign="top" height="18"> <b> </b>
+    <b>
+   </b></td>
+      </tr>
+       <tr>
+        <td width="13%" valign="top" height="18"><b>Other Contact</b></td>
+        <td width="30%" valign="top" height="18">
+        <input class=text  type=text size=40 name=withcontact >
+
+
+
+    </td>
+        <td width="17%" valign="top" height="18">Associate with Group</td>
+        <td width="40%" valign="top" height="18">
+    <b>
+   <?php echo getgroupnames("groupid",$groupid)?></b></td>
+      </tr>
+      <tr>
+        <td width="13%" valign="top" height="18">Scheduled To</td>
+        <td width="30%" valign="top" height="18">
+    <b>
+     <?php echo getusernames("toid",$userid)?></b></td>
+        <td width="17%" valign="top" height="18">Scheduled From</td>
+        <td width="40%" valign="top" height="18">
+
+    <input class=text  type=hidden name="fromid" value="<?php echo $userid?>">
+    <?php echo $username ?></td>
+      </tr>
+      </table>
+	  <input type=hidden name=userofficeid value="<? echo $agentid?>">
+         <? if ($addrights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add Appointment" >
+      <?}
+      else {?>
+      <input  type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value=" Add Appointment" disabled>
+      <?}?>
+
+	     <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ 
+      </form>
+      
+      </td>
+      </tr>
+      </table>
+    </td>
+  </tr>
+  <? include('footer.html');   ?>

@@ -1,0 +1,403 @@
+<?$today = getdate();
+$month = $today['month'];
+$mday = $today['mday'];
+$year = $today['year'];
+ ?>
+ <?php
+
+  if (isset($HTTP_SESSION_VARS["MM_UserAuthorization1"]))
+{
+$username=$HTTP_SESSION_VARS["MM_Username1"];
+$userid=getuserid($username);
+ $loginstatus="User logged:<font color=darkblue>".$HTTP_SESSION_VARS["MM_Username1"]."</font>";
+}
+if($exchangedate=='')
+{
+$datetoday = date("Y-m-d");
+}
+else
+{
+$datetoday=$exchangedate;
+}
+include('header.html');
+
+?>
+
+<form name=newcompanyform method=post action=index.php>
+<script language=javascript>
+function saveinfo()
+{
+document.newcompanyform.action="index.php?status=<?php echo base64_encode('accounts')?>&action=addnew";
+document.newcompanyform.submit();
+}
+</script>
+<SCRIPT LANGUAGE="JavaScript" SRC="CalendarPopup.js"></SCRIPT>
+<SCRIPT LANGUAGE="JavaScript">document.write(getCalendarStyles());</SCRIPT>
+<script language=javascript>
+var calobject = new CalendarPopup("popup_cal"); 
+calobject.showNavigationDropdowns();
+</script>
+
+<input type=hidden name=status value="<?php echo base64_encode('newcontact')?>">
+ <? include('usersidemenu.html');
+ if($accountsrights!='Y')
+  {  ?>
+  <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Access Denied </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+     <table align=center border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="70%" id="AutoNumber1">
+    <tr>
+      <td width="18%" valign=top>
+      <img border="0" src="images/EXCL.GIF" width="42" height="40"></td>
+      <td width="82%" valign=top >You do not have permissions for this module.<br>
+      Please contact your system administrator for accounts rights</td>
+    </tr>
+
+  </table>
+  </td>
+  </tr>
+  </table>
+ <?
+
+ exit; }
+if(isset($_GET['action'])=="addnew")
+ {
+ addcompanyinfo();
+ }
+ $DISP_REC_COUNT = 20;  // No of rows appearing per page
+ $displayPageNo  = (isset($displayPageNo)) ? $displayPageNo : 1;
+ $dataOrder      = isset($dataOrder)?$dataOrder:"companyname";
+ $sql            = "select companyname,companyaddress,companyemail,emailsubject,emailmessage,phonearea,
+ phoneno,phoneext,regno,vatno,faxarea,faxno,mtstatus from accounts_company ";
+
+ $temp           = $temp."  order by ".$dataOrder;
+
+
+  $sql            = $sql.$temp;
+ // echo $sql;
+
+
+  $Result         = safe_query($sql) ;
+  $noOfRecords    = @mysql_num_rows($Result); // Total no of records returned
+  $noOfPages      = ceil($noOfRecords / $DISP_REC_COUNT); // No of pages based on the total records and page sise
+
+  $TR             = 0;
+  $i              = 0;
+  while ($row = mysql_fetch_array( $Result))
+  {
+  $companyname     = (isset($row['companyname'])) ? $row['companyname'] : "";
+  $exchangerate     = (isset($row['exchangerate'])) ? $row['exchangerate'] : "";
+  $companyaddress     = (isset($row['companyaddress'])) ? $row['companyaddress'] : "";
+  $companyemail     = (isset($row['companyemail'])) ? $row['companyemail'] : "";
+  $phonearea     = (isset($row['phonearea'])) ? $row['phonearea'] : "";
+  $phoneno     = (isset($row['phoneno'])) ? $row['phoneno'] : "";
+  $phoneext     = (isset($row['phoneext'])) ? $row['phoneext'] : "";
+  $faxarea     = (isset($row['faxarea'])) ? $row['faxarea'] : "";
+  $faxno     = (isset($row['faxno'])) ? $row['faxno'] : "";
+  $regno     = (isset($row['regno'])) ? $row['regno'] : "";
+  $vatno     = (isset($row['vatno'])) ? $row['vatno'] : "";
+     $mtstatus     = (isset($row['mtstatus'])) ? $row['mtstatus'] : "";
+  $emailsubject     = (isset($row['emailsubject'])) ? $row['emailsubject'] : "Notification from Company";
+  $emailmessage     = (isset($row['emailmessage'])) ? $row['emailmessage'] : "Dear Valued Client,
+Below you will find your invoice, credit memo, sales receipt, or statement.  If you need to remit payment, please do so at your earliest convenience.
+
+Thank you for your business - we appreciate it very much.
+
+Sincerely,
+company name";
+
+  }
+  
+  $checkdate=dateConvert($datetoday);
+  $sql1            = "select rate1,rate2,rate3,rate4,
+ int1start,int1end,int2start,int2end,int3start,int3end,int4start,int4end,exchangedate from accounts_exchangerate
+ where exchangedate='$checkdate'";
+  $Result1         = safe_query($sql1) ;
+  $noOfRecords    = @mysql_num_rows($Result1); // Total no of records returned
+  if($noOfRecords==0)
+  {
+
+  $sql            = "select rate1,rate2,rate3,rate4,
+ int1start,int1end,int2start,int2end,int3start,int3end,int4start,int4end from accounts_exchangerate order by exchangedate ASC";
+  $Result1         = safe_query($sql) ;
+  }
+
+  while ($row = mysql_fetch_array( $Result1))
+  {
+
+  $int1start1     = (isset($row['int1start'])) ? $row['int1start'] : "0";
+   $int1end1     = (isset($row['int1end'])) ? $row['int1end'] : "0";
+   $int2end1     = (isset($row['int1end'])) ? $row['int2end'] : "0";
+   $int2start1     = (isset($row['int2start'])) ? $row['int2start'] : "0";
+    $int3end1     = (isset($row['int3end'])) ? $row['int3end'] : "0";
+   $int3start1     = (isset($row['int3start'])) ? $row['int3start'] : "0";
+    $int4end1     = (isset($row['int4end'])) ? $row['int4end'] : "0";
+   $int4start1     = (isset($row['int4start'])) ? $row['int4start'] : "0";
+     $rate11     = (isset($row['rate1'])) ? $row['rate1'] : "0";
+      $rate21     = (isset($row['rate2'])) ? $row['rate2'] : "0";
+       $rate31     = (isset($row['rate3'])) ? $row['rate3'] : "0";
+       $rate41     = (isset($row['rate4'])) ? $row['rate4'] : "0";
+        $exchangedate     = (isset($row['exchangedate'])) ? $row['exchangedate'] : $datetoday;
+		$exchangedate=changeddate($exchangedate);
+
+  }
+  ?>
+   <table width="100%"  border="0" cellpadding="3" cellspacing="1" class="tableBorder">
+                    <tr>
+                      <td class="TableHeader">Company Preferences Information </span></td>
+                    </tr>
+                    <tr>
+                      <td class="Row">
+       <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+         <tr>
+           <td width="100%">
+         
+             <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+               <tr>
+                 <td><!--StartFragment--><table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+                   <tr>
+                     <td class="column1" valign="top" width="989" colspan="2">
+                     <b><font size="3">Company Preferences<br>
+&nbsp;</font></b></td>
+                   </tr>
+                   <tr>
+                     <td class="column1" valign="top" width="184"><b>Company name</b> &nbsp; </td>
+                     <td width="805">
+                     <input  size="40"  name="companyname" value="<?php echo $companyname?>">
+                     <br>
+                   
+                       &nbsp;</td>
+                   </tr>
+
+                   <tr>
+                     <td class="column1" valign="top" width="100%" colspan="2">This is your &quot;doing business as&quot; name or &quot;trade name&quot;—how
+                       clients recognize your company. <br>
+                     If you change this, you probably also want to change 
+                       the Title of your invoices and other forms using
+                       
+                       Customize Sales Forms</a> and also change your company 
+                       name in the
+                      
+                       Email message</a> used for forms sent by email. <br><br></td>
+                   </tr>
+<!--
+<tr>
+<td class="column1" colspan=2 valign="top" width="100%"><b>Exchange Rates</b> &nbsp; </td>
+</tr>
+<tr>
+<td class="column1" colspan=2 valign="top" width="100%">
+<table border="0" cellpadding="0" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111" width="60%" id="AutoNumber1" height="90">
+  <tr>
+    <td width="25%" height="22">Date</td>
+    <td width="25%" height="22">
+	<INPUT TYPE="text" readonly NAME="exchangedate" VALUE="<?php echo $exchangedate?>" SIZE=25 readonly></td>
+    <td width="25%" height="22"></td>
+    <td width="25%" height="22"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="22">Interval 1</td>
+    <td width="25%" height="22"><input type=text name=int1start value="<?php echo $int1start1?>" size="10"></td>
+    <td width="25%" height="22"><input type=text name=int1end  value="<?php echo $int1end1?>" size="10"></td>
+    <td width="25%" height="22"><input type=text name=rate1  value="<?php echo $rate11?>"  size="10"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="21">Interval 2</td>
+    <td width="25%" height="21"><input type=text name=int2start  value="<?php echo $int2start1?>"  size="10"></td>
+    <td width="25%" height="21"><input type=text name=int2end  value="<?php echo $int2end1?>"  size="10"></td>
+    <td width="25%" height="21"><input type=text name=rate2  value="<?php echo $rate21?>"  size="10"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="22">Interval 3</td>
+    <td width="25%" height="22"><input type=text name=int3start  value="<?php echo $int3start1?>" size="10"></td>
+    <td width="25%" height="22"><input type=text name=int3end  value="<?php echo $int3end1?>"  size="10"></td>
+    <td width="25%" height="22"><input type=text name=rate3  value="<?php echo $rate31?>" size="10"></td>
+  </tr>
+  <tr>
+    <td width="25%" height="22">Interval 4</td>
+    <td width="25%" height="22"><input type=text name=int4start  value="<?php echo $int4start1?>"  size="10"></td>
+    <td width="25%" height="22"><input type=text name=int4end  value="<?php echo $int4end1?>"  size="10"></td>
+    <td width="25%" height="22"><input type=text name=rate4  value="<?php echo $rate41?>" size="10"></td>
+  </tr>
+</table>
+
+ </td>
+</tr>
+-->
+<tr>
+<td class="column1" valign="top" width="100%" colspan="2">
+                      Thesec rates will be shown for all the clients.If you change this,all the client systems will be changed.
+                        <br><br></td>
+                   </tr>
+                 </table>
+                
+                 <!-- Company Address --><hr class="rule">
+                 <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+                   <tr>
+                     <td width="186"><b>Company address</b>
+                    
+                    </td>
+                     <td width="813">
+                     <textarea name=companyaddress rows="4" cols="60" align=left><?php echo $companyaddress?></textarea></td>
+                   </tr>
+                   </table>
+                
+                 <!-- Email --><hr class="rule">
+                
+                   
+              
+                
+                 <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+                   <tr>
+                     <td class="column1" width="188"><b>Company email address</b></td>
+                     <td width="828">
+                     <input size="53" name="companyemail" value="<?php echo $companyemail?>">
+                    
+                     </td>
+                   </tr>
+                 </table>
+              
+                 <!-- Phone --><hr class="rule">
+                 <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0" height="102">
+                   <tr>
+                     <td width="157" height="32"><b>Company phone number</b>
+                   
+                     <span style="DISPLAY: none">
+                     &nbsp;&nbsp;</span></td>
+                     <td width="80" height="32">
+                         <input maxLength="4" size="10" name="phonearea" value="<?php echo $phonearea?>"><br>
+                     Area code</td>
+                     <td width="194" height="32">
+                         <p align="center">
+                         <input  maxLength="12" size="23" name="phoneno" value="<?php echo $phoneno?>"><br>
+                     Number&nbsp;</td>
+                     <td width="568" height="32">
+                         <input maxLength="3" size="4" name="phoneext" value="<?php echo $phoneext?>"><br>
+                     Extension</td>
+                   </tr>
+                   <td width="157" height="32"><b>Company fax number</b>
+
+                     <span style="DISPLAY: none">
+                     &nbsp;&nbsp;</span></td>
+                     <td width="80" height="32">
+                         <input maxLength="4" size="10" name="faxarea" value="<?php echo $faxarea?>"><br>
+                     Area code</td>
+                     <td width="194" height="32">
+                         <p align="center">
+                         <input  maxLength="12" size="23" name="faxno" value="<?php echo $faxno?>"><br>
+                     Number&nbsp;</td>
+
+                   </tr>
+                   <tr>
+                     <td class="column1" colspan="4" width="999" height="31">This number is displayed on invoices and other forms 
+                       given to clients. <br>
+                       <br>
+                       
+                     </td>
+                   </tr>
+                   <tr>
+                     <td class="column1" colspan="2" width="237" height="13"><b>
+                     Company Registration No:</b></td>
+                     <td class="column1" colspan="2" width="762" height="13">
+                     <input size="53" name="regno" value="<?php echo $regno?>"></td>
+                   </tr>
+                   <tr>
+                     <td class="column1" colspan="2" width="237" height="13">
+                       
+                     </td>
+                     <td class="column1" colspan="2" width="762" height="13">
+                       
+                     </td>
+                   </tr>
+                   <tr>
+                     <td class="column1" colspan="2" width="237" height="13"><b>
+                     Company VAT No:</b></td>
+                     <td class="column1" colspan="2" width="762" height="13">
+                     <input size="53" name="vatno" value="<?php echo $vatno?>"> </td>
+                   </tr>
+                   <tr>
+                     <td class="column1" colspan="2" width="237" height="13">
+                       
+                     </td>
+                     <td class="column1" colspan="2" width="762" height="13">
+                       
+                     </td>
+                   </tr>
+                   </table>
+                 </td>
+               </tr>
+             </table>
+           </div>
+           </td>
+         </tr>
+       </table>
+
+</div>
+   <table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+                   <tr>
+                     <td width="250"><b>Money Transfer Status</B><br>
+                     (Specify the status separated by ;. These status will appear in the order form)</b>
+
+                    </td>
+                     <td width="750">
+                     <textarea name=mtstatus rows="4" cols="60" align=left><?php echo $mtstatus?></textarea></td>
+                   </tr>
+                   </table>
+<table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+  <tr>
+    <td colSpan="2"><b>Email message</b></td>
+  </tr>
+  <tr>
+    <td class="column1">&nbsp;</td>
+    <td>
+    
+      All invoices, credit memos, sales receipts, and statements sent by email 
+      are introduced by the same subject and message, followed by the particular 
+      form you are sending. <br>
+      You can edit the subject and message text below.
+    </td>
+  </tr>
+</table>
+<table width="100%" style="border-collapse: collapse" bordercolor="#111111" cellpadding="0" cellspacing="0">
+  <tr>
+    <td class="column1" align="right" width="185">
+    <p align="left"><b>Subject:</b>&nbsp;</td>
+    <td width="820">
+    <input  style="WIDTH: 350px; HEIGHT: 22px" value="<?php echo $emailsubject?>" name="emailsubject" size="20"></td>
+  </tr>
+  <tr>
+    <td width="185">&nbsp;</td>
+    <td width="820">
+    <div class="help">
+      &nbsp;</div>
+    </td>
+  </tr>
+  <tr>
+    <td class="column1" align="right" width="185" valign="top">
+    <p align="left"><b>Message:</b>&nbsp;</td>
+    <td width="820">
+    <textarea style="WIDTH: 350px; HEIGHT: 172px" name="emailmessage" wrap="virtual" rows="1" cols="20"><?php echo $emailmessage?></textarea></td>
+  </tr>
+</table>
+</span>
+  <br>
+  <? if ($updaterights=='Y')
+    {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  Update Information" >
+      <?}
+      else {?>
+      <input type=button class="btn3" onmouseover="this.className='btn btnhov1'" onmouseout="this.className='btn3'"  onclick="javascript:saveinfo()" name=s1 value="  update Information" disabled>
+      <?}?>
+  </p>
+  </td>
+  </tr>
+  </table>
+     <DIV ID="popup_cal" STYLE="position:absolute;visibility:hidden;background-color:white;layer-background-color:white;"></DIV>
+       
+ </form>
+      </td>
+  </tr>
+ </b>
+ <? include('footer.html');   ?>
